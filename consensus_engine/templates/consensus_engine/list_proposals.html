@@ -1,0 +1,9 @@
+{% if proposals_list %}
+  <ul>
+  {% for proposal in proposals_list %}
+    <li><a href="{% url 'view_proposal' proposal.id %}">{{ proposal.proposal_name}}</a></li>
+  {% endfor %}
+  </ul>
+{% else %}
+  <p>No proposals are available.</p>
+{% endif %}
