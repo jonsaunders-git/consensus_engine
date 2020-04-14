@@ -19,7 +19,7 @@ def view_proposal(request, proposal_id):
     try:
         current_choice = CurrentChoiceTicket.objects.get(user = request.user, proposal = proposal)
     except (KeyError, CurrentChoiceTicket.DoesNotExist):
-        current_choice = none
+        current_choice = None
 
     context = {'proposal' : proposal, 'current_choice' : current_choice}
     return render(request, 'consensus_engine/list_proposal_choices.html', context)
