@@ -1,0 +1,15 @@
+<div>{{ user.get_username }}</div>
+
+
+{% if proposal %}
+  <form action="{% url 'register_vote' proposal.id %}" method="post">
+  {% csrf_token %}
+  {% for choice in proposal.proposalchoice_set.all %}
+      <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+      <label for="choice{{ forloop.counter }}">{{ choice.text }}</label><br>
+  {% endfor %}
+  <input type="submit" value="register_vote">
+  </form>
+{% else %}
+  <p>No proposal choices are available.</p>
+{% endif %}
