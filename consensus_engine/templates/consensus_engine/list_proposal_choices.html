@@ -1,5 +1,10 @@
 <div>{{ user.get_username }}</div>
 
+{% if current_choice %}
+  <p>Current Choice: {{ current_choice.choice_ticket.proposal_choice.text }}</p><br>
+{% else %}
+<p>No current choice </p>
+{% endif %}
 
 {% if proposal %}
   <form action="{% url 'register_vote' proposal.id %}" method="post">

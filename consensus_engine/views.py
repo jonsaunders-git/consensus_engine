@@ -16,7 +16,12 @@ def index(request):
 def view_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)
-    context = {'proposal' : proposal}
+    try:
+        current_choice = CurrentChoiceTicket.objects.get(user = request.user, proposal = proposal)
+    except (KeyError, CurrentChoiceTicket.DoesNotExist):
+        current_choice = none
+
+    context = {'proposal' : proposal, 'current_choice' : current_choice}
     return render(request, 'consensus_engine/list_proposal_choices.html', context)
 
 @login_required
@@ -43,13 +48,13 @@ def register_vote(request, proposal_id):
         ticket = ChoiceTicket(user=request.user, date_chosen=timezone.now(), proposal_choice=selected_choice)
         ticket.save()
 
-        # make an enbtry in the current choice table for easy look up
+        # make an entry in the current choice table for easy look up
         try:
-            currentchoice = CurrentChoiceTicket.objects.get(user = request.user, proposal = proposal)
+            current_choice = CurrentChoiceTicket.objects.get(user = request.user, proposal = proposal)
         except (KeyError, CurrentChoiceTicket.DoesNotExist):
-            currentchoice = CurrentChoiceTicket(user = request.user, proposal = proposal, choice_ticket = ticket)
+            current_choice = CurrentChoiceTicket(user = request.user, proposal = proposal, choice_ticket = ticket)
         else:
-            currentchoice.proposal_choice = ticket
+            current_choice.choice_ticket = ticket
 
-        currentchoice.save()
+        current_choice.save()
         return HttpResponseRedirect(reverse('list_proposals'))
