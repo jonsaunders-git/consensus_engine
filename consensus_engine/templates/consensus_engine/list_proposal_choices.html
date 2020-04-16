@@ -1,3 +1,8 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_content %}
+
 <div>{{ user.get_username }}</div>
 
 {% if current_choice %}
@@ -18,3 +23,5 @@
 {% else %}
   <p>No proposal choices are available.</p>
 {% endif %}
+
+{% endblock %}
