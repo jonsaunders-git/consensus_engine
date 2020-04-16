@@ -3,10 +3,7 @@
 
 {% block page_content %}
 
-<h1>Index Page</h1>
-
 {% if user.is_authenticated %}
-  <div>User: {{ user.get_username }}</div>
 
   <div><a href="{% url 'new_proposal' %}">New Proposal</a></div>
   <div><a href="{% url 'list_proposals' %}">List Proposals</a></div>
