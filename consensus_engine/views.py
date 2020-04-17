@@ -30,7 +30,7 @@ def new_proposal(request):
 
 @login_required
 def list_proposals(request):
-    proposals_list = Proposal.objects.order_by('-date_proposed')[:5]
+    proposals_list = Proposal.objects.order_by('-date_proposed')
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
 
