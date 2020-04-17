@@ -1,27 +1,90 @@
 {% extends "base.html" %}
 {% load static %}
 
+
+
+
 {% block page_content %}
 
-<div>{{ user.get_username }}</div>
+<style type="text/css">
+.list-group-item {
+  user-select: none;
+}
 
-{% if current_choice %}
-  <p>Current Choice: {{ current_choice.choice_ticket.proposal_choice.text }}</p><br>
-{% else %}
-<p>No current choice </p>
-{% endif %}
+.list-group input[type="checkbox"] {
+  display: none;
+}
 
-{% if proposal %}
+.list-group input[type="checkbox"] + .list-group-item {
+  cursor: pointer;
+}
+
+.list-group input[type="checkbox"] + .list-group-item:before {
+  content: "\2713";
+  color: transparent;
+  font-weight: bold;
+  margin-right: 1em;
+}
+
+.list-group input[type="checkbox"]:checked + .list-group-item {
+  background-color: #0275D8;
+  color: #FFF;
+}
+
+.list-group input[type="checkbox"]:checked + .list-group-item:before {
+  color: inherit;
+}
+
+.list-group input[type="radio"] {
+  display: none;
+}
+
+.list-group input[type="radio"] + .list-group-item {
+  cursor: pointer;
+}
+
+.list-group input[type="radio"] + .list-group-item:before {
+  content: "\2022";
+  color: transparent;
+  font-weight: bold;
+  margin-right: 1em;
+}
+
+.list-group input[type="radio"]:checked + .list-group-item {
+  background-color: #0275D8;
+  color: #FFF;
+}
+
+.list-group input[type="radio"]:checked + .list-group-item:before {
+  color: inherit;
+}
+</style>
+
+  {% if proposal %}
+
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+      <h1 class="display-4">{{ proposal.proposal_name }}</h1>
+      <p class="lead">{{ proposal.proposal_caption }}</p>
+    </div>
+  </div>
+
   <form action="{% url 'register_vote' proposal.id %}" method="post">
-  {% csrf_token %}
-  {% for choice in proposal.proposalchoice_set.all %}
-      <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
-      <label for="choice{{ forloop.counter }}">{{ choice.text }}</label><br>
-  {% endfor %}
-  <input type="submit" value="register_vote">
+    {% csrf_token %}
+    <div class="form-group">
+    <div class="list-group">
+    {% for choice in proposal.proposalchoice_set.all %}
+      <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" {% if current_choice.choice_ticket.proposal_choice.id == choice.id %}checked{% endif %}/>
+      <label class="list-group-item" for="choice{{ forloop.counter }}">{{ choice.text }}</label>
+    {% endfor %}
+    </div>
+    </div>
+    <div class="form-group">
+    <input type="submit" class="btn btn-primary" value="Register Vote">
+    </div>
   </form>
-{% else %}
-  <p>No proposal choices are available.</p>
-{% endif %}
+  {% else %}
+      <p>No proposal choices are available.</p>
+  {% endif %}
 
 {% endblock %}

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 class Proposal(models.Model):
     proposal_name = models.CharField(max_length=200)
     date_proposed = models.DateTimeField('date proposed')
+    proposal_caption = models.CharField(max_length=200)
 
 class ProposalChoice(models.Model):
     proposal = models.ForeignKey(Proposal, on_delete=models.CASCADE)

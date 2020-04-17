@@ -1,16 +1,50 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block page_nav %}
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <a class="nav-link active" href="{% url 'list_proposals' %}">
+        <span data-feather="home"></span>
+        All Proposals <span class="sr-only">(current)</span>
+      </a>
+    </li>
+  </ul>
+
+  <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+    <span>Actions</span>
+    <a class="d-flex align-items-center text-muted" href="#">
+      <span data-feather="plus-circle"></span>
+    </a>
+  </h6>
+  <ul class="nav flex-column mb-2">
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'new_proposal' %}">
+        <span data-feather="file-text"></span>
+        New Proposal
+      </a>
+    </li>
+  </ul>
+{% endblock %}
+
 {% block page_content %}
 
-<div>{{ user.get_username }}</div>
-
 {% if proposals_list %}
-  <ul>
+  <div class="card-deck">
+
   {% for proposal in proposals_list %}
-    <li><a href="{% url 'view_proposal' proposal.id %}">{{ proposal.proposal_name}}</a></li>
+  <div class="card" style="width: 18rem;">
+    <div class="card-body">
+      <h5 class="card-title">{{ proposal.proposal_name}}</h5>
+      <p class="card-text">{{ proposal.proposal_caption }}</p>
+    </div>
+    <div class="card-footer text-muted">
+      <a href="{% url 'view_proposal' proposal.id %}" class="btn btn-primary">Vote</a>
+    </div>
+  </div>
   {% endfor %}
-  </ul>
+
+  </div>
 {% else %}
   <p>No proposals are available.</p>
 {% endif %}
