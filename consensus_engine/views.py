@@ -39,22 +39,25 @@ def register_vote(request, proposal_id):
     proposal = get_object_or_404(Proposal, pk=proposal_id)
     try:
         selected_choice = proposal.proposalchoice_set.get(pk=request.POST['choice'])
+        print("Here", selected_choice)
+        vote(request.user, proposal, selected_choice)
     except (KeyError, ProposalChoice.DoesNotExist):
         return render(request, 'consensus_engine/list_proposal_choices.html', {
             'proposal' : proposal,
             'error_message' : "You didn't select a choice.",
         })
+    return HttpResponseRedirect(reverse('list_proposals'))
+
+def vote(user, proposal, selected_choice):
+    ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=selected_choice)
+    ticket.save()
+
+    # make an entry in the current choice table for easy look up
+    try:
+        current_choice = CurrentChoiceTicket.objects.get(user = user, proposal = proposal)
+    except (KeyError, CurrentChoiceTicket.DoesNotExist):
+        current_choice = CurrentChoiceTicket(user = user, proposal = proposal, choice_ticket = ticket)
     else:
-        ticket = ChoiceTicket(user=request.user, date_chosen=timezone.now(), proposal_choice=selected_choice)
-        ticket.save()
+        current_choice.choice_ticket = ticket
 
-        # make an entry in the current choice table for easy look up
-        try:
-            current_choice = CurrentChoiceTicket.objects.get(user = request.user, proposal = proposal)
-        except (KeyError, CurrentChoiceTicket.DoesNotExist):
-            current_choice = CurrentChoiceTicket(user = request.user, proposal = proposal, choice_ticket = ticket)
-        else:
-            current_choice.choice_ticket = ticket
-
-        current_choice.save()
-        return HttpResponseRedirect(reverse('list_proposals'))
+    current_choice.save()
