@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_nav %}
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <a class="nav-link active" href="{% url 'list_proposals' %}">
+        <span data-feather="home"></span>
+        All Proposals
+      </a>
+    </li>
+  </ul>
+
+  <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+    <span>Actions</span>
+    <a class="d-flex align-items-center text-muted" href="#">
+      <span data-feather="plus-circle"></span>
+    </a>
+  </h6>
+  <ul class="nav flex-column mb-2">
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'new_proposal' %}">
+        <span data-feather="file-text"></span>
+        New Proposal
+      </a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block page_content %}
+
+<form action="/proposals/new/" method="post">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="{{ form.proposal_name.id_for_label }}">Proposal Name</label>
+    <input type="text" class="form-control" name="proposal_name" maxlength={{ form.proposal_name.field.max_length }} required id="{{ form.proposal_name.id_for_label }}" aria-describedby="proposalhelp" placeholder="Enter proposal name">
+    <small id="proposalHelp" class="form-text text-muted">Enter your proposal name.</small>
+  </div>
+  <div class="form-group">
+    <label for="{{ form.proposal_caption.id_for_label }}">Proposal Caption</label>
+    <textarea class="form-control" name="proposal_caption" cols="80" rows="5" maxlength={{ form.proposal_caption.field.max_length }} required id="{{ form.proposal_captionm.id_for_label }}"  placeholder="Caption"></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<!--
+<input type="text" name="proposal_name" maxlength="200" required id="id_proposal_name">
+<textarea name="proposal_caption" cols="80" rows="20" maxlength="200" required id="id_proposal_caption">
+-->
+
+{% endblock %}

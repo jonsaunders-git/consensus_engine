@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.urls import reverse
 
 from .models import Proposal, ProposalChoice, ChoiceTicket, CurrentChoiceTicket
+from .forms import ProposalForm
 
 # Create your views here.
 
@@ -22,11 +23,48 @@ def view_proposal(request, proposal_id):
         current_choice = None
 
     context = {'proposal' : proposal, 'current_choice' : current_choice}
+    return render(request, 'consensus_engine/view_proposal.html', context)
+
+
+@login_required
+def vote_proposal(request, proposal_id):
+    # view the proposal choices
+    proposal = get_object_or_404(Proposal, pk=proposal_id)
+    try:
+        current_choice = CurrentChoiceTicket.objects.get(user = request.user, proposal = proposal)
+    except (KeyError, CurrentChoiceTicket.DoesNotExist):
+        current_choice = None
+
+    context = {'proposal' : proposal, 'current_choice' : current_choice}
     return render(request, 'consensus_engine/list_proposal_choices.html', context)
 
 @login_required
 def new_proposal(request):
-    return HttpResponse("You're looking at the enter proposal page.")
+
+     # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = ProposalForm(request.POST)
+
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+
+            # add a date_published
+            obj = form.save(commit=False)
+            obj.date_proposed = timezone.now()
+            obj.save()
+            # redirect to a new URL:
+            return HttpResponseRedirect('/proposals/')
+
+        print('Not valid')
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = ProposalForm(initial={'date_proposed': timezone.now()})
+
+    return render(request, 'consensus_engine/new_proposal.html', {'form': form})
 
 @login_required
 def list_proposals(request):
@@ -39,7 +77,6 @@ def register_vote(request, proposal_id):
     proposal = get_object_or_404(Proposal, pk=proposal_id)
     try:
         selected_choice = proposal.proposalchoice_set.get(pk=request.POST['choice'])
-        print("Here", selected_choice)
         vote(request.user, proposal, selected_choice)
     except (KeyError, ProposalChoice.DoesNotExist):
         return render(request, 'consensus_engine/list_proposal_choices.html', {

@@ -39,7 +39,8 @@
       <p class="card-text">{{ proposal.proposal_caption }}</p>
     </div>
     <div class="card-footer text-muted">
-      <a href="{% url 'view_proposal' proposal.id %}" class="btn btn-primary">Vote</a>
+      <a href="{% url 'vote_proposal' proposal.id %}" class="btn btn-primary">Vote</a>
+      <a href="{% url 'view_proposal' proposal.id %}" class="btn">View</a>
     </div>
   </div>
   {% endfor %}
