@@ -29,7 +29,7 @@
 
 {% block page_content %}
 
-<form action="/proposals/new/" method="post">
+<form action="" method="post">
   {% csrf_token %}
   <div class="form-group">
     <label for="{{ form.proposal_name.id_for_label }}">Proposal Name</label>
@@ -43,9 +43,5 @@
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
-<!--
-<input type="text" name="proposal_name" maxlength="200" required id="id_proposal_name">
-<textarea name="proposal_caption" cols="80" rows="20" maxlength="200" required id="id_proposal_caption">
--->
 
 {% endblock %}

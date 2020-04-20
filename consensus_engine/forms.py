@@ -1,5 +1,5 @@
 from django.forms import ModelForm, Textarea
-from .models import Proposal
+from .models import Proposal, ProposalChoice
 
 class ProposalForm(ModelForm):
     class Meta:
@@ -8,3 +8,8 @@ class ProposalForm(ModelForm):
         widgets = {
             'proposal_caption': Textarea(attrs={'cols': 80, 'rows': 20}),
         }
+
+class ProposalChoiceForm(ModelForm):
+    class Meta:
+        model = ProposalChoice
+        fields = '__all__'
