@@ -8,9 +8,10 @@ urlpatterns = [
     path('proposals/new/', views.new_proposal, name='new_proposal'),
     path('proposals/', views.list_proposals, name='list_proposals'),
     path('proposals/<int:proposal_id>/', views.view_proposal, name='view_proposal'),
-    path('proposals/edit/<int:proposal_id>/', views.edit_proposal, name='edit_proposal'),
-    path('proposals/vote/<int:proposal_id>/', views.vote_proposal, name='vote_proposal'),
+    path('proposals/<int:proposal_id>/edit/', views.edit_proposal, name='edit_proposal'),
+    path('proposals/<int:proposal_id>/vote/', views.vote_proposal, name='vote_proposal'),
     path('proposals/<int:proposal_id>/choice/new/', views.new_choice, name='new_choice'),
+    path('proposals/<int:proposal_id>/choice/edit/<int:choice_id>/', views.edit_choice, name='edit_choice'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('<int:proposal_id>/register_vote/', views.register_vote, name='register_vote'),
 ]

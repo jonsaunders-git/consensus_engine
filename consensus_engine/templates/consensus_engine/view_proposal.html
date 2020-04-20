@@ -55,7 +55,7 @@
               {% for choice in proposal.proposalchoice_set.all %}
               <li class="list-group-item">
                 {{ choice.text }}
-                <a class="btn btn-primary">Edit</a>
+                <a class="btn btn-primary" href="{% url 'edit_choice' proposal.id choice.id %}">Edit</a>
               </li>
               {% endfor %}
             </ul>

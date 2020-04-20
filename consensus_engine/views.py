@@ -30,8 +30,6 @@ def view_proposal(request, proposal_id):
 def edit_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)
-    print("Here")
-    print(proposal_id)
 
      # if this is a POST request we need to process the form data
     if request.method == 'POST':
@@ -49,7 +47,6 @@ def edit_proposal(request, proposal_id):
             # redirect to a new URL:
             return HttpResponseRedirect('/proposals/')
 
-        print('Not valid')
 
     # if a GET (or any other method) we'll create a blank form
     else:
@@ -98,11 +95,12 @@ def new_proposal(request):
 @login_required
 def new_choice(request, proposal_id):
 
+    proposal = get_object_or_404(Proposal, pk=proposal_id)
      # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = ProposalChoiceForm(request.POST)
-
+        form.instance.proposal = proposal
         # check whether it's valid:
         if form.is_valid():
             # process the data in form.cleaned_data as required
@@ -110,13 +108,38 @@ def new_choice(request, proposal_id):
 
             form.save()
             # redirect to a new URL:
-            return HttpResponseRedirect('/proposals/')
+            return HttpResponseRedirect('/proposals/%d/' % proposal_id)
 
     # if a GET (or any other method) we'll create a blank form
     else:
         form = ProposalChoiceForm()
 
     return render(request, 'consensus_engine/new_choice.html', {'form': form, 'proposal_id' : proposal_id})
+
+@login_required
+def edit_choice(request, proposal_id, choice_id):
+
+    choice = get_object_or_404(ProposalChoice, pk=choice_id)
+     # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = ProposalChoiceForm(request.POST, instance=choice)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+
+            form.save()
+            # redirect to a new URL:
+            return HttpResponseRedirect('/proposals/%d/' % proposal_id)
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = ProposalChoiceForm(instance=choice)
+
+    return render(request, 'consensus_engine/edit_choice.html', {'form': form})
+
+
 
 @login_required
 def list_proposals(request):

@@ -12,4 +12,4 @@ class ProposalForm(ModelForm):
 class ProposalChoiceForm(ModelForm):
     class Meta:
         model = ProposalChoice
-        fields = '__all__'
+        fields = ['text', 'priority']
