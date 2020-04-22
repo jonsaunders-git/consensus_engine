@@ -168,6 +168,11 @@ def list_proposals(request):
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
 
+@login_required
+def my_proposals(request):
+    proposals_list = Proposal.objects.owned(request.user)
+    context = {'proposals_list': proposals_list}
+    return render(request, 'consensus_engine/list_proposals.html', context)
 
 @login_required
 def register_vote(request, proposal_id):

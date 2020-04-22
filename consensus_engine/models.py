@@ -6,11 +6,14 @@ from django.contrib.auth.models import User
 class ProposalManager(models.Manager):
     def activated(self):
         return self.get_queryset().filter(proposalchoice__isnull=False,proposalchoice__deactivated_date__isnull=True).distinct()
+    def owned(self, user):
+        return self.get_queryset().filter(owned_by_id=user.id)
 
 class Proposal(models.Model):
     proposal_name = models.CharField(max_length=200)
     date_proposed = models.DateTimeField('date proposed')
     proposal_caption = models.CharField(max_length=200)
+    owned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     # managers
     objects = ProposalManager()
     # properties
