@@ -34,6 +34,12 @@ def edit_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)
 
+    if proposal.owned_by != request.user:
+        return render(request, 'consensus_engine/edit_proposal.html', {
+            'proposal' : proposal,
+            'error_message' : "You don't have permissions to edit."
+        })
+
      # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -88,6 +94,7 @@ def new_proposal(request):
             # add a date_published
             obj = form.save(commit=False)
             obj.date_proposed = timezone.now()
+            obj.owned_by = request.user
             obj.save()
             # redirect to a new URL:
             return HttpResponseRedirect('/proposals/')
@@ -100,6 +107,13 @@ def new_proposal(request):
 @login_required
 def new_choice(request, proposal_id):
     proposal = get_object_or_404(Proposal, pk=proposal_id)
+
+    if proposal.owned_by != request.user:
+        return render(request, 'consensus_engine/new_proposal.html', {
+            'proposal' : proposal,
+            'error_message' : "You don't have permissions to edit."
+        })
+
      # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -124,6 +138,13 @@ def new_choice(request, proposal_id):
 def edit_choice(request, proposal_id, choice_id):
 
     choice = get_object_or_404(ProposalChoice, pk=choice_id)
+
+    if choice.proposal.owned_by != request.user:
+        return render(request, 'consensus_engine/edit_choice.html', {
+            'proposal' : choice.proposal,
+            'error_message' : "You don't have permissions to edit."
+        })
+
      # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -147,6 +168,12 @@ def edit_choice(request, proposal_id, choice_id):
 @login_required
 def delete_choice(request, proposal_id, choice_id):
     choice = get_object_or_404(ProposalChoice, pk=choice_id)
+
+    if choice.proposal.owned_by != request.user:
+        return render(request, 'consensus_engine/delete_proposal.html', {
+            'proposal' : choice.proposal,
+            'error_message' : "You don't have permissions to edit."
+        })
      # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:

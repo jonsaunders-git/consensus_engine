@@ -4,11 +4,15 @@
 
 {% block page_content %}
 
+{% if error_message %}
+You don't have permission to edit the proposal.
+{% else %}
 <form action="" method="post">
   {% csrf_token %}
     Are you sure?
     <button type="submit" name="okay_btn" value="Okay" class="btn btn-primary">Okay</button>
     <button type="submit" name="cancel_btn" value="Cancel" class="btn ">Cancel</button>
 </form>
+{% endif %}
 
 {% endblock %}

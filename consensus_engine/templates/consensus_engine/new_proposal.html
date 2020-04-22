@@ -1,34 +1,12 @@
 {% extends "base_userlayout.html" %}
 {% load static %}
 
-{% block page_nav %}
-  <ul class="nav flex-column">
-    <li class="nav-item">
-      <a class="nav-link active" href="{% url 'list_proposals' %}">
-        <span data-feather="home"></span>
-        All Proposals
-      </a>
-    </li>
-  </ul>
-
-  <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-    <span>Actions</span>
-    <a class="d-flex align-items-center text-muted" href="#">
-      <span data-feather="plus-circle"></span>
-    </a>
-  </h6>
-  <ul class="nav flex-column mb-2">
-    <li class="nav-item">
-      <a class="nav-link" href="{% url 'new_proposal' %}">
-        <span data-feather="file-text"></span>
-        New Proposal
-      </a>
-    </li>
-  </ul>
-{% endblock %}
 
 {% block page_content %}
 
+{% if error_message %}
+You don't have permission to edit the proposal.
+{% else %}
 <form action="/proposals/new/" method="post">
   {% csrf_token %}
   <div class="form-group">
@@ -42,6 +20,7 @@
   </div>
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+{% endif %}
 
 <!--
 <input type="text" name="proposal_name" maxlength="200" required id="id_proposal_name">
