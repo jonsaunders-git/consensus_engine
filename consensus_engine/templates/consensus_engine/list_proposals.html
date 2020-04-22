@@ -36,8 +36,8 @@
 
           <div class="card" style="width: 18rem;">
         <div class="card-body">
-          <h5 class="card-title">{{ proposal.proposal_name}}</h5>
-          <p class="card-text">{{ proposal.proposal_caption }}</p>
+          <h5 class="card-title">{{ proposal.short_name}}</h5>
+          <p class="card-text">{{ proposal.short_caption }}</p>
         </div>
         <div class="card-footer text-muted">
           <a href="{% url 'vote_proposal' proposal.id %}" class="btn btn-primary">Vote</a>

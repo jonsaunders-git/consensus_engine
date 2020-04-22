@@ -7,6 +7,13 @@ class Proposal(models.Model):
     proposal_name = models.CharField(max_length=200)
     date_proposed = models.DateTimeField('date proposed')
     proposal_caption = models.CharField(max_length=200)
+    # properties
+    @property
+    def short_name(self):
+        return (self.proposal_name[:27] + '...') if len(self.proposal_name) > 30 else self.proposal_name
+    @property
+    def short_caption(self):
+        return (self.proposal_caption[:57] + '...') if len(self.proposal_caption) > 60 else self.proposal_caption
 
 
 class ProposalChoiceManager(models.Manager):
