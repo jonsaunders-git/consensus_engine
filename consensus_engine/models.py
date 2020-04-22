@@ -3,10 +3,16 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
+class ProposalManager(models.Manager):
+    def activated(self):
+        return self.get_queryset().filter(proposalchoice__isnull=False,proposalchoice__deactivated_date__isnull=True).distinct()
+
 class Proposal(models.Model):
     proposal_name = models.CharField(max_length=200)
     date_proposed = models.DateTimeField('date proposed')
     proposal_caption = models.CharField(max_length=200)
+    # managers
+    objects = ProposalManager()
     # properties
     @property
     def short_name(self):
@@ -28,7 +34,11 @@ class ProposalChoice(models.Model):
     activated_date = models.DateTimeField('active date', null=True)
     deactivated_date = models.DateTimeField('deactivated date', null=True)
     objects = ProposalChoiceManager()
-
+    # properties
+    @property
+    def current_vote_count(self):
+        # counts all the choice tickets for this choice where it is the current choice ticket
+        return self.choiceticket_set.filter(currentchoiceticket__isnull=False).count()
 
 class ChoiceTicket(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)

@@ -146,7 +146,6 @@ def edit_choice(request, proposal_id, choice_id):
 
 @login_required
 def delete_choice(request, proposal_id, choice_id):
-
     choice = get_object_or_404(ProposalChoice, pk=choice_id)
      # if this is a POST request we need to process the form data
     if request.method == 'POST':
@@ -157,7 +156,6 @@ def delete_choice(request, proposal_id, choice_id):
             # ...
             choice.deactivated_date = timezone.now()
             choice.save()
-
         # redirect to a new URL:
         return HttpResponseRedirect('/proposals/%d/' % proposal_id)
 
@@ -166,7 +164,7 @@ def delete_choice(request, proposal_id, choice_id):
 
 @login_required
 def list_proposals(request):
-    proposals_list = Proposal.objects.order_by('-date_proposed')
+    proposals_list = Proposal.objects.activated()
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
 
