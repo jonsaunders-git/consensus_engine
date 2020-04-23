@@ -20,43 +20,26 @@
 
 {% block page_content %}
 
-{% if proposals_list %}
+{% if proposalgroup_list %}
 
-  {% for proposal in proposals_list %}
+  {% for proposalgroup in proposalgroup_list %}
       {% if forloop.first %}<div class="row"><div class="col"><div class="card-deck mt-2">{% endif %}
 
           <div class="card" style="width: 18rem;">
         <div class="card-body">
-          <h5 class="card-title">{{ proposal.short_name}}</h5>
-          <p class="card-text">{{ proposal.short_caption }}</p>
+          <h5 class="card-title">{{ proposalgroup.group_name}}</h5>
         </div>
         <div class="card-footer text-muted">
-          <a href="{% url 'vote_proposal' proposal.id %}?next={{ request.path|urlencode }}" class="btn btn-primary">Vote</a>
-          <a href="{% url 'view_proposal' proposal.id %}" class="btn">View</a>
+          <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="btn btn-primary">Edit</a>
         </div>
       </div>
       {% if forloop.counter|divisibleby:5 %}</div></div></div><div class="row"><div class="col"><div class="card-deck mt-2">{% endif %}
       {% if forloop.last %}</div>{% endif %}
   {% endfor %}
 
-  <!--div class="card-deck mt-2">
 
-  {% for proposal in proposals_list %}
-  <div class="card" style="width: 18rem;">
-    <div class="card-body">
-      <h5 class="card-title">{{ proposal.proposal_name}}</h5>
-      <p class="card-text">{{ proposal.proposal_caption }}</p>
-    </div>
-    <div class="card-footer text-muted">
-      <a href="{% url 'vote_proposal' proposal.id %}" class="btn btn-primary">Vote</a>
-      <a href="{% url 'view_proposal' proposal.id %}" class="btn">View</a>
-    </div>
-  </div>
-  {% endfor %}
-
-  </div-->
 {% else %}
-  <p>No proposals are available.</p>
+  <p>No proposal groups are available.</p>
 {% endif %}
 
 {% endblock %}

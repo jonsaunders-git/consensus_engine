@@ -1,5 +1,5 @@
 from django.forms import ModelForm, Textarea
-from .models import Proposal, ProposalChoice
+from .models import Proposal, ProposalChoice, ProposalGroup
 
 
 class ProposalForm(ModelForm):
@@ -15,3 +15,8 @@ class ProposalChoiceForm(ModelForm):
     class Meta:
         model = ProposalChoice
         fields = ['text', 'priority']
+
+class ProposalGroupForm(ModelForm):
+    class Meta:
+        model = ProposalGroup
+        fields = '__all__'

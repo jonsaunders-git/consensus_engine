@@ -15,6 +15,9 @@ urlpatterns = [
     path('proposals/<int:proposal_id>/choice/new/', views.new_choice, name='new_choice'),
     path('proposals/<int:proposal_id>/choice/<int:choice_id>/edit/', views.edit_choice, name='edit_choice'),
     path('proposals/<int:proposal_id>/choice/<int:choice_id>/delete/', views.delete_choice, name='delete_choice'),
+    path('proposalgroups/new/', views.new_proposal_group, name='new_proposal_group'),
+    path('proposalgroups/', views.list_proposal_groups, name='list_proposal_groups'),
+    path('proposalgroups/<int:proposal_group_id>/edit/', views.edit_proposal_group, name='edit_proposal_group'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('<int:proposal_id>/register_vote/', views.register_vote, name='register_vote'),
 ]

@@ -1,0 +1,18 @@
+{% extends "base_userlayout.html" %}
+{% load static %}
+
+
+{% block page_content %}
+
+
+{% if error_message %}
+You don't have permission to edit the group.
+{% else %}
+<form action="" method="post">
+  {% csrf_token %}
+  {{ form }}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endif %}
+
+{% endblock %}

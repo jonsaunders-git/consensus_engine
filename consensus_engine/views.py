@@ -5,8 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.urls import reverse
 
-from .models import Proposal, ProposalChoice, ChoiceTicket, CurrentChoiceTicket
-from .forms import ProposalForm, ProposalChoiceForm
+from .models import Proposal, ProposalChoice, ChoiceTicket, CurrentChoiceTicket, ProposalGroup
+from .forms import ProposalForm, ProposalChoiceForm, ProposalGroupForm
 
 # Create your views here.
 
@@ -202,11 +202,13 @@ def my_proposals(request):
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
 
+
 @login_required
 def view_my_votes(request):
     proposals_list = Proposal.objects.myvotes(request.user)
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/view_my_votes.html', context)
+
 
 @login_required
 def register_vote(request, proposal_id):
@@ -222,6 +224,65 @@ def register_vote(request, proposal_id):
     next = request.POST.get('next', '/')
     print(next)
     return HttpResponseRedirect(next)
+
+
+@login_required
+def new_proposal_group(request):
+     # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = ProposalGroupForm(request.POST)
+
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+
+            form.save()
+            # redirect to a new URL:
+        return HttpResponseRedirect('/proposalgroups/')
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = ProposalGroupForm()
+    return render(request, 'consensus_engine/new_proposal_group.html', {'form': form})
+
+
+@login_required
+def list_proposal_groups(request):
+    proposalgroup_list = ProposalGroup.objects.all
+    context = {'proposalgroup_list': proposalgroup_list}
+    return render(request, 'consensus_engine/list_proposal_groups.html', context)
+
+
+@login_required
+def edit_proposal_group(request, proposal_group_id):
+    # view the proposal choices
+    proposal_group = get_object_or_404(ProposalGroup, pk=proposal_group_id)
+
+     # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = ProposalGroupForm(request.POST, instance=proposal_group)
+
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+
+            # add a date_published - really we need to just make a new version...
+
+            form.save()
+            # redirect to a new URL:
+            return HttpResponseRedirect('/proposalgroups/')
+
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = ProposalGroupForm(instance=proposal_group)
+
+    return render(request, 'consensus_engine/edit_proposal_group.html', {'form': form})
+
+
 
 def vote(user, proposal, selected_choice):
     ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=selected_choice)

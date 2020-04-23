@@ -59,3 +59,6 @@ class CurrentChoiceTicket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     proposal = models.ForeignKey(Proposal, on_delete=models.CASCADE)
     choice_ticket = models.ForeignKey(ChoiceTicket, on_delete=models.CASCADE)
+
+class ProposalGroup(models.Model):
+    group_name = models.CharField(max_length=200)
