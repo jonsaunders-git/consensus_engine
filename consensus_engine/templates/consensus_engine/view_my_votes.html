@@ -20,13 +20,13 @@
 
     <li class="list-group-item">
       <div class="row">
-        <div class="col-5">
+        <div class="col">
         {{ proposal.proposal_name}}
         </div>
         <div class="col-5">
           {{ proposal.choice_text }}
         </div>
-        <div class="col-1">
+        <div class="col-0.5">
           <a href="{% url 'vote_proposal' proposal.id %}?next={{ request.path|urlencode }}" class="btn btn-secondary">Change</a>
         </div>
       </div>
