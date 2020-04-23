@@ -71,6 +71,7 @@
     {% csrf_token %}
     <div class="form-group">
     <div class="list-group">
+    <input type="hidden" name="next" value="{{ request.GET.next }}">
     {% for choice in active_choices %}
       <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" {% if current_choice.choice_ticket.proposal_choice.id == choice.id %}checked{% endif %}/>
       <label class="list-group-item" for="choice{{ forloop.counter }}">{{ choice.text }}</label>

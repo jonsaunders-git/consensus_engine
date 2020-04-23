@@ -195,11 +195,18 @@ def list_proposals(request):
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
 
+
 @login_required
 def my_proposals(request):
     proposals_list = Proposal.objects.owned(request.user)
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
+
+@login_required
+def view_my_votes(request):
+    proposals_list = Proposal.objects.myvotes(request.user)
+    context = {'proposals_list': proposals_list}
+    return render(request, 'consensus_engine/view_my_votes.html', context)
 
 @login_required
 def register_vote(request, proposal_id):
@@ -212,8 +219,9 @@ def register_vote(request, proposal_id):
             'proposal' : proposal,
             'error_message' : "You didn't select a choice.",
         })
-    return HttpResponseRedirect(reverse('list_proposals'))
-
+    next = request.POST.get('next', '/')
+    print(next)
+    return HttpResponseRedirect(next)
 
 def vote(user, proposal, selected_choice):
     ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=selected_choice)

@@ -4,14 +4,20 @@
   <ul class="nav flex-column">
     <li class="nav-item">
       <a class="nav-link active" href="{% url 'list_proposals' %}">
-        <span data-feather="home"></span>
+        <span data-feather="layers"></span>
         All Proposals
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link active" href="{% url 'my_proposals' %}">
-        <span data-feather="home"></span>
+        <span data-feather="folder"></span>
         My Proposals
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active" href="{% url 'view_my_votes' %}">
+        <span data-feather="check-square"></span>
+        My Votes
       </a>
     </li>
   </ul>
@@ -23,11 +29,7 @@
     </a>
   </h6>
   <ul class="nav flex-column mb-2">
-    <li class="nav-item">
-      <a class="nav-link" href="{% url 'new_proposal' %}">
-        <span data-feather="file-text"></span>
-        New Proposal
-      </a>
-    </li>
+    {% block child_actions %}
+    {% endblock %}
   </ul>
 {% endblock %}

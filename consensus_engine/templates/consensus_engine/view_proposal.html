@@ -2,6 +2,22 @@
 {% load static %}
 
 
+{% block child_actions %}
+<!-- creates a opportunity for child actions in the menu -->
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'edit_proposal' proposal.id %}"">
+    <span data-feather="file-text"></span>
+    Edit Proposal Details
+  </a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'new_choice' proposal.id %}"">
+    <span data-feather="file-text"></span>
+    New Choice
+  </a>
+</li>
+{% endblock %}
+
 {% block page_content %}
   {% if proposal %}
 
@@ -18,12 +34,6 @@
           </div>
         </div>
 
-        <div class="row ">
-          <div class="col d-flex align-items-end flex-column mt-2">
-            <a href="{% url 'edit_proposal' proposal.id %}" class="btn btn-primary p-2">Edit Proposal Details</a>
-          </div>
-        </div>
-
         <div class="row">
           <div class="col">
             <ul class="list-group">
@@ -36,12 +46,6 @@
               </li>
               {% endfor %}
             </ul>
-        </div>
-      </div>
-
-      <div class="row ">
-        <div class="col d-flex align-items-end flex-column mt-2">
-          <a class="btn btn-primary p-2" href="{% url 'new_choice' proposal.id %}">Add</a>
         </div>
       </div>
 

@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('proposals/new/', views.new_proposal, name='new_proposal'),
     path('proposals/', views.list_proposals, name='list_proposals'),
+    path('votes/owned/', views.view_my_votes, name='view_my_votes'),
     path('proposals/owned/', views.my_proposals, name='my_proposals'),
     path('proposals/<int:proposal_id>/', views.view_proposal, name='view_proposal'),
     path('proposals/<int:proposal_id>/edit/', views.edit_proposal, name='edit_proposal'),

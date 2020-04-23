@@ -8,6 +8,12 @@ class ProposalManager(models.Manager):
         return self.get_queryset().filter(proposalchoice__isnull=False,proposalchoice__deactivated_date__isnull=True).distinct()
     def owned(self, user):
         return self.get_queryset().filter(owned_by_id=user.id)
+    def myvotes(self, user):
+        # work down the relationships to only get the chocie name of the one selected by the user - rename the field using the F method
+        return self.get_queryset().filter(currentchoiceticket__user_id=user.id)\
+            .exclude(proposalchoice__deactivated_date__isnull=False)\
+            .annotate(choice_text=models.F('currentchoiceticket__choice_ticket__proposal_choice__text'))\
+            .values('id','proposal_name','choice_text')
 
 class Proposal(models.Model):
     proposal_name = models.CharField(max_length=200)

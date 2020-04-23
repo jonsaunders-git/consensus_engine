@@ -1,0 +1,41 @@
+{% extends "base_userlayout.html" %}
+{% load static %}
+
+
+{% block child_actions %}
+<!-- creates a opportunity for child actions in the menu -->
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'new_proposal' %}">
+      <span data-feather="file-text"></span>
+      New Proposal
+    </a>
+  </li>
+{% endblock %}
+
+{% block page_content %}
+
+{% if proposals_list %}
+<ul class="list-group mt-2">
+  {% for proposal in proposals_list %}
+
+    <li class="list-group-item">
+      <div class="row">
+        <div class="col-5">
+        {{ proposal.proposal_name}}
+        </div>
+        <div class="col-5">
+          {{ proposal.choice_text }}
+        </div>
+        <div class="col-1">
+          <a href="{% url 'vote_proposal' proposal.id %}?next={{ request.path|urlencode }}" class="btn btn-secondary">Change</a>
+        </div>
+      </div>
+    </li>
+  {% endfor %}
+</ul>
+
+{% else %}
+  <p>No proposals are available.</p>
+{% endif %}
+
+{% endblock %}
