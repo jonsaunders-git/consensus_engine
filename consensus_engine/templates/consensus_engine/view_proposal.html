@@ -7,13 +7,19 @@
 <li class="nav-item">
   <a class="nav-link" href="{% url 'edit_proposal' proposal.id %}"">
     <span data-feather="file-text"></span>
-    Edit Proposal Details
+    Edit Details
   </a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="{% url 'new_choice' proposal.id %}"">
     <span data-feather="file-text"></span>
     New Choice
+  </a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'assign_proposals_group' proposal.id %}"">
+    <span data-feather="file-text"></span>
+    Add to Group
   </a>
 </li>
 {% endblock %}

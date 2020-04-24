@@ -31,6 +31,7 @@
         </div>
         <div class="card-footer text-muted">
           <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="btn btn-primary">Edit</a>
+          <a href="{% url 'group_proposals' proposalgroup.id %}" class="btn btn-primary">Proposals</a>
         </div>
       </div>
       {% if forloop.counter|divisibleby:5 %}</div></div></div><div class="row"><div class="col"><div class="card-deck mt-2">{% endif %}

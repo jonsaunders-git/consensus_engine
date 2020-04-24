@@ -65,6 +65,33 @@ def edit_proposal(request, proposal_id):
 
 
 @login_required
+def assign_proposals_group(request, proposal_id):
+    proposal = get_object_or_404(Proposal, pk=proposal_id)
+
+    if proposal.owned_by != request.user:
+        return render(request, 'consensus_engine/edit_proposal.html', {
+            'proposal' : proposal,
+            'error_message' : "You don't have permissions to edit."
+        })
+
+    if request.method == 'POST':
+        try:
+            selected_group = ProposalGroup.objects.get(pk=request.POST['proposal_group'])
+            proposal.proposal_group = selected_group
+            proposal.save()
+        except (KeyError, ProposalGroup.DoesNotExist):
+            return render(request, 'consensus_engine/assign_proposals_group.html', {
+                'proposal' : proposal,
+                'error_message' : "You didn't select a choice.",
+            })
+
+        return HttpResponseRedirect('/proposals/')
+    proposalgroup_list = ProposalGroup.objects.all
+    context = {'proposalgroup_list': proposalgroup_list}
+    return render(request, 'consensus_engine/assign_proposals_group.html', context)
+
+
+@login_required
 def vote_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)
@@ -202,6 +229,12 @@ def my_proposals(request):
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
 
+@login_required
+def group_proposals(request, proposal_group_id):
+    proposal_group = get_object_or_404(ProposalGroup, pk=proposal_group_id)
+    proposals_list = Proposal.objects.in_group(proposal_group)
+    context = {'proposals_list': proposals_list}
+    return render(request, 'consensus_engine/list_proposals.html', context)
 
 @login_required
 def view_my_votes(request):
@@ -237,8 +270,10 @@ def new_proposal_group(request):
         if form.is_valid():
             # process the data in form.cleaned_data as required
             # ...
-
-            form.save()
+            # add a date_published
+            obj = form.save(commit=False)
+            obj.owned_by = request.user
+            obj.save()
             # redirect to a new URL:
         return HttpResponseRedirect('/proposalgroups/')
     # if a GET (or any other method) we'll create a blank form
@@ -253,6 +288,11 @@ def list_proposal_groups(request):
     context = {'proposalgroup_list': proposalgroup_list}
     return render(request, 'consensus_engine/list_proposal_groups.html', context)
 
+@login_required
+def my_proposal_groups(request):
+    proposalgroup_list = ProposalGroup.objects.owned(request.user)
+    context = {'proposalgroup_list': proposalgroup_list}
+    return render(request, 'consensus_engine/list_proposal_groups.html', context)
 
 @login_required
 def edit_proposal_group(request, proposal_group_id):
@@ -270,11 +310,9 @@ def edit_proposal_group(request, proposal_group_id):
             # ...
 
             # add a date_published - really we need to just make a new version...
-
             form.save()
             # redirect to a new URL:
             return HttpResponseRedirect('/proposalgroups/')
-
 
     # if a GET (or any other method) we'll create a blank form
     else:

@@ -1,0 +1,25 @@
+{% extends "base_userlayout.html" %}
+{% load static %}
+
+
+{% block child_actions %}
+<!-- creates a opportunity for child actions in the menu -->
+
+{% endblock %}
+
+{% block page_content %}
+
+{% if proposalgroup_list %}
+  <form action="" method="POST">
+      {% csrf_token %}
+      {% for proposalgroup in proposalgroup_list %}
+      <input type="radio" id="{{ proposalgroup.id }}" name="proposal_group" value="{{ proposalgroup.id }}">
+      <label for="{{ proposalgroup.id }}">{{ proposalgroup.group_name}}</label><br>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+{% else %}
+  <p>No proposal groups are available.</p>
+{% endif %}
+
+{% endblock %}
