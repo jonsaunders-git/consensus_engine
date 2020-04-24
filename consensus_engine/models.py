@@ -7,6 +7,7 @@ class ProposalGroupManager(models.Manager):
     def owned(self, user):
         return self.get_queryset().filter(owned_by_id=user.id)
 
+
 class ProposalGroup(models.Model):
     group_name = models.CharField(max_length=200)
     owned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
