@@ -13,6 +13,11 @@ class ProposalGroup(models.Model):
     owned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     # managers
     objects = ProposalGroupManager()
+    # properties
+    @property
+    def short_name(self):
+        return (self.group_name[:26] + '..') if len(self.group_name) > 28 else self.group_name
+
 
 
 class ProposalManager(models.Manager):

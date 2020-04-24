@@ -1,0 +1,5 @@
+{% for group in visible_groups %}
+    <li>
+      <a href="{% url 'group_proposals' group.id %}"><span data-feather="minus"></span>{{ group.short_name }}</a>
+    </li>
+{% endfor %}
