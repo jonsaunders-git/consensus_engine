@@ -1,4 +1,4 @@
-{% extends "base_userlayout.html" %}
+{% extends "consensus_engine/base_userlayout.html" %}
 {% load static %}
 
 
@@ -18,12 +18,19 @@
   </li>
 {% endblock %}
 
+{% block toolbar %}
+<nav class="navbar navbar-light bg-light justify-content-between">
+  <a class="navbar-brand">Navbar</a>
+  <a class="btn btn-outline-success my-2 my-sm-0">New</a>
+</nav>
+{% endblock %}
+
 {% block page_content %}
 
 {% if proposalgroup_list %}
 
   {% for proposalgroup in proposalgroup_list %}
-      {% if forloop.first %}<div class="row"><div class="col"><div class="card-deck mt-2">{% endif %}
+      {% if forloop.first %}<div class="row px-2"><div class="col"><div class="card-deck mt-2">{% endif %}
 
           <div class="card" style="width: 18rem;">
         <div class="card-body">
@@ -34,7 +41,7 @@
           <a href="{% url 'group_proposals' proposalgroup.id %}" class="btn btn-primary">Proposals</a>
         </div>
       </div>
-      {% if forloop.counter|divisibleby:5 %}</div></div></div><div class="row"><div class="col"><div class="card-deck mt-2">{% endif %}
+      {% if forloop.counter|divisibleby:5 %}</div></div></div><div class="row px-2"><div class="col"><div class="card-deck mt-2">{% endif %}
       {% if forloop.last %}</div>{% endif %}
   {% endfor %}
 
