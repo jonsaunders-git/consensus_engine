@@ -1,51 +1,81 @@
 {% extends "base.html" %}
 {% load proposaltags %}
 
-{% block page_nav %}
+
+{% block app_page %}
+
+<div class="container-fluid">
+
+<div class="row">
+
+  <div class="col-md-2">
+    <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+      <div class="sidebar-sticky">
+        {% block page_nav %}
 
 
-  <h6 class="sidebar-heading d-flex mt-4 mb-1 text-muted">
-    <a class="nav-link active" href="{% url 'list_proposal_groups' %}"><span>Groups</span></a>
-    <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal_group' %}">
-      <span data-feather="plus-circle"></span>
-    </a>
-  </h6>
-  <ul class="nav flex-column">
-    <li class="nav-item">
-      <ul class=" list-unstyled ml-4" id="homeSubmenu">
-          {% visible_groups request.user %}
-      </ul>
-  </ul>
+          <h6 class="sidebar-heading d-flex mt-4 mb-1 text-muted">
+            <a class="nav-link active" href="{% url 'list_proposal_groups' %}"><span>Groups</span></a>
+            <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal_group' %}">
+              <span data-feather="plus-circle"></span>
+            </a>
+          </h6>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <ul class=" list-unstyled ml-4" id="homeSubmenu">
+                  {% visible_groups request.user %}
+              </ul>
+          </ul>
 
-  <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-    <span>Shortcuts</span>
-  </h6>
+          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Shortcuts</span>
+          </h6>
 
-  <ul class="nav flex-column">
+          <ul class="nav flex-column">
 
-    <li class="nav-item d-flex">
-      <a class="nav-link active" href="{% url 'my_proposals' %}">
-        <span data-feather="folder"></span>
-        My Proposals
-      </a>
-      <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal' %}">
-        <span data-feather="plus-circle"></span>
-      </a>
-    </li>
+            <li class="nav-item d-flex">
+              <a class="nav-link active" href="{% url 'my_proposals' %}">
+                <span data-feather="folder"></span>
+                My Proposals
+              </a>
+              <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal' %}">
+                <span data-feather="plus-circle"></span>
+              </a>
+            </li>
 
-    <li class="nav-item">
-      <a class="nav-link active" href="{% url 'view_my_votes' %}">
-        <span data-feather="check-square"></span>
-        My Votes
-      </a>
-    </li>
-  </ul>
+            <li class="nav-item">
+              <a class="nav-link active" href="{% url 'view_my_votes' %}">
+                <span data-feather="check-square"></span>
+                My Votes
+              </a>
+            </li>
+          </ul>
 
-  <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-    <span>Actions</span>
-  </h6>
-  <ul class="nav flex-column mb-2">
-    {% block child_actions %}
-    {% endblock %}
-  </ul>
+          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Actions</span>
+          </h6>
+          <ul class="nav flex-column mb-2">
+            {% block child_actions %}
+            {% endblock %}
+          </ul>
+        {% endblock %}
+
+      </div>
+    </nav>
+  </div>
+
+  <div class="col px-0">
+    <main role="main" class="">
+          <div class="container-fluid px-0">
+            {% block toolbar %}{% endblock %}
+          </div>
+          <div class="container-fluid">
+          {% block page_content %}
+          {% endblock %}
+        </div>
+    </main>
+  </div>
+
+</div>
+
 {% endblock %}

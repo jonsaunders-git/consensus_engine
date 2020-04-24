@@ -46,38 +46,30 @@
           </nav>
         </header>
 
+        <div class="container-fluid">
+
         <!-- Begin page content -->
-
-      <div class="container-fluid">
-
-        <div class="row">
-
-          <div class="col-md-2">
-            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-              <div class="sidebar-sticky">
-                  {% block page_nav %}{% endblock %}
-              </div>
-            </nav>
-          </div>
-
-          <div class="col px-0">
-            <main role="main" class="">
-                  <div class="container-fluid px-0">
-                    {% block toolbar %}{% endblock %}
-                  </div>
-                  <div class="container-fluid">
-                  {% block page_content %}
-                  {% endblock %}
+        {% block app_page %}
+        <div class="col px-0">
+          <main role="main" class="">
+                <div class="container-fluid px-0">
+                  {% block toolbar %}{% endblock %}
                 </div>
-            </main>
-          </div>
-
+                <div class="container-fluid">
+                {% block page_content %}
+                {% endblock %}
+              </div>
+          </main>
         </div>
-
+        {% endblock %}
 
         <div class="row justify-content-start">
           <footer class="footer">
+            {% if user.get_username != '' %}
               <span class="text-muted ml-2">Logged in as {{ user.get_username }}. Log in as <a href="{% url 'logout'%}?next={{request.path}}">another user?</a></span>
+            {% else %}
+              <span class="text-muted ml-2">Please log in.</span>
+            {% endif %}
           </footer>
         </div>
 
