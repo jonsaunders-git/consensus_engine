@@ -5,9 +5,9 @@ from .models import Proposal, ProposalChoice, ProposalGroup
 class ProposalForm(ModelForm):
     class Meta:
         model = Proposal
-        fields = ['proposal_name', 'proposal_caption']
+        fields = ['proposal_name', 'proposal_description']
         widgets = {
-            'proposal_caption': Textarea(attrs={'cols': 80, 'rows': 20}),
+            'proposal_description': Textarea(attrs={'cols': 80, 'rows': 20}),
         }
 
 
