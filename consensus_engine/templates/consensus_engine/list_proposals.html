@@ -56,7 +56,24 @@
 
   </div-->
 {% else %}
-  <p>No proposals are available.</p>
+<div class="row mt-4">
+  <div class="col-md-1"></div>
+  <div class="col">
+    <div class="row mt-2 ml-1 mr-1 px-2 py-2">
+      <div class="w-100 mb-4">
+        <h2>No proposals are available in this group.</h2>
+      </div>
+      <div>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
+      </div>
+      <div class="mt-2 w-100 p-4 rounded bg-light border">
+        <p>Why don't you add one...</p>
+        <a href="{% url 'new_proposal' %}" class="btn btn-primary">Add Proposal</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-1"></div>
+</div>
 {% endif %}
 
 {% endblock %}

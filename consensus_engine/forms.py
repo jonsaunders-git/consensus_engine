@@ -19,4 +19,4 @@ class ProposalChoiceForm(ModelForm):
 class ProposalGroupForm(ModelForm):
     class Meta:
         model = ProposalGroup
-        fields = ['group_name']
+        fields = ['group_name', 'group_description']

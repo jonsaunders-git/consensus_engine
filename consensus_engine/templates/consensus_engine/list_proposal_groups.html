@@ -19,10 +19,6 @@
 {% endblock %}
 
 {% block toolbar %}
-<nav class="navbar navbar-light bg-light justify-content-between">
-  <a class="navbar-brand">Proposal Groups</a>
-  <a class="btn btn-outline-success my-2 my-sm-0">New</a>
-</nav>
 {% endblock %}
 
 {% block page_content %}
@@ -45,9 +41,26 @@
       {% if forloop.last %}</div>{% endif %}
   {% endfor %}
 
-
 {% else %}
-  <p>No proposal groups are available.</p>
+  <div class="row mt-4">
+    <div class="col-md-1"></div>
+    <div class="col">
+      <div class="row mt-2 ml-1 mr-1 px-2 py-2">
+        <div class="w-100 mb-4">
+          <h2>No proposal groups are available.</h2>
+        </div>
+        <div>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
+        </div>
+        <div class="mt-2 w-100 p-4 rounded bg-light border">
+          <p>Why don't you add one...</p>
+          <a href="{% url 'new_proposal_group' %}" class="btn btn-primary">Add Group</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-1"></div>
+  </div>
+
 {% endif %}
 
 {% endblock %}
