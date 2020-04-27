@@ -2,6 +2,9 @@
 {% load static %}
 
 <html lang="en">
+
+
+
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -14,10 +17,16 @@
     <link href="{% static 'consensus_engine/sticky-footer-navbar.css' %}" rel="stylesheet">
     <link href="{% static 'consensus_engine/dashboard.css' %}" rel="stylesheet">
 
+    <style type="text/css">
+    html,body {
+      height: 100%;
+    }
+    </style>
+
     <title>Consensus Engine</title>
   </head>
       <body>
-
+  <div class="h-100">
         <header>
 
           <nav class="navbar navbar-expand-md navbar-dark sticky-top bg-dark">
@@ -46,16 +55,14 @@
           </nav>
         </header>
 
-        <div class="container-fluid">
-
         <!-- Begin page content -->
         {% block app_page %}
         <div class="col px-0">
-          <main role="main" class="">
+          <main role="main" >
                 <div class="container-fluid px-0">
                   {% block toolbar %}{% endblock %}
                 </div>
-                <div class="container-fluid">
+                <div class="container-fluid h-100">
                 {% block page_content %}
                 {% endblock %}
               </div>
@@ -73,8 +80,6 @@
           </footer>
         </div>
 
-      </div>
-
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -87,5 +92,6 @@
           feather.replace()
         </script>
 
+</div>
     </body>
     </html>

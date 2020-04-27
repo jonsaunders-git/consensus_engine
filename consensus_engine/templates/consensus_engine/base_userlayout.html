@@ -4,14 +4,12 @@
 
 {% block app_page %}
 
-
 <div class="row">
 
   <div class="col-md-2">
     <nav class="col-md-2 d-none d-md-block bg-light sidebar">
       <div class="sidebar-sticky">
         {% block page_nav %}
-
 
           <h6 class="sidebar-heading d-flex mt-4 mb-1 text-muted">
             <a class="nav-link active" href="{% url 'list_proposal_groups' %}"><span>Groups</span></a>
@@ -64,11 +62,11 @@
   </div>
 
   <div class="col px-0">
-    <main role="main" class="">
+    <main role="main" class="h-100">
           <div class="container-fluid px-0">
             {% block toolbar %}{% endblock %}
           </div>
-          <div class="container-fluid">
+          <div class="container-fluid h-100">
           {% block page_content %}
           {% endblock %}
         </div>
