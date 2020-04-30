@@ -33,7 +33,7 @@
             <li class="nav-item d-flex">
               <a class="nav-link active" href="{% url 'my_proposals' %}">
                 <span data-feather="folder"></span>
-                My Proposals
+                <span>My Proposals</span>
               </a>
               <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal' %}">
                 <span data-feather="plus-circle"></span>
@@ -52,8 +52,8 @@
             <span>Actions</span>
           </h6>
           <ul class="nav flex-column mb-2">
-            {% block child_actions %}
-            {% endblock %}
+            <!--{% block child_actions %}
+            {% endblock %}-->
           </ul>
         {% endblock %}
 

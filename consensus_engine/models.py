@@ -22,12 +22,18 @@ class ProposalGroup(models.Model):
 
 
 class ProposalManager(models.Manager):
-    def activated(self):
-        return self.get_queryset().filter(proposalchoice__isnull=False,proposalchoice__deactivated_date__isnull=True).distinct()
+    def activated(self, user):
+        return self.get_queryset().filter(proposalchoice__isnull=False,proposalchoice__deactivated_date__isnull=True, currentchoiceticket__user_id=user.id).distinct()\
+            .annotate(choice_text=models.F('currentchoiceticket__choice_ticket__proposal_choice__text'))\
+            .values('id','proposal_name', 'proposal_description', 'choice_text')
     def owned(self, user):
-        return self.get_queryset().filter(owned_by_id=user.id)
+        return self.get_queryset().filter(owned_by_id=user.id)\
+            .annotate(choice_text=models.F('currentchoiceticket__choice_ticket__proposal_choice__text'))\
+            .values('id','proposal_name', 'proposal_description', 'choice_text')
     def in_group(self, group):
-        return self.get_queryset().filter(proposal_group__id=group.id)
+        return self.get_queryset().filter(proposal_group__id=group.id)\
+            .annotate(choice_text=models.F('currentchoiceticket__choice_ticket__proposal_choice__text'))\
+            .values('id','proposal_name', 'proposal_description', 'choice_text')
     def myvotes(self, user):
         # work down the relationships to only get the chocie name of the one selected by the user - rename the field using the F method
         return self.get_queryset().filter(currentchoiceticket__user_id=user.id)\

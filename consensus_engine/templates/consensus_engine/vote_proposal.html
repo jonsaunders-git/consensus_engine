@@ -2,20 +2,35 @@
 {% load static %}
 
 {% block dialog_descriptor %}
-<h2>Edit a group's detail</h2>
+
+{% if proposal %}
+
+<h2>{{ proposal.proposal_name }}</h2>
+<div>{{ proposal.proposal_description }}</div>
 <div>
   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
 </div>
+
+{% endif %}
+
 {% endblock %}
 
 {% block form_fields %}
-<div class="form-group">
-  <label for="{{ form.group_name.id_for_label }}">Group Name</label>
-  <input type="text" class="form-control" name="group_name" maxlength={{ form.group_name.field.max_length }} required id="{{ form.group_name.id_for_label }}" value="{{ form.group_name.value}}" aria-describedby="groupHelp" placeholder="Enter group name">
-  <small id="groupHelp" class="form-text text-muted text-right">Max 30 chars.</small>
-</div>
-<div class="form-group">
-  <label for="{{ form.group_description.id_for_label }}">Group Description</label>
-  <textarea class="form-control" name="group_description" cols="80" rows="5" maxlength={{ form.group_description.field.max_length }} required id="{{ form.group_description.id_for_label }}" value="{{ form.proposal_description.value}}"  placeholder="Please enter more details about the group."></textarea>
-</div>
+
+{% if proposal %}
+
+  {% csrf_token %}
+  <div class="form-group">
+  <div class="list-group">
+  <input type="hidden" name="next" value="{{ request.GET.next }}">
+  {% for choice in active_choices %}
+    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" {% if current_choice.choice_ticket.proposal_choice.id == choice.id %}checked{% endif %}/>
+    <label class="list-group-item" for="choice{{ forloop.counter }}">{{ choice.text }}</label>
+  {% endfor %}
+  </div>
+  </div>
+{% else %}
+    <p>No proposal choices are available.</p>
+{% endif %}
+
 {% endblock %}

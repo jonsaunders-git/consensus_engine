@@ -95,6 +95,20 @@ def assign_proposals_group(request, proposal_id):
 def vote_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)
+
+    if request.method == 'POST':
+        try:
+            selected_choice = proposal.proposalchoice_set.get(pk=request.POST['choice'])
+            vote(request.user, proposal, selected_choice)
+        except (KeyError, ProposalChoice.DoesNotExist):
+            return render(request, 'consensus_engine/vote_proposal.html', {
+                'proposal' : proposal,
+                'error_message' : "You didn't select a choice.",
+            })
+        next = request.POST.get('next', '/')
+        print(next)
+        return HttpResponseRedirect(next)
+
     try:
         current_choice = CurrentChoiceTicket.objects.get(user = request.user, proposal = proposal)
     except (KeyError, CurrentChoiceTicket.DoesNotExist):
@@ -103,11 +117,15 @@ def vote_proposal(request, proposal_id):
     active_choices = proposal.proposalchoice_set.activated()
 
     context = {'proposal' : proposal, 'current_choice' : current_choice, 'active_choices' : active_choices }
-    return render(request, 'consensus_engine/list_proposal_choices.html', context)
+    return render(request, 'consensus_engine/vote_proposal.html', context)
 
 
 @login_required
 def new_proposal(request):
+
+    # get the proposal group - need to make is so that the default group
+    #proposal_group = get_object_or_404(ProposalGroup, pk=proposal_group_id)
+
      # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -128,6 +146,36 @@ def new_proposal(request):
     # if a GET (or any other method) we'll create a blank form
     else:
         form = ProposalForm(initial={'date_proposed': timezone.now()})
+    return render(request, 'consensus_engine/new_proposal.html', {'form': form})
+
+
+@login_required
+def new_proposal_in_group(request, proposal_group_id):
+
+    # get the proposal group - need to make is so that the default group
+    proposal_group = get_object_or_404(ProposalGroup, pk=proposal_group_id)
+
+     # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = ProposalForm(request.POST)
+
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+
+            # add a date_published
+            obj = form.save(commit=False)
+            obj.date_proposed = timezone.now()
+            obj.owned_by = request.user
+            obj.proposal_group = proposal_group
+            obj.save()
+            # redirect to a new URL:
+            return HttpResponseRedirect('/proposals/')
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = ProposalForm(initial={ 'date_proposed': timezone.now()})
     return render(request, 'consensus_engine/new_proposal.html', {'form': form})
 
 
@@ -218,7 +266,7 @@ def delete_choice(request, proposal_id, choice_id):
 
 @login_required
 def list_proposals(request):
-    proposals_list = Proposal.objects.activated()
+    proposals_list = Proposal.objects.activated(request.user)
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
 
@@ -233,7 +281,7 @@ def my_proposals(request):
 def group_proposals(request, proposal_group_id):
     proposal_group = get_object_or_404(ProposalGroup, pk=proposal_group_id)
     proposals_list = Proposal.objects.in_group(proposal_group)
-    context = {'proposals_list': proposals_list}
+    context = {'proposals_list': proposals_list, 'proposal_group': proposal_group }
     return render(request, 'consensus_engine/list_proposals.html', context)
 
 @login_required
@@ -241,23 +289,6 @@ def view_my_votes(request):
     proposals_list = Proposal.objects.myvotes(request.user)
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/view_my_votes.html', context)
-
-
-@login_required
-def register_vote(request, proposal_id):
-    proposal = get_object_or_404(Proposal, pk=proposal_id)
-    try:
-        selected_choice = proposal.proposalchoice_set.get(pk=request.POST['choice'])
-        vote(request.user, proposal, selected_choice)
-    except (KeyError, ProposalChoice.DoesNotExist):
-        return render(request, 'consensus_engine/list_proposal_choices.html', {
-            'proposal' : proposal,
-            'error_message' : "You didn't select a choice.",
-        })
-    next = request.POST.get('next', '/')
-    print(next)
-    return HttpResponseRedirect(next)
-
 
 @login_required
 def new_proposal_group(request):

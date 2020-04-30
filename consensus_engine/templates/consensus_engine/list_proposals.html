@@ -27,8 +27,9 @@
 
           <div class="card" style="width: 18rem;">
         <div class="card-body">
-          <h5 class="card-title">{{ proposal.short_name}}</h5>
-          <p class="card-text">{{ proposal.short_caption }}</p>
+          <h5 class="card-title">{{ proposal.proposal_name}}</h5>
+          <p class="card-text">{{ proposal.proposal_description }}</p>
+          <p class="card-text">My Vote: {{ proposal.choice_text }}</p>
         </div>
         <div class="card-footer text-muted">
           <a href="{% url 'vote_proposal' proposal.id %}?next={{ request.path|urlencode }}" class="btn btn-primary">Vote</a>
@@ -39,22 +40,6 @@
       {% if forloop.last %}</div>{% endif %}
   {% endfor %}
 
-  <!--div class="card-deck mt-2">
-
-  {% for proposal in proposals_list %}
-  <div class="card" style="width: 18rem;">
-    <div class="card-body">
-      <h5 class="card-title">{{ proposal.proposal_name}}</h5>
-      <p class="card-text">{{ proposal.proposal_caption }}</p>
-    </div>
-    <div class="card-footer text-muted">
-      <a href="{% url 'vote_proposal' proposal.id %}" class="btn btn-primary">Vote</a>
-      <a href="{% url 'view_proposal' proposal.id %}" class="btn">View</a>
-    </div>
-  </div>
-  {% endfor %}
-
-  </div-->
 {% else %}
 <div class="row mt-4">
   <div class="col-md-1"></div>
@@ -68,7 +53,7 @@
       </div>
       <div class="mt-2 w-100 p-4 rounded bg-light border">
         <p>Why don't you add one...</p>
-        <a href="{% url 'new_proposal' %}" class="btn btn-primary">Add Proposal</a>
+        <a href="{% url 'new_proposal_in_group' proposal_group.id %}" class="btn btn-primary">Add Proposal</a>
       </div>
     </div>
   </div>
