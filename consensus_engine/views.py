@@ -170,6 +170,7 @@ def new_proposal_in_group(request, proposal_group_id):
             obj.date_proposed = timezone.now()
             obj.owned_by = request.user
             obj.proposal_group = proposal_group
+            print(proposal_group)
             obj.save()
             # redirect to a new URL:
             return HttpResponseRedirect('/proposals/')
@@ -267,6 +268,13 @@ def delete_choice(request, proposal_id, choice_id):
 @login_required
 def list_proposals(request):
     proposals_list = Proposal.objects.activated(request.user)
+    context = {'proposals_list': proposals_list}
+    return render(request, 'consensus_engine/list_proposals.html', context)
+
+@login_required
+def list_proposals_in_group(request, proposal_group_id):
+    proposal_group = get_object_or_404(ProposalGroup, pk=choice_id)
+    proposals_list = proposal_group.proposals.activated(request.user)
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
 
