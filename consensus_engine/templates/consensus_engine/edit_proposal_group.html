@@ -16,6 +16,6 @@
 </div>
 <div class="form-group">
   <label for="{{ form.group_description.id_for_label }}">Group Description</label>
-  <textarea class="form-control" name="group_description" cols="80" rows="5" maxlength={{ form.group_description.field.max_length }} required id="{{ form.group_description.id_for_label }}" value="{{ form.proposal_description.value}}"  placeholder="Please enter more details about the group."></textarea>
+  <textarea class="form-control" name="group_description" cols="80" rows="5" maxlength={{ form.group_description.field.max_length }} required id="{{ form.group_description.id_for_label }}" value="{{ form.group_description.value}}"  placeholder="Please enter more details about the group.">{{ form.group_description.value }}</textarea>
 </div>
 {% endblock %}

@@ -322,7 +322,8 @@ def list_proposal_groups(request):
 
 @login_required
 def my_proposal_groups(request):
-    proposalgroup_list = ProposalGroup.objects.owned(request.user)
+    proposalgroup_list = ProposalGroup.objects.owned(request.user).order_by('group_name')
+    print("here")
     context = {'proposalgroup_list': proposalgroup_list}
     return render(request, 'consensus_engine/list_proposal_groups.html', context)
 

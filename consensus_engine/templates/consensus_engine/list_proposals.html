@@ -4,11 +4,17 @@
 {% block toolbar %}
 
 {% if proposal_group %}
-<div class="row bg-light border-bottom" ><div class="col my-2 ml-3 align-middle ">
-  <p class="font-weight-bold my-0">{{ proposal_group.group_name }}</p>
+<div class="row bg-light border-bottom" >
+  <div class="col my-2 ml-3 align-middle px-2">
+    <p class="my-0">
+      <span class="font-weight-bold my-0">{{ proposal_group.group_name }}</span>
+      <a href="{% url 'edit_proposal_group' proposal_group.id %}"><span class="ml-2 text-muted wi" data-feather="edit"></span></a>
+    </p>
+    <p class="my-0 py-0 text-muted"><small>{{ proposal_group.group_description }}</small></p>
   </div>
 </div>
 {% endif %}
+
 {% endblock %}
 
 
@@ -23,7 +29,6 @@
     {% endif %}
       <span data-feather="file-text"></span>
       New Proposal
-      Here: {{ proposal_group.id }}
     </a>
   </li>
   <li class="nav-item">
