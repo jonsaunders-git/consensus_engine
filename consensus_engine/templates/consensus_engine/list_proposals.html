@@ -8,7 +8,8 @@
   <div class="col my-2 ml-3 align-middle px-2">
     <p class="my-0">
       <span class="font-weight-bold my-0">{{ proposal_group.group_name }}</span>
-      <a href="{% url 'edit_proposal_group' proposal_group.id %}"><span class="ml-2 text-muted wi" data-feather="edit"></span></a>
+      <a href="{% url 'edit_proposal_group' proposal_group.id %}"><span class="ml-2 text-muted" data-feather="edit"></span></a>
+      <a href=""><span class="ml-2 text-muted" data-feather="info"></span></a>
     </p>
     <p class="my-0 py-0 text-muted"><small>{{ proposal_group.group_description }}</small></p>
   </div>

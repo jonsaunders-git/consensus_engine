@@ -3,28 +3,33 @@
 
 
 {% block page_content %}
+<!-- page_content base_dialog -->
 
-{% if error_message %}
-You don't have permission to edit the group.
-{% else %}
+  {% if error_message %}
+  You don't have permission to edit the group.
+  {% else %}
 
-<div class="row h-100">
-  <div class="col-md-1"></div>
-  <div class="col">
-    <div class="row mt-4 ml-1 mr-1 px-2 py-2">
-      <div class="w-100 mb-4">
-        {% block dialog_descriptor %}{% endblock %}
+    <div class="row h-100">
+      <div class="col-md-1"></div>
+      <div class="col">
+        <div class="row mt-4 ml-1 mr-1 px-2 py-2">
+          <div class="w-100 mb-4">
+            {% block dialog_descriptor %}
+              <!-- dialog_descriptor base_dialog -->
+            {% endblock %}
+          </div>
+          <form action="" method="post" class="w-100 p-4 rounded bg-light border">
+            {% csrf_token %}
+            {% block form_fields %}
+              <!-- form_fields base_dialog -->
+            {% endblock %}
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
       </div>
-      <form action="" method="post" class="w-100 p-4 rounded bg-light border">
-        {% csrf_token %}
-        {% block form_fields %}{% endblock %}
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+      <div class="col-md-1"></div>
     </div>
-  </div>
-  <div class="col-md-1"></div>
-</div>
 
-{% endif %}
+  {% endif %}
 
 {% endblock %}

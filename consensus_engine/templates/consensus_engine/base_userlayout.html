@@ -1,16 +1,15 @@
 {% extends "base.html" %}
 {% load proposaltags %}
 
-
 {% block app_page %}
+<!-- app_page base-userlayout -->
 
-<div class="row">
-
-  <div class="col-md-2 px-0">
+  <!-- sidebar column  -->
     <nav class="col-md-2 d-none d-md-block bg-light sidebar">
       <div class="sidebar-sticky">
-        {% block page_nav %}
 
+        {% block page_nav %}
+        <!-- page_nav base_userlayout -->
           <h6 class="sidebar-heading d-flex mt-4 mb-1 text-muted">
             <a class="nav-link active" href="{% url 'list_proposal_groups' %}"><span>Groups</span></a>
             <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal_group' %}">
@@ -53,26 +52,22 @@
           </h6>
           <ul class="nav flex-column mb-2">
             {% block child_actions %}
+              <!-- child_actions base_userlayout -->
             {% endblock %}
           </ul>
         {% endblock %}
 
       </div>
     </nav>
-  </div>
 
-  <div class="col px-0 ml-2">
-    <main role="main" class="h-100">
-          <div class="container-fluid px-0">
-            {% block toolbar %}{% endblock %}
-          </div>
-          <div class="container-fluid h-100">
-          {% block page_content %}
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 ">
+          <!-- toolbar -->
+          {% block toolbar %}
+            <!-- toolbar base_userlayout -->
           {% endblock %}
-        </div>
+          <!-- main content -->
+          {% block page_content %}
+            <!-- page_content base_userlayout -->
+          {% endblock %}
     </main>
-  </div>
-
-</div>
-
 {% endblock %}
