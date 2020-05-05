@@ -24,7 +24,7 @@
     <p class="my-0">
       <span class="font-weight-bold my-0">Proposal Groups</span>
     </p>
-    <p class="my-0 py-0 text-muted"><small>Only one layer of proposal groups are allowed, please use tagging to creat smart sets.</small></p>
+    <p class="my-0 py-0 text-muted"><small>Only one layer of proposal groups are allowed, please use tagging to create smart sets.</small></p>
   </div>
 </div>
 {% endblock %}
@@ -32,8 +32,6 @@
 {% block page_content %}
 
 {% if proposalgroup_list %}
-
-{% for i in '0123456789'|make_list %}
 
   {% for proposalgroup in proposalgroup_list %}
       {% if forloop.first %}<div class="row"><div class="col"><div class="card-deck mt-2">{% endif %}
@@ -45,7 +43,6 @@
           <p class="text-muted"><small>{{ proposalgroup.group_description}}</small></p>
         </div>
         <div class="card-footer text-muted">
-          <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="btn btn-primary">Edit</a>
           <a href="{% url 'group_proposals' proposalgroup.id %}" class="btn btn-primary">Proposals</a>
         </div>
       </div>
@@ -53,7 +50,6 @@
       {% if forloop.last %}</div>{% endif %}
   {% endfor %}
 
-{% endfor %}
 
 {% else %}
   <div class="row mt-4">
