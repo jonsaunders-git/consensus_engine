@@ -1,11 +1,18 @@
 {% extends "consensus_engine/base_userlayout.html" %}
 {% load static %}
 
+{% block toolbar %}
 
+{% if proposal_group %}
+<div class="row bg-light border-bottom" ><div class="col my-2 ml-3 align-middle ">
+  <p class="font-weight-bold my-0">{{ proposal_group.group_name }}</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
 
 
 {% block child_actions %}
-
 
 <!-- creates a opportunity for child actions in the menu -->
   <li class="nav-item">
@@ -62,7 +69,11 @@
       </div>
       <div class="mt-2 w-100 p-4 rounded bg-light border">
         <p>Why don't you add one...</p>
-        <a href="{% url 'new_proposal_in_group' proposal_group.id %}" class="btn btn-primary">Add Proposal</a>
+        {% if proposal_group %}
+        <a href="{% url 'new_proposal_in_group' proposal_group.id|default:0 %}" class="btn btn-primary">Add Proposal</a>
+        {% else %}
+        <a href="{% url 'new_proposal' %}" class="btn btn-primary">Add Proposal</a>
+        {% endif %}
       </div>
     </div>
   </div>

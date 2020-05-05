@@ -173,11 +173,11 @@ def new_proposal_in_group(request, proposal_group_id):
             print(proposal_group)
             obj.save()
             # redirect to a new URL:
-            return HttpResponseRedirect('/proposals/')
+            return HttpResponseRedirect('/')
     # if a GET (or any other method) we'll create a blank form
     else:
         form = ProposalForm(initial={ 'date_proposed': timezone.now()})
-    return render(request, 'consensus_engine/new_proposal.html', {'form': form})
+    return render(request, 'consensus_engine/new_proposal.html', {'form': form, 'proposal_group' : proposal_group})
 
 
 @login_required
@@ -268,13 +268,6 @@ def delete_choice(request, proposal_id, choice_id):
 @login_required
 def list_proposals(request):
     proposals_list = Proposal.objects.activated(request.user)
-    context = {'proposals_list': proposals_list}
-    return render(request, 'consensus_engine/list_proposals.html', context)
-
-@login_required
-def list_proposals_in_group(request, proposal_group_id):
-    proposal_group = get_object_or_404(ProposalGroup, pk=choice_id)
-    proposals_list = proposal_group.proposals.activated(request.user)
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/list_proposals.html', context)
 

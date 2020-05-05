@@ -1,6 +1,15 @@
 {% extends "consensus_engine/base_dialog.html" %}
 {% load static %}
 
+{% block toolbar %}
+{% if proposal_group %}
+<div class="row bg-light border-bottom" ><div class="col my-2 ml-3 align-middle ">
+  <p class="font-weight-bold my-0">{{ proposal_group.group_name }}</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
 {% block dialog_descriptor %}
 <h2>Create a new proposal.</h2>
 <div>
