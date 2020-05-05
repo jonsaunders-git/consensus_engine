@@ -36,11 +36,12 @@
 {% for i in '0123456789'|make_list %}
 
   {% for proposalgroup in proposalgroup_list %}
-      {% if forloop.first %}<div class="row mt-2 px-2"><div class="col"><div class="card-deck mt-2">{% endif %}
+      {% if forloop.first %}<div class="row"><div class="col"><div class="card-deck mt-2">{% endif %}
 
           <div class="card" style="width: 18rem;">
         <div class="card-body">
-          <p class="h5 card-title">{{ proposalgroup.group_name}}<span class="ml-2 align-top" data-feather="edit"></span></p>
+          <p class="h5 card-title">{{ proposalgroup.group_name}}
+          <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="text-muted"><span class="ml-2 align-top" data-feather="edit"></span></a></p>
           <p class="text-muted"><small>{{ proposalgroup.group_description}}</small></p>
         </div>
         <div class="card-footer text-muted">

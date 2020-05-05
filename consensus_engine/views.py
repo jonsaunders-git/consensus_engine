@@ -353,7 +353,8 @@ def edit_proposal_group(request, proposal_group_id):
 
     return render(request, 'consensus_engine/edit_proposal_group.html', {'form': form})
 
-
+def uiformat(request):
+    return render(request, 'consensus_engine/uiformat.html')
 
 def vote(user, proposal, selected_choice):
     ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=selected_choice)
