@@ -97,8 +97,6 @@ def vote_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)
 
-    print(proposal.total_votes)
-
     if request.method == 'POST':
         try:
             selected_choice = proposal.proposalchoice_set.get(pk=request.POST['choice'])
@@ -109,7 +107,6 @@ def vote_proposal(request, proposal_id):
                 'error_message' : "You didn't select a choice.",
             })
         next = request.POST.get('next', '/')
-        print(next)
         return HttpResponseRedirect(next)
 
     try:
@@ -174,7 +171,6 @@ def new_proposal_in_group(request, proposal_group_id):
             obj.date_proposed = timezone.now()
             obj.owned_by = request.user
             obj.proposal_group = proposal_group
-            print(proposal_group)
             obj.save()
             # redirect to a new URL:
             return HttpResponseRedirect('/')
@@ -320,7 +316,6 @@ def list_proposal_groups(request):
 @login_required
 def my_proposal_groups(request):
     proposalgroup_list = ProposalGroup.objects.owned(request.user).order_by('group_name')
-    print("here")
     context = {'proposalgroup_list': proposalgroup_list}
     return render(request, 'consensus_engine/list_proposal_groups.html', context)
 

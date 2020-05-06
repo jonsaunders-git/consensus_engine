@@ -50,9 +50,7 @@ class Proposal(models.Model):
         return (self.proposal_name[:27] + '...') if len(self.proposal_name) > 30 else self.proposal_name
     @property
     def total_votes(self):
-        x =  Proposal.objects.filter(id=self.id).values('proposalchoice__choiceticket__user_id').distinct()
-        print(x.query)
-        return x.count()
+        return Proposal.objects.filter(id=self.id).values('proposalchoice__choiceticket__user_id').distinct().count()
 
 class ProposalChoiceManager(models.Manager):
     def activated(self):
