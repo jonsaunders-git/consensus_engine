@@ -4,8 +4,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.urls import reverse
+from django.db import transaction
 
-from .models import Proposal, ProposalChoice, ChoiceTicket, CurrentChoiceTicket, ProposalGroup
+from .models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
 from .forms import ProposalForm, ProposalChoiceForm, ProposalGroupForm
 
 # Create your views here.
@@ -19,8 +20,8 @@ def view_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)
     try:
-        current_choice = CurrentChoiceTicket.objects.get(user = request.user, proposal = proposal)
-    except (KeyError, CurrentChoiceTicket.DoesNotExist):
+        current_choice = ChoiceTicket.objects.get(user = request.user, proposal_choice__proposal = proposal, current = True)
+    except (KeyError, ChoiceTicket.DoesNotExist):
         current_choice = None
 
     active_choices = proposal.proposalchoice_set.activated()
@@ -96,6 +97,8 @@ def vote_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)
 
+    print(proposal.total_votes)
+
     if request.method == 'POST':
         try:
             selected_choice = proposal.proposalchoice_set.get(pk=request.POST['choice'])
@@ -110,8 +113,9 @@ def vote_proposal(request, proposal_id):
         return HttpResponseRedirect(next)
 
     try:
-        current_choice = CurrentChoiceTicket.objects.get(user = request.user, proposal = proposal)
-    except (KeyError, CurrentChoiceTicket.DoesNotExist):
+        # should be just the one.
+        current_choice = ChoiceTicket.objects.get(user = request.user, proposal_choice__proposal = proposal, current=True)
+    except (KeyError, ChoiceTicket.DoesNotExist):
         current_choice = None
 
     active_choices = proposal.proposalchoice_set.activated()
@@ -266,13 +270,6 @@ def delete_choice(request, proposal_id, choice_id):
 
 
 @login_required
-def list_proposals(request):
-    proposals_list = Proposal.objects.activated(request.user)
-    context = {'proposals_list': proposals_list}
-    return render(request, 'consensus_engine/list_proposals.html', context)
-
-
-@login_required
 def my_proposals(request):
     proposals_list = Proposal.objects.owned(request.user)
     context = {'proposals_list': proposals_list}
@@ -357,14 +354,9 @@ def uiformat(request):
     return render(request, 'consensus_engine/uiformat.html')
 
 def vote(user, proposal, selected_choice):
-    ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=selected_choice)
-    ticket.save()
-    # make an entry in the current choice table for easy look up
-    try:
-        current_choice = CurrentChoiceTicket.objects.get(user = user, proposal = proposal)
-    except (KeyError, CurrentChoiceTicket.DoesNotExist):
-        current_choice = CurrentChoiceTicket(user = user, proposal = proposal, choice_ticket = ticket)
-    else:
-        current_choice.choice_ticket = ticket
 
-    current_choice.save()
+    # reset the current flag on the last vote for this proposal and add another one.
+    with transaction.atomic():
+        ChoiceTicket.objects.filter(user = user, proposal_choice__proposal = proposal, current=True).update(current=False)
+        ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=selected_choice)
+        ticket.save()

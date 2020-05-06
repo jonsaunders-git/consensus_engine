@@ -1,5 +1,6 @@
 {% extends "consensus_engine/base_userlayout.html" %}
 {% load static %}
+{% load proposaltags %}
 
 {% block toolbar %}
 
@@ -50,7 +51,8 @@
         <div class="card-body">
           <h5 class="card-title">{{ proposal.proposal_name}}</h5>
           <p class="card-text">{{ proposal.proposal_description }}</p>
-          <p class="card-text">My Vote: {{ proposal.choice_text }}</p>
+          <p class="card-text">My Vote: {% my_vote proposal.id request.user.id %}</p>
+          <p class="card-text">Number of Votes: {% total_votes proposal.id %}</p>
         </div>
         <div class="card-footer text-muted">
           <a href="{% url 'vote_proposal' proposal.id %}?next={{ request.path|urlencode }}" class="btn btn-primary">Vote</a>
