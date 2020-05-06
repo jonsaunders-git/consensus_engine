@@ -78,9 +78,3 @@ class ChoiceTicket(models.Model):
     date_chosen = models.DateTimeField('date chosen')
     proposal_choice = models.ForeignKey(ProposalChoice, on_delete=models.CASCADE)
     current = models.BooleanField(default=True, null=True)
-
-# deprecated to be removed
-class CurrentChoiceTicket(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    proposal = models.ForeignKey(Proposal, on_delete=models.CASCADE)
-    choice_ticket = models.ForeignKey(ChoiceTicket, on_delete=models.CASCADE)
