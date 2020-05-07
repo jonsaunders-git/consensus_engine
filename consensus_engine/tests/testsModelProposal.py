@@ -48,6 +48,8 @@ class ProposalTest(TestCase):
         self.assertTrue(w.short_name == "only a test")
         x = self.create_new_proposal(proposal_name="this is a long test name and should be truncated")
         self.assertTrue(x.short_name == "this is a long test name an...")
+        x = self.create_new_proposal(proposal_name="this is a long test name anxyz")
+        self.assertTrue(x.short_name == "this is a long test name anxyz")
 
     def test_total_votes_for_new_proposal(self):
         w = self.create_new_proposal()

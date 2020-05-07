@@ -17,7 +17,7 @@ class ProposalGroup(models.Model):
     # properties
     @property
     def short_name(self):
-        return (self.group_name[:26] + '..') if len(self.group_name) > 28 else self.group_name
+        return (self.group_name[:27] + '...') if len(self.group_name) > 30 else self.group_name
 
 
 
