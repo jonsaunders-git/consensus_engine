@@ -280,7 +280,7 @@ def group_proposals(request, proposal_group_id):
 
 @login_required
 def view_my_votes(request):
-    proposals_list = Proposal.objects.myvotes(request.user)
+    proposals_list = Proposal.objects.my_votes(request.user)
     context = {'proposals_list': proposals_list}
     return render(request, 'consensus_engine/view_my_votes.html', context)
 

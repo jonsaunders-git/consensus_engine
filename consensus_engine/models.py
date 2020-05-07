@@ -28,7 +28,7 @@ class ProposalManager(models.Manager):
     def in_group(self, group):
         return self.get_queryset().filter(proposal_group__id=group.id)\
             .values('id','proposal_name', 'proposal_description')
-    def myvotes(self, user):
+    def my_votes(self, user):
         # work down the relationships to only get the chocie name of the one selected by the user - rename the field using the F method
         return self.get_queryset().filter(proposalchoice__choiceticket__user_id=user.id, proposalchoice__choiceticket__current=True )\
             .annotate(choice_text=models.F('proposalchoice__text'))\
@@ -50,7 +50,7 @@ class Proposal(models.Model):
         return (self.proposal_name[:27] + '...') if len(self.proposal_name) > 30 else self.proposal_name
     @property
     def total_votes(self):
-        return Proposal.objects.filter(id=self.id).values('proposalchoice__choiceticket__user_id').distinct().count()
+        return Proposal.objects.filter(id=self.id, proposalchoice__choiceticket__isnull=False).values('proposalchoice__choiceticket__user_id').distinct().count()
 
 class ProposalChoiceManager(models.Manager):
     def activated(self):
