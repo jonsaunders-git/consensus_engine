@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser, User
 
+from .mixins import TwoUserMixin, ProposalGroupMixin
+
 # Create your tests here.
 
 from django.test import TestCase
@@ -9,22 +11,7 @@ from django.utils import timezone
 
 
 # models test
-class ProposalGroupTest(TestCase):
-
-    def setUp(self):
-        # Every test needs access to the request factory.
-        self.user = User.objects.create_user(
-            username='jacob', email='jacob@…', password='top_secret')
-        self.user2 = User.objects.create_user(
-            username='jacob2', email='jacob@…', password='top_secret')
-
-    def create_proposal_group(self, group_name="Test Group", owned_by=None,
-        group_description="it's only a test group"):
-
-        if owned_by == None:
-            owned_by = self.user;
-        return ProposalGroup.objects.create(group_name=group_name, owned_by=owned_by,
-            group_description=group_description)
+class ProposalGroupTest(TwoUserMixin, ProposalGroupMixin, TestCase):
 
     def test_proposal_group_creation(self):
         pg =self.create_proposal_group()

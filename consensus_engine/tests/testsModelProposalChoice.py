@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser, User
 
+from .mixins import TwoUserMixin
+
 # Create your tests here.
 
 from django.test import TestCase
@@ -9,14 +11,11 @@ from django.utils import timezone
 
 
 # models test
-class ProposalChoiceTest(TestCase):
+class ProposalChoiceTest(TwoUserMixin, TestCase):
 
     def setUp(self):
         # Every test needs access to the request factory.
-        self.user = User.objects.create_user(
-            username='jacob', email='jacob@…', password='top_secret')
-        self.user2 = User.objects.create_user(
-            username='jacob2', email='jacob@…', password='top_secret')
+        TwoUserMixin.setUp(self)
         self.proposal = Proposal.objects.create(proposal_name="Test Proposal", date_proposed=timezone.now(),
             proposal_description="This is a test proposal description", owned_by=self.user, proposal_group=None)
 
@@ -59,3 +58,26 @@ class ProposalChoiceTest(TestCase):
         self.assertTrue(p2.proposalchoice_set.activated().count() == 1)
         # three in total
         self.assertTrue(ProposalChoice.objects.activated().count() == 3)
+
+    def test_current_vote_count_on_proposal_choice(self):
+        pc = self.create_new_proposal_choice()
+        self.assertTrue(pc.current_vote_count == 0)
+        ct = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc, current=True)
+        self.assertTrue(pc.current_vote_count == 1)
+        ct2 = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc, current=True)
+        self.assertTrue(pc.current_vote_count == 2)
+        # change user 1's vote
+        ct.current = False
+        ct.save()
+        self.assertTrue(pc.current_vote_count == 1)
+        ct3 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc, current=True)
+        self.assertTrue(pc.current_vote_count == 2)
+        # create another proposal
+        pc2 = self.create_new_proposal_choice()
+        self.assertTrue(pc2.current_vote_count == 0)
+        self.assertTrue(pc.current_vote_count == 2)
+        ct3.current = False
+        ct3.save()
+        ct3 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        self.assertTrue(pc.current_vote_count == 1)
+        self.assertTrue(pc2.current_vote_count == 1)
