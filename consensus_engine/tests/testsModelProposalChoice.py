@@ -59,6 +59,7 @@ class ProposalChoiceTest(TwoUserMixin, TestCase):
         # three in total
         self.assertTrue(ProposalChoice.objects.activated().count() == 3)
 
+
     def test_current_vote_count_on_proposal_choice(self):
         pc = self.create_new_proposal_choice()
         self.assertTrue(pc.current_vote_count == 0)
@@ -81,3 +82,23 @@ class ProposalChoiceTest(TwoUserMixin, TestCase):
         ct3 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
         self.assertTrue(pc.current_vote_count == 1)
         self.assertTrue(pc2.current_vote_count == 1)
+
+
+    def test_vote(self):
+        pc = self.create_new_proposal_choice(text="yes")
+        pc2 = self.create_new_proposal_choice(text="no")
+        pc.vote(self.user)
+        self.assertTrue(pc.choiceticket_set.filter(current=True,user=self.user).count() == 1)
+        # change the vote
+        pc2.vote(self.user)
+        self.assertTrue(pc.choiceticket_set.filter(current=True,user=self.user).count() == 0)
+        self.assertTrue(pc2.choiceticket_set.filter(current=True,user=self.user).count() == 1)
+        # let user 2 vote as well
+        pc2.vote(self.user2)
+        self.assertTrue(pc.choiceticket_set.filter(current=True,user=self.user).count() == 0)
+        self.assertTrue(pc2.choiceticket_set.filter(current=True,user=self.user).count() == 1)
+        self.assertTrue(pc2.choiceticket_set.filter(current=True,user=self.user2).count() == 1)
+        self.assertTrue(pc2.choiceticket_set.filter(current=True).count() == 2)
+        # check that all history has been saved
+        self.assertTrue(pc.choiceticket_set.count() == 1)
+        self.assertTrue(pc2.choiceticket_set.count() == 2)

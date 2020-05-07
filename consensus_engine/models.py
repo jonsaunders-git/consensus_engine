@@ -1,5 +1,6 @@
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
 
@@ -69,6 +70,12 @@ class ProposalChoice(models.Model):
     def current_vote_count(self):
         # counts all the choice tickets for this choice where it is the current choice ticket
         return self.choiceticket_set.filter(current=True).count()
+    def vote(self, user):
+        # reset the current flag on the last vote for this proposal and add another one.
+        with transaction.atomic():
+            ChoiceTicket.objects.filter(user = user, proposal_choice__proposal = self.proposal, current=True).update(current=False)
+            ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=self)
+            ticket.save()
 
 
 class ChoiceTicket(models.Model):

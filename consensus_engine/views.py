@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.urls import reverse
-from django.db import transaction
+
 
 from .models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
 from .forms import ProposalForm, ProposalChoiceForm, ProposalGroupForm
@@ -52,7 +52,6 @@ def edit_proposal(request, proposal_id):
             # ...
 
             # add a date_published - really we need to just make a new version...
-
             form.save()
             # redirect to a new URL:
             return HttpResponseRedirect('/proposals/')
@@ -100,7 +99,7 @@ def vote_proposal(request, proposal_id):
     if request.method == 'POST':
         try:
             selected_choice = proposal.proposalchoice_set.get(pk=request.POST['choice'])
-            vote(request.user, proposal, selected_choice)
+            selected_choice.vote(request.user)
         except (KeyError, ProposalChoice.DoesNotExist):
             return render(request, 'consensus_engine/vote_proposal.html', {
                 'proposal' : proposal,
@@ -347,11 +346,3 @@ def edit_proposal_group(request, proposal_group_id):
 
 def uiformat(request):
     return render(request, 'consensus_engine/uiformat.html')
-
-def vote(user, proposal, selected_choice):
-
-    # reset the current flag on the last vote for this proposal and add another one.
-    with transaction.atomic():
-        ChoiceTicket.objects.filter(user = user, proposal_choice__proposal = proposal, current=True).update(current=False)
-        ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=selected_choice)
-        ticket.save()
