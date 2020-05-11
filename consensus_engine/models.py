@@ -72,6 +72,10 @@ class ProposalChoice(models.Model):
         return self.choiceticket_set.filter(current=True).count()
     def vote(self, user):
         # reset the current flag on the last vote for this proposal and add another one.
+        # -------------------------------------------------------------------------------
+        # this function probably doesn't sit here as it doesn't affect the data in the
+        # model class (apart from joining to proposal choice) - TODO: Refactor
+        # -------------------------------------------------------------------------------
         with transaction.atomic():
             ChoiceTicket.objects.filter(user = user, proposal_choice__proposal = self.proposal, current=True).update(current=False)
             ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=self)

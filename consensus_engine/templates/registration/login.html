@@ -14,28 +14,55 @@
     {% if user.is_authenticated %}
       <p>Your account doesn't have access to this page. To proceed,
       please login with an account that has access.</p>
-    {% else %}
-      <p>Please login to see this page.</p>
     {% endif %}
   {% endif %}
 
-  <form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <table>
-      <tr>
-        <td>{{ form.username.label_tag }}</td>
-        <td>{{ form.username }}</td>
-      </tr>
-      <tr>
-        <td>{{ form.password.label_tag }}</td>
-        <td>{{ form.password }}</td>
-      </tr>
-    </table>
-    <input type="submit" value="login" />
-    <input type="hidden" name="next" value="{{ next }}" />
-  </form>
+  <style type="text/css">
+	.login-form {
+		width: 340px;
+    	margin: 50px auto;
+	}
+    .login-form form {
+    	margin-bottom: 15px;
+        background: #f7f7f7;
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        padding: 30px;
+    }
+    .login-form h2 {
+        margin: 0 0 15px;
+    }
+    .form-control, .btn {
+        min-height: 38px;
+        border-radius: 2px;
+    }
+    .btn {
+        font-size: 15px;
+        font-weight: bold;
+    }
+</style>
 
-  {# Assumes you setup the password_reset view in your URLconf #}
-  <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+  <div class="login-form">
+      <form action="{% url 'login' %}" method="post">
+          {% csrf_token %}
+          <h2 class="text-center">Log in</h2>
+          <div class="form-group">
+              <input type="text" class="form-control" placeholder="Username" required="required" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username">
+          </div>
+          <div class="form-group">
+              <input type="password" class="form-control" placeholder="Password" required="required" name="password" autocomplete="current-password" required id="id_password">
+          </div>
+          <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block" value="login">Log in</button>
+          </div>
+          <div class="clearfix">
+              <label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
+              <a href="{% url 'password_reset' %}" class="pull-right">Forgot Password?</a>
+          </div>
+          <input type="hidden" name="next" value="{{ next }}" />
+      </form>
+      <p class="text-center"><a href="#">Create an Account</a></p>
+  </div>
+
+
 
 {% endblock %}
