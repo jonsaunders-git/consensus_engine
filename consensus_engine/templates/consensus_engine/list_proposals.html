@@ -20,24 +20,7 @@
 
 
 {% block child_actions %}
-
-<!-- creates a opportunity for child actions in the menu -->
-  <li class="nav-item">
-    {% if proposal_group %}
-    <a class="nav-link" href="{% url 'new_proposal_in_group' proposal_group.id %}">
-    {% else %}
-    <a class="nav-link" href="{% url 'new_proposal' %}">
-    {% endif %}
-      <span data-feather="file-text"></span>
-      New Proposal
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="{% url 'new_proposal_group' %}">
-      <span data-feather="file-text"></span>
-      New Group
-    </a>
-  </li>
+{# create an opportunity for actions #}
 {% endblock %}
 
 {% block page_content %}

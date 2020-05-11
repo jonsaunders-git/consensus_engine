@@ -60,6 +60,10 @@
           </div>
           <input type="hidden" name="next" value="{{ next }}" />
       </form>
+      {% if form.errors %}
+        <p class="text-center alert alert-danger">Your username and password didn't match a valid user. <br>Please try again.</p>
+      {% endif %}
+
       <p class="text-center"><a href="#">Create an Account</a></p>
   </div>
 
