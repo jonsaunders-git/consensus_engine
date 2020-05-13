@@ -1,5 +1,6 @@
 from django.urls import path
-from django.urls import include
+from django.urls import include, re_path
+from django.contrib.auth import views as auth_views
 
 from . import views
 
@@ -24,5 +25,7 @@ urlpatterns = [
     path('proposalgroups/<int:proposal_group_id>/proposals/new/', views.new_proposal_in_group, name='new_proposal_in_group'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('uiformat/', views.uiformat, name="uiformat"),
+    #path('login/', auth_views.LoginView.as_view(), name="login"),
+    re_path(r'^login/$', views.RememberMeLoginView.as_view(), name="login"),
 
 ]

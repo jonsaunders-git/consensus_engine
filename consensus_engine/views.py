@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.models import User
 
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -7,13 +9,24 @@ from django.urls import reverse
 
 
 from .models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
-from .forms import ProposalForm, ProposalChoiceForm, ProposalGroupForm
+from .forms import ProposalForm, ProposalChoiceForm, ProposalGroupForm, RememberMeLoginForm
 
 # Create your views here.
 
 def index(request):
     return render(request, 'consensus_engine/index.html')
 
+class RememberMeLoginView(LoginView):
+    form_class = RememberMeLoginForm
+
+    def form_valid(self, form):
+        remember_me = form.cleaned_data['remember_me']  
+        if not remember_me:
+            self.request.session.set_expiry(0)
+        else:
+            self.request.session.set_expiry(3000)
+        self.request.session.modified = True
+        return super().form_valid(form)
 
 
 @login_required

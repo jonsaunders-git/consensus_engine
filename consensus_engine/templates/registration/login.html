@@ -8,6 +8,7 @@
 
   {% if form.errors %}
     <p>Your username and password didn't match. Please try again.</p>
+    {{ form.errors.as_data }}
   {% endif %}
 
   {% if next %}
@@ -55,7 +56,7 @@
               <button type="submit" class="btn btn-primary btn-block" value="login">Log in</button>
           </div>
           <div class="clearfix">
-              <label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
+              <label class="pull-left checkbox-inline px-1"><input type="checkbox" name="remember_me" id="remember_me"> Remember me</label>
               <a href="{% url 'password_reset' %}" class="pull-right">Forgot Password?</a>
           </div>
           <input type="hidden" name="next" value="{{ next }}" />
