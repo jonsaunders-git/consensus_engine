@@ -13,6 +13,7 @@ from .forms import ProposalForm, ProposalChoiceForm, ProposalGroupForm, Remember
 
 # Create your views here.
 
+@login_required
 def index(request):
     return render(request, 'consensus_engine/index.html')
 
@@ -20,7 +21,7 @@ class RememberMeLoginView(LoginView):
     form_class = RememberMeLoginForm
 
     def form_valid(self, form):
-        remember_me = form.cleaned_data['remember_me']  
+        remember_me = form.cleaned_data['remember_me']
         if not remember_me:
             self.request.session.set_expiry(0)
         else:
