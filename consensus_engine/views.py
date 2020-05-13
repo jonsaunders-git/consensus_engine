@@ -15,6 +15,7 @@ def index(request):
     return render(request, 'consensus_engine/index.html')
 
 
+
 @login_required
 def view_proposal(request, proposal_id):
     # view the proposal choices
