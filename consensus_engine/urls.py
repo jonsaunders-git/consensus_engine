@@ -26,6 +26,6 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('uiformat/', views.uiformat, name="uiformat"),
     #path('login/', auth_views.LoginView.as_view(), name="login"),
-    re_path(r'^login/$', views.RememberMeLoginView.as_view(), name="login"),
+    #re_path(r'^login/$', views.RememberMeLoginView.as_view(), name="login"),
 
 ]
