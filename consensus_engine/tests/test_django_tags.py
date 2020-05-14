@@ -4,7 +4,8 @@ from django.contrib.auth.models import AnonymousUser, User
 from .mixins import TwoUserMixin, ProposalGroupMixin, ProposalMixin
 
 from django.test import TestCase
-from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
+from consensus_engine.models import (Proposal, ProposalChoice, ChoiceTicket,
+                                        ProposalGroup)
 from django.utils import timezone
 
 from consensus_engine.templatetags.proposaltags import *
@@ -32,16 +33,19 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
         self.assertTrue(total_votes(w.id)['total_votes'] == 0)
         pc1 = w.proposalchoice_set.first()
         pc2 = w.proposalchoice_set.last()
-        v = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        v = ChoiceTicket.objects.create(user=self.user,
+            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(isinstance(v, ChoiceTicket))
         self.assertTrue(total_votes(w.id)['total_votes'] == 1)
         # change votes - change current
-        v2 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        v2 = ChoiceTicket.objects.create(user=self.user,
+            date_chosen=timezone.now(), proposal_choice=pc2, current=True)
         v.current=False;
         v.save();
         self.assertTrue(total_votes(w.id)['total_votes'] == 1)
         # create a vote by another user and test that we have two votes
-        v3 = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        v3 = ChoiceTicket.objects.create(user=self.user2,
+            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(isinstance(v, ChoiceTicket))
         self.assertTrue(total_votes(w.id)['total_votes'] == 2)
 
@@ -52,15 +56,18 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
         #vote for the first choice
         pc1 = w.proposalchoice_set.first()
         pc2 = w.proposalchoice_set.last()
-        v = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        v = ChoiceTicket.objects.create(user=self.user,
+            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(my_vote(w.id, self.user.id)['my_vote'] == pc1.text)
         # change votes - change current
-        v2 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        v2 = ChoiceTicket.objects.create(user=self.user,
+            date_chosen=timezone.now(), proposal_choice=pc2, current=True)
         v.current=False;
         v.save();
         self.assertTrue(my_vote(w.id, self.user.id)['my_vote'] == pc2.text)
         # create a vote by another user and test that we have two votes
-        v3 = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        v3 = ChoiceTicket.objects.create(user=self.user2,
+            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(my_vote(w.id, self.user.id)['my_vote'] == pc2.text)
         self.assertTrue(my_vote(w.id, self.user2.id)['my_vote'] == pc1.text)
         self.assertTrue(pc1.text != pc2.text)

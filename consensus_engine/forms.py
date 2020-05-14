@@ -6,7 +6,8 @@ from .models import Proposal, ProposalChoice, ProposalGroup
 
 
 class RememberMeLoginForm(AuthenticationForm):
-    remember_me = BooleanField(required=False, initial=True)  # and add the remember_me field
+    #  add the remember_me field
+    remember_me = BooleanField(required=False, initial=True)
 
 class ProposalForm(ModelForm):
     class Meta:

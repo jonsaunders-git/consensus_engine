@@ -59,7 +59,6 @@ class ProposalChoiceTest(TwoUserMixin, TestCase):
         # three in total
         self.assertTrue(ProposalChoice.objects.activated().count() == 3)
 
-
     def test_current_vote_count_on_proposal_choice(self):
         pc = self.create_new_proposal_choice()
         self.assertTrue(pc.current_vote_count == 0)
@@ -82,7 +81,6 @@ class ProposalChoiceTest(TwoUserMixin, TestCase):
         ct3 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
         self.assertTrue(pc.current_vote_count == 1)
         self.assertTrue(pc2.current_vote_count == 1)
-
 
     def test_vote(self):
         pc = self.create_new_proposal_choice(text="yes")

@@ -18,38 +18,47 @@ class ProposalGroup(models.Model):
     # properties
     @property
     def short_name(self):
-        return (self.group_name[:27] + '...') if len(self.group_name) > 30 else self.group_name
-
-
+        return ((self.group_name[:27] + '...')
+                if len(self.group_name) > 30
+                else self.group_name)
 
 class ProposalManager(models.Manager):
     def owned(self, user):
-        return self.get_queryset().filter(owned_by_id=user.id)\
-            .values('id','proposal_name', 'proposal_description' )
+        return (self.get_queryset().filter(owned_by_id=user.id)
+                    .values('id','proposal_name', 'proposal_description' ))
     def in_group(self, group):
-        return self.get_queryset().filter(proposal_group__id=group.id)\
-            .values('id','proposal_name', 'proposal_description')
+        return (self.get_queryset().filter(proposal_group__id=group.id)
+                    .values('id','proposal_name', 'proposal_description'))
 
 
 class Proposal(models.Model):
     proposal_name = models.CharField(max_length=200)
     date_proposed = models.DateTimeField('date proposed')
     proposal_description = models.CharField(max_length=200)
-    owned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    proposal_group = models.ForeignKey(ProposalGroup, on_delete=models.SET_NULL, null=True)
+    owned_by = models.ForeignKey(User, on_delete=models.SET_NULL,
+                                    null=True, blank=True)
+    proposal_group = models.ForeignKey(ProposalGroup,
+                                        on_delete=models.SET_NULL, null=True)
     # managers
     objects = ProposalManager()
     # properties
     @property
     def short_name(self):
-        return (self.proposal_name[:27] + '...') if len(self.proposal_name) > 30 else self.proposal_name
+        return ((self.proposal_name[:27] + '...')
+            if len(self.proposal_name) > 30
+            else self.proposal_name)
     @property
     def total_votes(self):
-        return Proposal.objects.filter(id=self.id, proposalchoice__choiceticket__isnull=False).values('proposalchoice__choiceticket__user_id').distinct().count()
+        return (Proposal.objects.filter(id=self.id,
+                    proposalchoice__choiceticket__isnull=False)
+                    .values('proposalchoice__choiceticket__user_id')
+                    .distinct().count())
 
 class ProposalChoiceManager(models.Manager):
     def activated(self):
-        return self.get_queryset().filter(activated_date__isnull=False, deactivated_date__isnull=True)
+        return (self.get_queryset()
+            .filter(activated_date__isnull=False,
+                deactivated_date__isnull=True))
 
 
 class ProposalChoice(models.Model):
@@ -71,23 +80,36 @@ class ProposalChoice(models.Model):
         # model class (apart from joining to proposal choice) - TODO: Refactor
         # -------------------------------------------------------------------------------
         with transaction.atomic():
-            ChoiceTicket.objects.filter(user = user, proposal_choice__proposal = self.proposal, current=True).update(current=False)
-            ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=self)
+            ChoiceTicket.objects.filter(user = user,
+                proposal_choice__proposal = self.proposal,
+                current=True).update(current=False)
+            ticket = ChoiceTicket(user=user,
+                        date_chosen=timezone.now(), proposal_choice=self)
             ticket.save()
 
 class ChoiceTicketManager(models.Manager):
     def my_votes(self, user):
-        return  ChoiceTicket.objects.filter(current=True, user=user, proposal_choice__deactivated_date__isnull=True, )\
-            .annotate(choice_text=models.F('proposal_choice__text'))\
-            .annotate(proposal_id=models.F('proposal_choice__proposal__id'))\
-            .annotate(proposal_name=models.F('proposal_choice__proposal__proposal_name'))\
-            .annotate(proposal_group=models.F('proposal_choice__proposal__proposal_group__group_name'))\
-            .values('proposal_id', 'proposal_name', 'choice_text', 'proposal_group').order_by('proposal_group', 'proposal_name')
+        return (ChoiceTicket.objects.filter(
+                            current=True,
+                            user=user,
+                            proposal_choice__deactivated_date__isnull=True,
+                            )
+            .annotate(choice_text=models.F('proposal_choice__text'))
+            .annotate(proposal_id=models.F('proposal_choice__proposal__id'))
+            .annotate(proposal_name=
+                models.F('proposal_choice__proposal__proposal_name'))\
+            .annotate(proposal_group=
+                models.F('proposal_choice__proposal__proposal_group__group_name'))\
+            .values('proposal_id', 'proposal_name',
+                'choice_text', 'proposal_group')
+            .order_by('proposal_group', 'proposal_name'))
 
 
 class ChoiceTicket(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL,
+                                    null=True, blank=True)
     date_chosen = models.DateTimeField('date chosen')
-    proposal_choice = models.ForeignKey(ProposalChoice, on_delete=models.CASCADE)
+    proposal_choice = models.ForeignKey(ProposalChoice,
+                                            on_delete=models.CASCADE)
     current = models.BooleanField(default=True, null=True)
     objects = ChoiceTicketManager()
