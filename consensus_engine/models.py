@@ -88,6 +88,7 @@ class ProposalChoice(models.Model):
             ticket.save()
 
 class ChoiceTicketManager(models.Manager):
+    
     def my_votes(self, user):
         return (ChoiceTicket.objects.filter(
                             current=True,
@@ -103,6 +104,7 @@ class ChoiceTicketManager(models.Manager):
             .values('proposal_id', 'proposal_name',
                 'choice_text', 'proposal_group')
             .order_by('proposal_group', 'proposal_name'))
+
     def get_current_choice(self, user, proposal):
         try:
             current_choice = ChoiceTicket.objects.get(user = user, proposal_choice__proposal = proposal, current = True)
