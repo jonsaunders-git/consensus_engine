@@ -2,6 +2,7 @@ consensus_engine/__pycache__/
 db.sqlite3
 devsite/__pycache__/
 consensus_engine/tests/__pycache__/
+consensus_engine/views/__pycache__/
 .DS_Store
 htmlcov/
 .coverage

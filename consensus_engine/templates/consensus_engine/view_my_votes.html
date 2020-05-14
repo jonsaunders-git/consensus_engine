@@ -8,20 +8,23 @@
 
 {% block page_content %}
 
-{% if proposals_list %}
+{% if votes_list %}
 <ul class="list-group mt-2">
-  {% for proposal in proposals_list %}
+  {% for vote in votes_list %}
 
     <li class="list-group-item">
       <div class="row">
         <div class="col">
-        {{ proposal.proposal_name}}
+        {{ vote.proposal_name}}
         </div>
-        <div class="col-5">
-          {{ proposal.choice_text }}
+        <div class="col-3">
+        {{ vote.proposal_group }}
+        </div>
+        <div class="col-3">
+          {{ vote.choice_text }}
         </div>
         <div class="col-0.5">
-          <a href="{% url 'vote_proposal' proposal.id %}?next={{ request.path|urlencode }}" class="btn btn-secondary">Change</a>
+          <a href="{% url 'vote_proposal' vote.proposal_id %}?next={{ request.path|urlencode }}" class="btn btn-secondary">Change</a>
         </div>
       </div>
     </li>

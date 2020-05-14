@@ -29,12 +29,6 @@ class ProposalManager(models.Manager):
     def in_group(self, group):
         return self.get_queryset().filter(proposal_group__id=group.id)\
             .values('id','proposal_name', 'proposal_description')
-    def my_votes(self, user):
-        # work down the relationships to only get the chocie name of the one selected by the user - rename the field using the F method
-        return self.get_queryset().filter(proposalchoice__choiceticket__user_id=user.id, proposalchoice__choiceticket__current=True )\
-            .annotate(choice_text=models.F('proposalchoice__text'))\
-            .exclude(proposalchoice__deactivated_date__isnull=False)\
-            .values('id','proposal_name', 'choice_text')
 
 
 class Proposal(models.Model):
@@ -81,9 +75,19 @@ class ProposalChoice(models.Model):
             ticket = ChoiceTicket(user=user, date_chosen=timezone.now(), proposal_choice=self)
             ticket.save()
 
+class ChoiceTicketManager(models.Manager):
+    def my_votes(self, user):
+        return  ChoiceTicket.objects.filter(current=True, user=user, proposal_choice__deactivated_date__isnull=True, )\
+            .annotate(choice_text=models.F('proposal_choice__text'))\
+            .annotate(proposal_id=models.F('proposal_choice__proposal__id'))\
+            .annotate(proposal_name=models.F('proposal_choice__proposal__proposal_name'))\
+            .annotate(proposal_group=models.F('proposal_choice__proposal__proposal_group__group_name'))\
+            .values('proposal_id', 'proposal_name', 'choice_text', 'proposal_group').order_by('proposal_group', 'proposal_name')
+
 
 class ChoiceTicket(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     date_chosen = models.DateTimeField('date chosen')
     proposal_choice = models.ForeignKey(ProposalChoice, on_delete=models.CASCADE)
     current = models.BooleanField(default=True, null=True)
+    objects = ChoiceTicketManager()

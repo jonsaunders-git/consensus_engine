@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth.views import LoginView
+
 from django.contrib.auth.models import User
 
 from django.contrib.auth.decorators import login_required
@@ -8,26 +8,14 @@ from django.utils import timezone
 from django.urls import reverse
 
 
-from .models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
-from .forms import ProposalForm, ProposalChoiceForm, ProposalGroupForm, RememberMeLoginForm
+from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
+from consensus_engine.forms import ProposalForm, ProposalChoiceForm, ProposalGroupForm
 
 # Create your views here.
 
 @login_required
 def index(request):
     return render(request, 'consensus_engine/index.html')
-
-class RememberMeLoginView(LoginView):
-    form_class = RememberMeLoginForm
-
-    def form_valid(self, form):
-        remember_me = form.cleaned_data['remember_me']
-        if not remember_me:
-            self.request.session.set_expiry(0)
-        else:
-            self.request.session.set_expiry(3000)
-        self.request.session.modified = True
-        return super().form_valid(form)
 
 
 @login_required
@@ -294,8 +282,8 @@ def group_proposals(request, proposal_group_id):
 
 @login_required
 def view_my_votes(request):
-    proposals_list = Proposal.objects.my_votes(request.user)
-    context = {'proposals_list': proposals_list}
+    votes_list = ChoiceTicket.objects.my_votes(request.user)
+    context = {'votes_list': votes_list}
     return render(request, 'consensus_engine/view_my_votes.html', context)
 
 @login_required

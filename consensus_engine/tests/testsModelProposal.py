@@ -5,7 +5,6 @@ from .mixins import TwoUserMixin, ProposalMixin
 
 # Create your tests here.
 
-from django.test import TestCase
 from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
 from django.utils import timezone
 
@@ -61,9 +60,27 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         v3 = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(isinstance(v, ChoiceTicket))
         self.assertTrue(w.total_votes == 2)
-        # test my_votes
-        x = Proposal.objects.my_votes(self.user)
-        self.assertTrue(x.count() == 1)
+
+    def test_total_votes_for_proposal_with_a_deactivated_proposal_choice(self):
+        w = self.create_proposal_with_two_proposal_choices()
+        # check that total votes = 0 if there are no votes
+        self.assertTrue(isinstance(w, Proposal))
+        self.assertTrue(w.total_votes == 0)
+        pc1 = w.proposalchoice_set.first()
+        pc2 = w.proposalchoice_set.last()
+        v = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        self.assertTrue(isinstance(v, ChoiceTicket))
+        self.assertTrue(w.total_votes == 1)
+        # change votes - change current
+        v2 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        v.current=False;
+        v.save();
+        self.assertTrue(w.total_votes == 1)
+        # create a vote by another user and test that we have two votes
+        v3 = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        self.assertTrue(isinstance(v, ChoiceTicket))
+        self.assertTrue(w.total_votes == 2)
+
 
     def test_proposal_owned_set(self):
         # should be no proposals for this user at start of test
