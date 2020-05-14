@@ -103,6 +103,12 @@ class ChoiceTicketManager(models.Manager):
             .values('proposal_id', 'proposal_name',
                 'choice_text', 'proposal_group')
             .order_by('proposal_group', 'proposal_name'))
+    def get_current_choice(self, user, proposal):
+        try:
+            current_choice = ChoiceTicket.objects.get(user = user, proposal_choice__proposal = proposal, current = True)
+        except (KeyError, ChoiceTicket.DoesNotExist):
+            current_choice = None
+        return current_choice
 
 
 class ChoiceTicket(models.Model):

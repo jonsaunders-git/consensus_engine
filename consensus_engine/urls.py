@@ -1,16 +1,20 @@
 from django.urls import path
 from django.urls import include, re_path
 from django.contrib.auth import views as auth_views
+from django.views.generic.base import TemplateView
+from django.contrib.auth.decorators import login_required
 
 from . import views
 
+
 urlpatterns = [
-    path('', views.index, name='index'),
+    #path('', views.index, name='index'),
+    path('', login_required(TemplateView.as_view(template_name="consensus_engine/index.html")), name='index'),
     path('proposals/new/', views.new_proposal, name='new_proposal'),
     path('votes/owned/', views.view_my_votes, name='view_my_votes'),
     path('proposals/', views.my_proposals, name="proposals"),
     path('proposals/owned/', views.my_proposals, name='my_proposals'),
-    path('proposals/<int:proposal_id>/', views.view_proposal, name='view_proposal'),
+    path('proposals/<int:proposal_id>/', views.ProposalView.as_view(), name='view_proposal'),
     path('proposals/<int:proposal_id>/edit/', views.edit_proposal, name='edit_proposal'),
     path('proposals/<int:proposal_id>/assign/group/', views.assign_proposals_group, name='assign_proposals_group'),
     path('proposals/<int:proposal_id>/vote/', views.vote_proposal, name='vote_proposal'),

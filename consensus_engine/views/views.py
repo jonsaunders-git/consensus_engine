@@ -14,26 +14,6 @@ from consensus_engine.forms import ProposalForm, ProposalChoiceForm, ProposalGro
 # Create your views here.
 
 @login_required
-def index(request):
-    return render(request, 'consensus_engine/index.html')
-
-
-@login_required
-def view_proposal(request, proposal_id):
-    # view the proposal choices
-    proposal = get_object_or_404(Proposal, pk=proposal_id)
-    try:
-        current_choice = ChoiceTicket.objects.get(user = request.user, proposal_choice__proposal = proposal, current = True)
-    except (KeyError, ChoiceTicket.DoesNotExist):
-        current_choice = None
-
-    active_choices = proposal.proposalchoice_set.activated()
-
-    context = {'proposal' : proposal, 'current_choice' : current_choice, 'active_choices' : active_choices }
-    return render(request, 'consensus_engine/view_proposal.html', context)
-
-
-@login_required
 def edit_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)

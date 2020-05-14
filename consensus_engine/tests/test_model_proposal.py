@@ -23,7 +23,9 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
     def test_proposal_short_name(self):
         w = self.create_new_proposal()
         self.assertTrue(w.short_name == "only a test")
-        x = self.create_new_proposal(proposal_name="this is a long test name and should be truncated")
+        x = self.create_new_proposal(
+            proposal_name="this is a long test name and should be truncated"
+        )
         self.assertTrue(x.short_name == "this is a long test name an...")
         x = self.create_new_proposal(proposal_name="this is a long test name anxyz")
         self.assertTrue(x.short_name == "this is a long test name anxyz")
@@ -48,16 +50,19 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         self.assertTrue(w.total_votes == 0)
         pc1 = w.proposalchoice_set.first()
         pc2 = w.proposalchoice_set.last()
-        v = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        v = ChoiceTicket.objects.create(user=self.user,
+            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(isinstance(v, ChoiceTicket))
         self.assertTrue(w.total_votes == 1)
         # change votes - change current
-        v2 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        v2 = ChoiceTicket.objects.create(user=self.user,
+            date_chosen=timezone.now(), proposal_choice=pc2, current=True)
         v.current=False;
         v.save();
         self.assertTrue(w.total_votes == 1)
         # create a vote by another user and test that we have two votes
-        v3 = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        v3 = ChoiceTicket.objects.create(user=self.user2,
+            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(isinstance(v, ChoiceTicket))
         self.assertTrue(w.total_votes == 2)
 
