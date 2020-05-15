@@ -3,6 +3,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
 from django.test import TestCase
 from django.utils import timezone
+from django.contrib.sessions.middleware import SessionMiddleware
 
 class OneUserMixin(object):
     def setUp(self):
@@ -51,3 +52,43 @@ class ProposalMixin(object):
         pc2 = ProposalChoice.objects.create(proposal=p, text=proposal_choice_2_name,
             priority=100, activated_date=timezone.now())
         return p
+
+
+class ViewMixin(object):
+    path = None
+    form = None
+    view = None
+
+    def get_form(self, form_class=None, data=None):
+        if form_class is None:
+            form_class = self.form
+        return form_class(data=data)
+
+    def get_view(self, view_class=None, kwargs={}):
+        if view_class is None:
+            view_class = self.view
+        vc = view_class()
+        vc.kwargs = kwargs
+        return vc
+
+    def getSessionRequest(self, path=None):
+        if path is None:
+            path = self.path
+        request = self.factory.get(path)
+        # Recall that middleware are not supported. You can simulate a
+        # logged-in user by setting request.user manually.
+        request.user = self.user
+
+        middleware = SessionMiddleware()
+        middleware.process_request(request)
+        request.session.save()
+        return request
+
+    def getValidView(self, data, viewkwargs={}):
+        request = self.getSessionRequest()
+        f = self.get_form(data=data)
+        v = self.get_view(kwargs=viewkwargs)
+        v.request = request
+        self.assertTrue(f.is_valid())
+        self.assertTrue(v.form_valid(f))
+        return request

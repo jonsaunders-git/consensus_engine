@@ -36,13 +36,12 @@ class CreateProposalView(CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.user = self.request.user
+        self.object.owned_by = self.request.user
         self.object.date_proposed = timezone.now()
         if 'proposal_group_id' in self.kwargs:
             proposal_group = ProposalGroup.objects.get(pk=self.kwargs['proposal_group_id'])
             self.object.proposal_group = proposal_group
         self.object.save()
-        print(self.get_success_url())
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
