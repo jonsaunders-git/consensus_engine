@@ -1,6 +1,7 @@
 from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.urls import reverse
 
 # Create your models here.
 
@@ -41,6 +42,9 @@ class Proposal(models.Model):
                                         on_delete=models.SET_NULL, null=True)
     # managers
     objects = ProposalManager()
+    # class functions
+    def get_absolute_url(self):
+        return reverse ('view_proposal', kwargs = {'proposal_id': str (self.pk)})
     # properties
     @property
     def short_name(self):
@@ -88,7 +92,7 @@ class ProposalChoice(models.Model):
             ticket.save()
 
 class ChoiceTicketManager(models.Manager):
-    
+
     def my_votes(self, user):
         return (ChoiceTicket.objects.filter(
                             current=True,

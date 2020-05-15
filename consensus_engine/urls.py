@@ -8,9 +8,8 @@ from . import views
 
 
 urlpatterns = [
-    #path('', views.index, name='index'),
     path('', login_required(TemplateView.as_view(template_name="consensus_engine/index.html")), name='index'),
-    path('proposals/new/', views.new_proposal, name='new_proposal'),
+    path('proposals/new/', views.CreateProposalView.as_view(), name='new_proposal'),
     path('votes/owned/', views.view_my_votes, name='view_my_votes'),
     path('proposals/', views.my_proposals, name="proposals"),
     path('proposals/owned/', views.my_proposals, name='my_proposals'),

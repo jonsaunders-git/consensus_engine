@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.urls import reverse
 
 
 from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
@@ -101,35 +100,6 @@ def vote_proposal(request, proposal_id):
 
     context = {'proposal' : proposal, 'current_choice' : current_choice, 'active_choices' : active_choices }
     return render(request, 'consensus_engine/vote_proposal.html', context)
-
-
-@login_required
-def new_proposal(request):
-
-    # get the proposal group - need to make is so that the default group
-    #proposal_group = get_object_or_404(ProposalGroup, pk=proposal_group_id)
-
-     # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = ProposalForm(request.POST)
-
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-
-            # add a date_published
-            obj = form.save(commit=False)
-            obj.date_proposed = timezone.now()
-            obj.owned_by = request.user
-            obj.save()
-            # redirect to a new URL:
-            return HttpResponseRedirect('/proposals/')
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        form = ProposalForm(initial={'date_proposed': timezone.now()})
-    return render(request, 'consensus_engine/new_proposal.html', {'form': form})
 
 
 @login_required

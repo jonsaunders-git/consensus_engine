@@ -9,7 +9,7 @@
     <p class="my-0">
       <span class="font-weight-bold my-0">{% if proposal_group %}{{ proposal_group.group_name }}{% else %}My Proposals{% endif %}</span>
       {% if proposal_group %}<a href="{% url 'edit_proposal_group' proposal_group.id %}"><span class="ml-2 text-muted" data-feather="edit"></span></a>
-      <a href=""><span class="ml-2 text-muted" data-feather="info"></span></a>{% endif %}
+      <a href=""><span class="ml-2 text-muted" data-feather="info"></span></a>  <a href="new/"><span class="ml-2 text-muted" data-feather="plus-circle"></span></a>{% endif %}
     </p>
     <p class="my-0 py-0 text-muted"><small>{% if proposal_group %}{{ proposal_group.group_description }}{% else %}These are the proposals you owned and can contribute to{% endif %}</small></p>
   </div>
