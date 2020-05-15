@@ -103,36 +103,6 @@ def vote_proposal(request, proposal_id):
 
 
 @login_required
-def new_proposal_in_group(request, proposal_group_id):
-
-    # get the proposal group - need to make is so that the default group
-    proposal_group = get_object_or_404(ProposalGroup, pk=proposal_group_id)
-
-     # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = ProposalForm(request.POST)
-
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-
-            # add a date_published
-            obj = form.save(commit=False)
-            obj.date_proposed = timezone.now()
-            obj.owned_by = request.user
-            obj.proposal_group = proposal_group
-            obj.save()
-            # redirect to a new URL:
-            return HttpResponseRedirect('/')
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        form = ProposalForm(initial={ 'date_proposed': timezone.now()})
-    return render(request, 'consensus_engine/new_proposal.html', {'form': form, 'proposal_group' : proposal_group})
-
-
-@login_required
 def new_choice(request, proposal_id):
     proposal = get_object_or_404(Proposal, pk=proposal_id)
 

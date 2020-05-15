@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from consensus_engine.models import Proposal, ChoiceTicket
+from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup
 
 @method_decorator(login_required, name='dispatch')
 class ProposalView(TemplateView):
@@ -38,6 +38,17 @@ class CreateProposalView(CreateView):
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.date_proposed = timezone.now()
+        if 'proposal_group_id' in self.kwargs:
+            proposal_group = ProposalGroup.objects.get(pk=self.kwargs['proposal_group_id'])
+            self.object.proposal_group = proposal_group
         self.object.save()
         print(self.get_success_url())
         return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        # add the proposal_group to the context of it exists
+        context = super().get_context_data(**kwargs)
+        if 'proposal_group_id' in self.kwargs:
+            proposal_group = ProposalGroup.objects.get(pk=self.kwargs['proposal_group_id'])
+            context['proposal_group'] = proposal_group
+        return context
