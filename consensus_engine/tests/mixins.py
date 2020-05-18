@@ -50,7 +50,7 @@ class ProposalMixin(object):
         pc1 = ProposalChoice.objects.create(proposal=p, text=proposal_choice_1_name,
             priority=100, activated_date=timezone.now())
         pc2 = ProposalChoice.objects.create(proposal=p, text=proposal_choice_2_name,
-            priority=100, activated_date=timezone.now())
+            priority=200, activated_date=timezone.now())
         return p
 
 
@@ -89,9 +89,17 @@ class ViewMixin(object):
         v = self.get_view(kwargs=viewkwargs)
         if 'instance' in viewkwargs:
             f = v.get_form_class()(data=data, instance=viewkwargs['instance'])
+            v.object = viewkwargs['instance']
         else:
             f = self.get_form(data=data)
+            # get a instance of the model class for model based classes
+            # - otherwise ignore
+            try:
+                v.object = v.model()
+            except:
+                pass #ignore - not a model based class
         v.request = request
+        self.assertTrue(v.get_context_data(kwargs=viewkwargs))
         self.assertTrue(f.is_valid())
         self.assertTrue(v.form_valid(f))
         return request

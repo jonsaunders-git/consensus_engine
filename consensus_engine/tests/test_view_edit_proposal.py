@@ -10,7 +10,7 @@ from consensus_engine.models import Proposal
 
 class EditProposalViewTest(OneUserMixin, TestCase,
                                 ProposalMixin, ViewMixin):
-    path = '/proposals/new/'
+    path = '/proposals/1/edit/'
     form = ProposalForm
     view = EditProposalView
 

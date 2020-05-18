@@ -72,6 +72,9 @@ class ProposalChoice(models.Model):
     activated_date = models.DateTimeField('active date', null=True)
     deactivated_date = models.DateTimeField('deactivated date', null=True)
     objects = ProposalChoiceManager()
+    # class functions
+    def get_absolute_url(self):
+        return reverse ('view_proposal', kwargs = {'proposal_id': str (self.proposal.id)})
     # properties
     @property
     def current_vote_count(self):
