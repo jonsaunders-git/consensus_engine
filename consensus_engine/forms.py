@@ -13,9 +13,6 @@ class ProposalForm(ModelForm):
     class Meta:
         model = Proposal
         fields = ['proposal_name', 'proposal_description']
-        widgets = {
-            'proposal_description': Textarea(attrs={'cols': 80, 'rows': 20}),
-        }
 
 
 class ProposalChoiceForm(ModelForm):

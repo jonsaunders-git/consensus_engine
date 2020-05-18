@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.views import View
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.utils import timezone
 from django.urls import reverse
 from django.http import HttpResponseRedirect
@@ -51,3 +51,10 @@ class CreateProposalView(CreateView):
             proposal_group = ProposalGroup.objects.get(pk=self.kwargs['proposal_group_id'])
             context['proposal_group'] = proposal_group
         return context
+
+
+@method_decorator(login_required, name='dispatch')
+class EditProposalView(UpdateView):
+    template_name = 'consensus_engine/edit_proposal.html'
+    model = Proposal
+    fields = ['proposal_name', 'proposal_description']

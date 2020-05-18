@@ -86,8 +86,11 @@ class ViewMixin(object):
 
     def getValidView(self, data, viewkwargs={}):
         request = self.getSessionRequest()
-        f = self.get_form(data=data)
         v = self.get_view(kwargs=viewkwargs)
+        if 'instance' in viewkwargs:
+            f = v.get_form_class()(data=data, instance=viewkwargs['instance'])
+        else:
+            f = self.get_form(data=data)
         v.request = request
         self.assertTrue(f.is_valid())
         self.assertTrue(v.form_valid(f))

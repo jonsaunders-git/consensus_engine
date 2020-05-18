@@ -12,39 +12,6 @@ from consensus_engine.forms import ProposalForm, ProposalChoiceForm, ProposalGro
 
 # Create your views here.
 
-@login_required
-def edit_proposal(request, proposal_id):
-    # view the proposal choices
-    proposal = get_object_or_404(Proposal, pk=proposal_id)
-
-    if proposal.owned_by != request.user:
-        return render(request, 'consensus_engine/edit_proposal.html', {
-            'proposal' : proposal,
-            'error_message' : "You don't have permissions to edit."
-        })
-
-     # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = ProposalForm(request.POST, instance=proposal)
-
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-
-            # add a date_published - really we need to just make a new version...
-            form.save()
-            # redirect to a new URL:
-            return HttpResponseRedirect('/proposals/')
-
-
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        form = ProposalForm(instance=proposal)
-
-    return render(request, 'consensus_engine/edit_proposal.html', {'form': form})
-
 
 @login_required
 def assign_proposals_group(request, proposal_id):
