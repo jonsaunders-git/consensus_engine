@@ -24,7 +24,7 @@ class TwoUserMixin(OneUserMixin):
 class ProposalGroupMixin(object):
     # needs to be used inconjunction with a UserMixin or it won't work
 
-    def create_proposal_group(self, group_name="Test Group", owned_by=None,
+    def create_proposal_group(self, group_name="test group", owned_by=None,
         group_description="it's only a test group"):
 
         if owned_by == None:

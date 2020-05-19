@@ -25,3 +25,10 @@ class CreateProposalGroupView(CreateView):
         self.object.owned_by = self.request.user
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
+
+
+@method_decorator(login_required, name='dispatch')
+class EditProposalGroupView(UpdateView):
+    template_name = 'consensus_engine/edit_proposal_group.html'
+    model = ProposalGroup
+    fields = ['group_name', 'group_description']

@@ -98,31 +98,6 @@ def my_proposal_groups(request):
     context = {'proposalgroup_list': proposalgroup_list}
     return render(request, 'consensus_engine/list_proposal_groups.html', context)
 
-@login_required
-def edit_proposal_group(request, proposal_group_id):
-    # view the proposal choices
-    proposal_group = get_object_or_404(ProposalGroup, pk=proposal_group_id)
-
-     # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = ProposalGroupForm(request.POST, instance=proposal_group)
-
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-
-            # add a date_published - really we need to just make a new version...
-            form.save()
-            # redirect to a new URL:
-            return HttpResponseRedirect('/proposalgroups/')
-
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        form = ProposalGroupForm(instance=proposal_group)
-
-    return render(request, 'consensus_engine/edit_proposal_group.html', {'form': form})
 
 def uiformat(request):
     return render(request, 'consensus_engine/uiformat.html')

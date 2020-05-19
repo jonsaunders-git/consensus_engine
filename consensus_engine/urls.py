@@ -23,7 +23,7 @@ urlpatterns = [
     path('proposalgroups/new/', views.CreateProposalGroupView.as_view(), name='new_proposal_group'),
     path('proposalgroups/', views.list_proposal_groups, name='list_proposal_groups'),
     path('proposalgroups/owned/', views.my_proposal_groups, name='my_proposal_groups'),
-    path('proposalgroups/<int:proposal_group_id>/edit/', views.edit_proposal_group, name='edit_proposal_group'),
+    path('proposalgroups/<int:pk>/edit/', views.EditProposalGroupView.as_view(), name='edit_proposal_group'),
     path('proposalgroups/<int:proposal_group_id>/proposals/', views.group_proposals, name='group_proposals'),
     path('proposalgroups/<int:proposal_group_id>/proposals/new/', views.CreateProposalView.as_view(), name='new_proposal_in_group'),
     path('accounts/', include('django.contrib.auth.urls')),

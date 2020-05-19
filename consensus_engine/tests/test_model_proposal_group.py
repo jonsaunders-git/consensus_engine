@@ -16,7 +16,7 @@ class ProposalGroupTest(TwoUserMixin, ProposalGroupMixin, TestCase):
     def test_proposal_group_creation(self):
         pg =self.create_proposal_group()
         self.assertTrue(isinstance(pg,ProposalGroup))
-        self.assertTrue(pg.group_name == "Test Group")
+        self.assertTrue(pg.group_name == "test group")
         self.assertTrue(pg.owned_by == self.user)
         self.assertTrue(pg.group_description == "it's only a test group")
 
