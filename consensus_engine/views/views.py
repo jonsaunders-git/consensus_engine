@@ -69,35 +69,6 @@ def vote_proposal(request, proposal_id):
     return render(request, 'consensus_engine/vote_proposal.html', context)
 
 
-@login_required
-def edit_choice(request, proposal_id, choice_id):
-
-    choice = get_object_or_404(ProposalChoice, pk=choice_id)
-
-    if choice.proposal.owned_by != request.user:
-        return render(request, 'consensus_engine/edit_choice.html', {
-            'proposal' : choice.proposal,
-            'error_message' : "You don't have permissions to edit."
-        })
-
-     # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = ProposalChoiceForm(request.POST, instance=choice)
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-
-            form.save()
-            # redirect to a new URL:
-            return HttpResponseRedirect('/proposals/%d/' % proposal_id)
-
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        form = ProposalChoiceForm(instance=choice)
-
-    return render(request, 'consensus_engine/edit_choice.html', {'form': form})
 
 
 @login_required

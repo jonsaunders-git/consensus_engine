@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.views import View
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.utils import timezone
 from django.urls import reverse
 from django.http import HttpResponseRedirect
@@ -40,3 +40,17 @@ class EditProposalChoiceView(UpdateView):
     template_name = 'consensus_engine/edit_choice.html'
     model = ProposalChoice
     fields = ['text', 'priority']
+
+
+@method_decorator(login_required, name='dispatch')
+class DeleteProposalChoiceView(DeleteView):
+  model = ProposalChoice
+  template_name = 'consensus_engine/delete_choice.html'
+
+  def delete(self, request, *args, **kwargs):
+    self.object = self.get_object()
+    self.success_url = reverse('view_proposal', args=[self.object.proposal.id])
+    if 'okay_btn' in request.POST:
+        self.object.deactivated_date = timezone.now()
+        self.object.save()
+    return HttpResponseRedirect(self.get_success_url())
