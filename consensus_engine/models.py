@@ -16,6 +16,9 @@ class ProposalGroup(models.Model):
     group_description = models.CharField(max_length=200, null=True)
     # managers
     objects = ProposalGroupManager()
+    # class functions
+    def get_absolute_url(self):
+        return reverse ('group_proposals', kwargs = {'proposal_group_id': str (self.pk)})
     # properties
     @property
     def short_name(self):

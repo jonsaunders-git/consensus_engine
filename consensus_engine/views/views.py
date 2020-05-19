@@ -12,7 +12,6 @@ from consensus_engine.forms import ProposalForm, ProposalChoiceForm, ProposalGro
 
 # Create your views here.
 
-
 @login_required
 def assign_proposals_group(request, proposal_id):
     proposal = get_object_or_404(Proposal, pk=proposal_id)
@@ -68,33 +67,6 @@ def vote_proposal(request, proposal_id):
     context = {'proposal' : proposal, 'current_choice' : current_choice, 'active_choices' : active_choices }
     return render(request, 'consensus_engine/vote_proposal.html', context)
 
-
-
-
-@login_required
-def delete_choice(request, proposal_id, choice_id):
-    choice = get_object_or_404(ProposalChoice, pk=choice_id)
-
-    if choice.proposal.owned_by != request.user:
-        return render(request, 'consensus_engine/delete_proposal.html', {
-            'proposal' : choice.proposal,
-            'error_message' : "You don't have permissions to edit."
-        })
-     # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        # check whether it's valid:
-        if 'okay_btn' in request.POST:
-            # process the data in form.cleaned_data as required
-            # ...
-            choice.deactivated_date = timezone.now()
-            choice.save()
-        # redirect to a new URL:
-        return HttpResponseRedirect('/proposals/%d/' % proposal_id)
-
-    return render(request, 'consensus_engine/delete_choice.html')
-
-
 @login_required
 def my_proposals(request):
     proposals_list = Proposal.objects.owned(request.user)
@@ -113,29 +85,6 @@ def view_my_votes(request):
     votes_list = ChoiceTicket.objects.my_votes(request.user)
     context = {'votes_list': votes_list}
     return render(request, 'consensus_engine/view_my_votes.html', context)
-
-@login_required
-def new_proposal_group(request):
-     # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = ProposalGroupForm(request.POST)
-
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-            # add a date_published
-            obj = form.save(commit=False)
-            obj.owned_by = request.user
-            obj.save()
-            # redirect to a new URL:
-        return HttpResponseRedirect('/proposalgroups/')
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        form = ProposalGroupForm()
-    return render(request, 'consensus_engine/new_proposal_group.html', {'form': form})
-
 
 @login_required
 def list_proposal_groups(request):
