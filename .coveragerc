@@ -1,0 +1,8 @@
+[run]
+source = consensus_engine
+omit =
+  consensus_engine/migrations/*
+  consensus_engine/*/__init__.py
+  consensus_engine/__init__.py
+  consensus_engine/tests/*
+  d

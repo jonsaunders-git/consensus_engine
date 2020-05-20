@@ -106,3 +106,23 @@ class ViewMixin(object):
             self.assertTrue(f.is_valid())
             self.assertTrue(v.form_valid(f))
         return request
+
+class TemplateViewMixin(ViewMixin):
+
+    def executeView(self, viewkwargs={}, postargs={}):
+        request = self.getSessionRequest()
+        v = self.get_view(kwargs=viewkwargs)
+
+        mutable = request.POST._mutable
+        request.POST._mutable = True
+        request.POST.update(postargs)
+        request.POST._mutable = mutable
+        v.request = request
+
+        c = v.get_context_data(**viewkwargs)
+        if hasattr(v, 'post'):
+            p = v.post(request, **viewkwargs)
+        else:
+            p = None
+
+        return (c, p)
