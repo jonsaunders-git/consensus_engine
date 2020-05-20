@@ -44,6 +44,10 @@ class PickProposalGroupView(TemplateView):
             proposal = get_object_or_404(Proposal, pk=kwargs['proposal_id'])
             if proposal.proposal_group is not None:
                 context['current_group_id'] = proposal.proposal_group.id
+            if proposal.owned_by != self.request.user:
+                context.update({
+                    'error_message' : "You don't have permissions to edit the group."
+                })
         return context
 
     def post(self, request, **kwargs):
@@ -53,7 +57,7 @@ class PickProposalGroupView(TemplateView):
             if proposal.owned_by != request.user:
                 return render(request, 'consensus_engine/edit_proposal.html', {
                     'proposal' : proposal,
-                    'error_message' : "You don't have permissions to edit."
+                    'error_message' : "You don't have permissions for this activity."
                 })
             try:
                 selected_group = ProposalGroup.objects.get(pk=request.POST['proposal_group'])
