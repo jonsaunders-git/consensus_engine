@@ -13,33 +13,6 @@ from consensus_engine.forms import ProposalForm, ProposalChoiceForm, ProposalGro
 # Create your views here.
 
 @login_required
-def assign_proposals_group(request, proposal_id):
-    proposal = get_object_or_404(Proposal, pk=proposal_id)
-
-    if proposal.owned_by != request.user:
-        return render(request, 'consensus_engine/edit_proposal.html', {
-            'proposal' : proposal,
-            'error_message' : "You don't have permissions to edit."
-        })
-
-    if request.method == 'POST':
-        try:
-            selected_group = ProposalGroup.objects.get(pk=request.POST['proposal_group'])
-            proposal.proposal_group = selected_group
-            proposal.save()
-        except (KeyError, ProposalGroup.DoesNotExist):
-            return render(request, 'consensus_engine/assign_proposals_group.html', {
-                'proposal' : proposal,
-                'error_message' : "You didn't select a choice.",
-            })
-
-        return HttpResponseRedirect('/proposals/')
-    proposalgroup_list = ProposalGroup.objects.all
-    context = {'proposalgroup_list': proposalgroup_list}
-    return render(request, 'consensus_engine/assign_proposals_group.html', context)
-
-
-@login_required
 def vote_proposal(request, proposal_id):
     # view the proposal choices
     proposal = get_object_or_404(Proposal, pk=proposal_id)

@@ -4,6 +4,8 @@ from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, Prop
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.views.generic.edit import CreateView, UpdateView
+from django.contrib.auth.views import LoginView
 
 class OneUserMixin(object):
     def setUp(self):
@@ -91,15 +93,16 @@ class ViewMixin(object):
             f = v.get_form_class()(data=data, instance=viewkwargs['instance'])
             v.object = viewkwargs['instance']
         else:
-            f = self.get_form(data=data)
             # get a instance of the model class for model based classes
             # - otherwise ignore
             try:
+                f = self.get_form(data=data)
                 v.object = v.model()
             except:
                 pass #ignore - not a model based class
         v.request = request
         self.assertTrue(v.get_context_data(kwargs=viewkwargs))
-        self.assertTrue(f.is_valid())
-        self.assertTrue(v.form_valid(f))
+        if isinstance(v, CreateView) or isinstance(v, UpdateView) or isinstance(v, LoginView):
+            self.assertTrue(f.is_valid())
+            self.assertTrue(v.form_valid(f))
         return request

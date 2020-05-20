@@ -1,0 +1,33 @@
+{% extends "consensus_engine/base_dialog.html" %}
+{% load static %}
+
+
+{% block dialog_descriptor %}
+
+<h2>Pick a Proposal Group</h2>
+<div>
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
+</div>
+
+
+{% endblock %}
+
+
+{% block form_fields %}
+
+  {% csrf_token %}
+  {% if proposalgroup_list %}
+  <div class="form-group">
+      <div class="list-group">
+          {% for proposalgroup in proposalgroup_list %}
+          <input type="radio" id="{{ proposalgroup.id }}" name="proposal_group" value="{{ proposalgroup.id }}"
+          {% if proposalgroup.id == current_group_id %}checked{% endif %}>
+          <label class="list-group-item" for="{{ proposalgroup.id }}">{{ proposalgroup.group_name}}</label>
+          {% endfor %}
+      </div>
+    </div>
+{% else %}
+    <p>No proposal choices are available.</p>
+{% endif %}
+
+{% endblock %}

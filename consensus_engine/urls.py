@@ -6,16 +6,15 @@ from django.contrib.auth.decorators import login_required
 
 from . import views
 
-
 urlpatterns = [
     path('', login_required(TemplateView.as_view(template_name="consensus_engine/index.html")), name='index'),
-    path('proposals/new/', views.CreateProposalView.as_view(), name='new_proposal'),
+    path('proposals/new/', views.PickProposalGroupView.as_view(), name='new_proposal'),
     path('votes/owned/', views.view_my_votes, name='view_my_votes'),
     path('proposals/', views.my_proposals, name="proposals"),
     path('proposals/owned/', views.my_proposals, name='my_proposals'),
     path('proposals/<int:proposal_id>/', views.ProposalView.as_view(), name='view_proposal'),
     path('proposals/<int:pk>/edit/', views.EditProposalView.as_view(), name='edit_proposal'),
-    path('proposals/<int:proposal_id>/assign/group/', views.assign_proposals_group, name='assign_proposals_group'),
+    path('proposals/<int:proposal_id>/assign/group/', views.PickProposalGroupView.as_view(), name='assign_proposals_group'),
     path('proposals/<int:proposal_id>/vote/', views.vote_proposal, name='vote_proposal'),
     path('proposals/<int:proposal_id>/choice/new/', views.CreateProposalChoiceView.as_view(), name='new_choice'),
     path('proposals/<int:proposal_id>/choice/<int:pk>/edit/', views.EditProposalChoiceView.as_view(), name='edit_choice'),
