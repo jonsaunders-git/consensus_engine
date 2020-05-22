@@ -40,18 +40,6 @@ def vote_proposal(request, proposal_id):
     context = {'proposal' : proposal, 'current_choice' : current_choice, 'active_choices' : active_choices }
     return render(request, 'consensus_engine/vote_proposal.html', context)
 
-@login_required
-def my_proposals(request):
-    proposals_list = Proposal.objects.owned(request.user)
-    context = {'proposals_list': proposals_list}
-    return render(request, 'consensus_engine/list_proposals.html', context)
-
-@login_required
-def group_proposals(request, proposal_group_id):
-    proposal_group = get_object_or_404(ProposalGroup, pk=proposal_group_id)
-    proposals_list = Proposal.objects.in_group(proposal_group)
-    context = {'proposals_list': proposals_list, 'proposal_group': proposal_group }
-    return render(request, 'consensus_engine/list_proposals.html', context)
 
 @login_required
 def view_my_votes(request):

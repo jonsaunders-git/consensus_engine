@@ -60,6 +60,7 @@ class ViewMixin(object):
     path = None
     form = None
     view = None
+    current_user = None
 
     def get_form(self, form_class=None, data=None):
         if form_class is None:
@@ -79,7 +80,9 @@ class ViewMixin(object):
         request = self.factory.get(path)
         # Recall that middleware are not supported. You can simulate a
         # logged-in user by setting request.user manually.
-        request.user = self.user
+        if self.current_user is None:
+            self.current_user = self.user
+        request.user = self.current_user
 
         middleware = SessionMiddleware()
         middleware.process_request(request)

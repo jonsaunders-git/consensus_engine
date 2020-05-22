@@ -58,3 +58,26 @@ class EditProposalView(UpdateView):
     template_name = 'consensus_engine/edit_proposal.html'
     model = Proposal
     fields = ['proposal_name', 'proposal_description']
+
+
+@method_decorator(login_required, name='dispatch')
+class ProposalListView(TemplateView):
+    """ Shows a list of proposals """
+    template_name = 'consensus_engine/list_proposals.html'
+
+    def get_context_data(self, **kwargs):
+        # view the proposal choices
+        proposals_list = Proposal.objects.owned(self.request.user)
+        context = {'proposals_list': proposals_list}
+        return context
+
+@method_decorator(login_required, name='dispatch')
+class ProposalListGroupView(ProposalListView):
+    """ Sub class ProposalListView to get ones in group """
+
+    def get_context_data(self, **kwargs):
+        # view the proposal choices
+        proposal_group = get_object_or_404(ProposalGroup, pk=kwargs['proposal_group_id'])
+        proposals_list = Proposal.objects.in_group(proposal_group)
+        context = {'proposals_list': proposals_list, 'proposal_group': proposal_group }
+        return context
