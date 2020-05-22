@@ -13,7 +13,7 @@ urlpatterns = [
     path('proposals/new/',
             views.PickProposalGroupView.as_view(), name='new_proposal'),
     path('votes/owned/',
-            views.view_my_votes, name='view_my_votes'),
+            views.MyVotesView.as_view(), name='view_my_votes'),
     path('proposals/owned/',
             views.ProposalListView.as_view(), name="my_proposals"),
     path('proposals/<int:proposal_id>/',

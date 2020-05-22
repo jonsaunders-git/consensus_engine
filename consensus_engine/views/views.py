@@ -41,12 +41,5 @@ def vote_proposal(request, proposal_id):
     return render(request, 'consensus_engine/vote_proposal.html', context)
 
 
-@login_required
-def view_my_votes(request):
-    votes_list = ChoiceTicket.objects.my_votes(request.user)
-    context = {'votes_list': votes_list}
-    return render(request, 'consensus_engine/view_my_votes.html', context)
-
-
 def uiformat(request):
     return render(request, 'consensus_engine/uiformat.html')
