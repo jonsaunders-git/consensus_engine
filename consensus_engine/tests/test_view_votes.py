@@ -53,7 +53,6 @@ class VoteViewTest(TwoUserMixin, TestCase,
         self.factory = RequestFactory()
         TwoUserMixin.setUp(self)
 
-
     def test_vote(self):
         p = self.create_proposal_with_two_proposal_choices()
         # check that total votes = 0 if there are no votes
@@ -65,4 +64,17 @@ class VoteViewTest(TwoUserMixin, TestCase,
         context , _ = self.executeView(viewkwargs={'proposal_id' : p.id}, postargs={'choice' :pc1.id})
         self.assertTrue(p.total_votes == 1)
         self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc1).count() == 1)
+        self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc2).count() == 0)
+
+    def test_vote_incorrect_choice(self):
+        p = self.create_proposal_with_two_proposal_choices()
+        # check that total votes = 0 if there are no votes
+        pc1 = p.proposalchoice_set.first()
+        pc2 = p.proposalchoice_set.last()
+        self.assertTrue(p.total_votes == 0)
+        self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc1).count() == 0)
+        self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc2).count() == 0)
+        context , _ = self.executeView(viewkwargs={'proposal_id' : p.id}, postargs={'choice' :99})
+        self.assertTrue(p.total_votes == 1)
+        self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc1).count() == 0)
         self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc2).count() == 0)
