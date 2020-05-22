@@ -23,7 +23,7 @@ urlpatterns = [
     path('proposals/<int:proposal_id>/assign/group/',
             views.PickProposalGroupView.as_view(), name='assign_proposals_group'),
     path('proposals/<int:proposal_id>/vote/',
-            views.vote_proposal, name='vote_proposal'),
+            views.VoteView.as_view(), name='vote_proposal'),
     path('proposals/<int:proposal_id>/choice/new/',
             views.CreateProposalChoiceView.as_view(), name='new_choice'),
     path('proposals/<int:proposal_id>/choice/<int:pk>/edit/',
@@ -43,7 +43,8 @@ urlpatterns = [
     path('proposalgroups/<int:proposal_group_id>/proposals/new/',
             views.CreateProposalView.as_view(), name='new_proposal_in_group'),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('uiformat/', views.uiformat, name="uiformat"),
     re_path(r'^login/$', views.RememberMeLoginView.as_view(), name="login"),
+    # just for testing UI stuff - to be removed
+    path('uiformat/', views.uiformat, name="uiformat"),
 
 ]
