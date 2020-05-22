@@ -15,11 +15,11 @@ class MyVotesViewTest(TwoUserMixin, TestCase,
         self.factory = RequestFactory()
         TwoUserMixin.setUp(self)
 
-    def test_list_proposals_no_proposals(self):
+    def test_list_votes_no_votes(self):
         context , _ = self.executeView()
         self.assertTrue(context['votes_list'].count() == 0)
 
-    def test_list_proposals_some_proposals(self):
+    def test_list_votes_some_votes(self):
         p = self.create_proposal_with_two_proposal_choices()
         # check that total votes = 0 if there are no votes
         pc1 = p.proposalchoice_set.first()
@@ -42,4 +42,4 @@ class MyVotesViewTest(TwoUserMixin, TestCase,
         # switch user
         self.current_user = self.user2
         context , _ = self.executeView()
-        self.assertTrue(context['votes_list'].count() == 1)        
+        self.assertTrue(context['votes_list'].count() == 1)
