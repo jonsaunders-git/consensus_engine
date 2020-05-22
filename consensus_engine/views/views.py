@@ -47,18 +47,6 @@ def view_my_votes(request):
     context = {'votes_list': votes_list}
     return render(request, 'consensus_engine/view_my_votes.html', context)
 
-@login_required
-def list_proposal_groups(request):
-    proposalgroup_list = ProposalGroup.objects.all
-    context = {'proposalgroup_list': proposalgroup_list}
-    return render(request, 'consensus_engine/list_proposal_groups.html', context)
-
-@login_required
-def my_proposal_groups(request):
-    proposalgroup_list = ProposalGroup.objects.owned(request.user).order_by('group_name')
-    context = {'proposalgroup_list': proposalgroup_list}
-    return render(request, 'consensus_engine/list_proposal_groups.html', context)
-
 
 def uiformat(request):
     return render(request, 'consensus_engine/uiformat.html')

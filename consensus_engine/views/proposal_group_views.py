@@ -73,3 +73,27 @@ class PickProposalGroupView(TemplateView):
             success_url = reverse('new_proposal_in_group', args=[selected_group.id])
 
         return HttpResponseRedirect(success_url)
+
+
+@method_decorator(login_required, name='dispatch')
+class ProposalGroupListView(TemplateView):
+    """ Shows a list of proposal groups """
+    template_name = 'consensus_engine/list_proposal_groups.html'
+
+    def get_proposal_group_list(self):
+        return ProposalGroup.objects.all()
+
+    def get_context_data(self, **kwargs):
+        # view the proposal choices
+        proposalgroups_list = self.get_proposal_group_list()
+        context = {'proposalgroup_list': proposalgroups_list}
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class MyProposalGroupListView(ProposalGroupListView):
+    """ Shows a list of proposal groups owned by the current user """
+    template_name = 'consensus_engine/list_proposal_groups.html'
+
+    def get_proposal_group_list(self):
+        return ProposalGroup.objects.owned(self.request.user).order_by('group_name')
