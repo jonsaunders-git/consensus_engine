@@ -1,14 +1,15 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.sessions.middleware import SessionMiddleware
-from .mixins import OneUserMixin, ProposalMixin, ViewMixin
+from .mixins import TwoUserMixin, ProposalMixin, ViewMixin
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
 
 from consensus_engine.views import CreateProposalChoiceView
 from consensus_engine.forms import ProposalChoiceForm
 from consensus_engine.models import Proposal, ProposalChoice
 
-class CreateProposalChoiceViewTest(OneUserMixin, TestCase,
+class CreateProposalChoiceViewTest(TwoUserMixin, TestCase,
                                 ProposalMixin, ViewMixin):
     path = '/proposals/1/choice/new/'
     form = ProposalChoiceForm
@@ -16,7 +17,7 @@ class CreateProposalChoiceViewTest(OneUserMixin, TestCase,
 
     def setUp(self):
         self.factory = RequestFactory()
-        OneUserMixin.setUp(self)
+        TwoUserMixin.setUp(self)
 
     def test_create_proposal_choice(self):
         dt = timezone.now()
@@ -51,3 +52,14 @@ class CreateProposalChoiceViewTest(OneUserMixin, TestCase,
         self.assertTrue(pc2.activated_date >= dt
                             and pc2.activated_date <= timezone.now())
         self.assertTrue(pc2.deactivated_date is None)
+
+    def test_create_proposal_choice_permission_denied(self):
+        dt = timezone.now()
+        self.assertTrue(ProposalChoice.objects.filter(
+            text = 'test choice').count() == 0)
+        p = self.create_new_proposal(owned_by=self.user2)
+        self.assertTrue(p.proposalchoice_set.count() == 0)
+        # create choice
+        with self.assertRaises(PermissionDenied) as e:
+            request = self.getValidView(data={'text': 'test choice',
+                    'priority': '100'}, viewkwargs={'proposal_id' : p.id})

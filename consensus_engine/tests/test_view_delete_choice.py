@@ -1,22 +1,22 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.sessions.middleware import SessionMiddleware
-from .mixins import OneUserMixin, ProposalGroupMixin, ViewMixin, ProposalMixin
+from .mixins import TwoUserMixin, ProposalGroupMixin, ViewMixin, ProposalMixin
 from django.utils import timezone
+from django.core.exceptions import PermissionDenied
 
 from consensus_engine.views import DeleteProposalChoiceView
 from consensus_engine.forms import ProposalChoiceForm
 from consensus_engine.models import Proposal, ProposalChoice
 
-class EditProposalChoicdeViewTest(OneUserMixin, TestCase,
+class EditProposalChoicdeViewTest(TwoUserMixin, TestCase,
                                 ProposalMixin, ViewMixin):
     path = '/proposals/1/choice/1/delete'
     view = DeleteProposalChoiceView
 
     def setUp(self):
         self.factory = RequestFactory()
-        OneUserMixin.setUp(self)
-
+        TwoUserMixin.setUp(self)
 
     def getSessionRequest(self, path=None):
         if path is None:
@@ -47,7 +47,6 @@ class EditProposalChoicdeViewTest(OneUserMixin, TestCase,
         self.assertTrue(v.delete(request))
         return request
 
-
     def test_edit_choice(self):
         p = self.create_proposal_with_two_proposal_choices()
         pc1 = p.proposalchoice_set.first()
@@ -68,3 +67,12 @@ class EditProposalChoicdeViewTest(OneUserMixin, TestCase,
                     viewkwargs={'pk' : pc1.id, 'instance' : pc1, 'proposal_id' : p.id})
         pc1 = ProposalChoice.objects.get(pk=pc1.id)
         self.assertTrue(pc1.deactivated_date is None)
+
+    def test_edit_choice_permission_denied(self):
+        p = self.create_proposal_with_two_proposal_choices(owned_by=self.user2)
+        pc1 = p.proposalchoice_set.first()
+        self.assertTrue(pc1.deactivated_date is None)
+        with self.assertRaises(PermissionDenied) as e:
+            request = self.executeDeleteView(
+                    data={'okay_btn'},
+                    viewkwargs={'pk' : pc1.id, 'instance' : pc1, 'proposal_id' : p.id})

@@ -64,6 +64,8 @@ class Proposal(models.Model):
     # class functions
     def get_absolute_url(self):
         return reverse ('view_proposal', kwargs = {'proposal_id': str (self.pk)})
+    def user_can_edit(self, user):
+        return self.owned_by == user
     # properties
     @property
     def short_name(self):

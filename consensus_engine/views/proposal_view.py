@@ -5,6 +5,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.utils import timezone
 from django.urls import reverse
 from django.http import HttpResponseRedirect
+from django.core.exceptions import PermissionDenied
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -58,6 +59,12 @@ class EditProposalView(UpdateView):
     template_name = 'consensus_engine/edit_proposal.html'
     model = Proposal
     fields = ['proposal_name', 'proposal_description']
+
+    def form_valid(self, form):
+        if self.object.user_can_edit(self.request.user):
+            return super().form_valid(form)
+        else:
+            raise PermissionDenied("Editing is not allowed")
 
 
 @method_decorator(login_required, name='dispatch')

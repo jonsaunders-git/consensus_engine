@@ -4,6 +4,7 @@
 
 {% block child_actions %}
 <!-- creates a opportunity for child actions in the menu -->
+{% if proposal.owned_by == request.user %}
 <li class="nav-item">
   <a class="nav-link" href="{% url 'edit_proposal' proposal.id %}"">
     <span data-feather="file-text"></span>
@@ -16,10 +17,15 @@
     New Choice
   </a>
 </li>
+{% endif %}
 <li class="nav-item">
   <a class="nav-link" href="{% url 'assign_proposals_group' proposal.id %}"">
     <span data-feather="file-text"></span>
+    {% if proposal.proposal_group is None %}
     Add to Group
+    {% else %}
+    Move Group
+    {% endif %}
   </a>
 </li>
 {% endblock %}
@@ -52,12 +58,14 @@
                   <div class="col-0.5">
                     <span class="badge badge-pill badge-primary">{{ choice.current_vote_count }}</span>
                   </div>
+                  {% if proposal.owned_by == request.user %}
                   <div class="col-0.5">
                     <a class="btn btn_secondary" href="{% url 'edit_choice' proposal.id choice.id %}">Edit</a>
                   </div>
                   <div class="col-0.5">
                     <a class="btn btn_secondary mr-2" href="{% url 'delete_choice' proposal.id choice.id %}">Remove</a>
                   </div>
+                  {% endif %}
                 </div>
               </li>
               {% endfor %}

@@ -48,9 +48,9 @@ class ProposalMixin(object):
             proposal_description=proposal_description, owned_by=owned_by, proposal_group=proposal_group)
 
     def create_proposal_with_two_proposal_choices(self, proposal_name="only a test", date_proposed=timezone.now(),
-            proposal_description="yes, this is only a test", proposal_group=None,
+            proposal_description="yes, this is only a test", proposal_group=None, owned_by=None,
             proposal_choice_1_name="Yes", proposal_choice_2_name="No"):
-        p = self.create_new_proposal(proposal_name, date_proposed, proposal_description, proposal_group)
+        p = self.create_new_proposal(proposal_name, date_proposed, proposal_description, proposal_group, owned_by)
         pc1 = ProposalChoice.objects.create(proposal=p, text=proposal_choice_1_name,
             priority=100, activated_date=timezone.now())
         pc2 = ProposalChoice.objects.create(proposal=p, text=proposal_choice_2_name,
