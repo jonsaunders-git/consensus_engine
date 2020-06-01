@@ -75,6 +75,6 @@ class VoteViewTest(TwoUserMixin, TestCase,
         self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc1).count() == 0)
         self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc2).count() == 0)
         context , _ = self.executeView(viewkwargs={'proposal_id' : p.id}, postargs={'choice' :99})
-        self.assertTrue(p.total_votes == 1)
+        self.assertTrue(p.total_votes == 0)
         self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc1).count() == 0)
         self.assertTrue(ChoiceTicket.objects.filter(proposal_choice=pc2).count() == 0)

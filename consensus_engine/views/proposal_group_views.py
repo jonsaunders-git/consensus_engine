@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup
+from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup, GroupMembership
 
 @method_decorator(login_required, name='dispatch')
 class CreateProposalGroupView(CreateView):
@@ -22,6 +22,9 @@ class CreateProposalGroupView(CreateView):
         self.object = form.save(commit=False)
         self.object.owned_by = self.request.user
         self.object.save()
+        # add the owner as the first member
+        member = GroupMembership(user=self.request.user, group=self.object, date_joined=timezone.now())
+        member.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -80,13 +83,17 @@ class ProposalGroupListView(TemplateView):
     """ Shows a list of proposal groups """
     template_name = 'consensus_engine/list_proposal_groups.html'
 
+    def get_group_membership_list(self, user):
+        return ProposalGroup.objects.list_of_membership(user)
+
     def get_proposal_group_list(self):
         return ProposalGroup.objects.all()
 
     def get_context_data(self, **kwargs):
         # view the proposal choices
         proposalgroups_list = self.get_proposal_group_list()
-        context = {'proposalgroup_list': proposalgroups_list}
+        membership_list = self.get_group_membership_list(self.request.user)
+        context = {'proposalgroup_list': proposalgroups_list, 'membership_list' : membership_list}
         return context
 
 
@@ -97,3 +104,20 @@ class MyProposalGroupListView(ProposalGroupListView):
 
     def get_proposal_group_list(self):
         return ProposalGroup.objects.owned(self.request.user).order_by('group_name')
+
+
+@method_decorator(login_required, name='dispatch')
+class JoinProposalGroupMembersView(TemplateView):
+    """ Shows a simple dialog to add user to group member ship """
+    template_name = 'consensus_engine/join_group_members.html'
+
+    def get_context_data(self, **kwargs):
+        proposalgroup = get_object_or_404(ProposalGroup, pk=kwargs['proposal_group_id'])
+        context = {'proposalgroup' : proposalgroup}
+        return context
+
+    def post(self, request, **kwargs):
+        proposalgroup = get_object_or_404(ProposalGroup, pk=kwargs['proposal_group_id'])
+        success_url = reverse('group_proposals', args=[proposalgroup.id])
+        proposalgroup.join_group(request.user)
+        return HttpResponseRedirect(success_url)

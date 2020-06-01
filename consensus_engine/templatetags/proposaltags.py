@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.inclusion_tag('consensus_engine/visible_groups.html')
 def visible_groups(user):
-    visible_groups = ProposalGroup.objects.owned(user).order_by('group_name')
+    visible_groups = ProposalGroup.objects.groups_for_member(user).order_by('group_name')
     return {'visible_groups': visible_groups}
 
 

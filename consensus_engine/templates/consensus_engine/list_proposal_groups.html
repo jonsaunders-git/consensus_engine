@@ -9,7 +9,7 @@
 
 {% block toolbar %}
 <div class="row bg-light border-bottom" >
-  <div class="col my-2 ml-3 align-middle px-2"> 
+  <div class="col my-2 ml-3 align-middle px-2">
     <p class="my-0">
       <span class="font-weight-bold my-0">Proposal Groups</span>
     </p>
@@ -28,7 +28,15 @@
           <div class="card" style="width: 18rem;">
         <div class="card-body">
           <p class="h5 card-title">{{ proposalgroup.group_name}}
-          <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="text-muted"><span class="ml-2 align-top" data-feather="edit"></span></a></p>
+            <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="text-muted">
+            <span class="ml-2 align-top" data-feather="edit"></span>
+            </a>
+            {% if proposalgroup.id not in membership_list %}
+            <a href="{% url 'join_group_members' proposalgroup.id %}" class="text-muted">
+            <span class="ml-2 align-top" data-feather="plus-circle"></span>
+            </a>
+            {% endif %}
+          </p>
           <p class="text-muted"><small>{{ proposalgroup.group_description}}</small></p>
         </div>
         <div class="card-footer text-muted">

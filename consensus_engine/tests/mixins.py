@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser, User
-from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
+from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup, GroupMembership
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -31,8 +31,10 @@ class ProposalGroupMixin(object):
 
         if owned_by == None:
             owned_by = self.user
-        return ProposalGroup.objects.create(group_name=group_name, owned_by=owned_by,
+        pg = ProposalGroup.objects.create(group_name=group_name, owned_by=owned_by,
             group_description=group_description)
+        pg.join_group(owned_by)
+        return pg
 
 
 class ProposalMixin(object):

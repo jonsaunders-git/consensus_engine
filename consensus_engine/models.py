@@ -1,16 +1,26 @@
-from django.db import models, transaction
+from django.db import models, transaction, DataError
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.urls import reverse
 
 # Create your models here.
 
+class GroupMembership(models.Model):
+    """ Defines membership of Groups """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    group = models.ForeignKey('ProposalGroup', on_delete=models.CASCADE, null=False)
+    date_joined = models.DateTimeField('date joined')
+
 class ProposalGroupManager(models.Manager):
     def owned(self, user):
         return self.get_queryset().filter(owned_by_id=user.id)
-
+    def groups_for_member(self, user):
+        return self.get_queryset().filter(groupmembership__user=user)
+    def list_of_membership(self, user):
+        return self.get_queryset().filter(groupmembership__user=user).values_list('id', flat=True)
 
 class ProposalGroup(models.Model):
+    """ Top level grouping for Proposals """
     group_name = models.CharField(max_length=200)
     owned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     group_description = models.CharField(max_length=200, null=True)
@@ -19,6 +29,12 @@ class ProposalGroup(models.Model):
     # class functions
     def get_absolute_url(self):
         return reverse ('group_proposals', kwargs = {'proposal_group_id': str (self.pk)})
+    def join_group(self, user):
+        if (GroupMembership.objects.filter(user=user, group=self).count() == 0):
+            membership = GroupMembership(user=user, group=self, date_joined=timezone.now())
+            membership.save()
+        else:
+            raise DataError("User is already a member of this group.")
     # properties
     @property
     def short_name(self):
@@ -124,6 +140,7 @@ class ChoiceTicketManager(models.Manager):
 
 
 class ChoiceTicket(models.Model):
+    """ Defines a specific choice at a specific time """
     user = models.ForeignKey(User, on_delete=models.SET_NULL,
                                     null=True, blank=True)
     date_chosen = models.DateTimeField('date chosen')

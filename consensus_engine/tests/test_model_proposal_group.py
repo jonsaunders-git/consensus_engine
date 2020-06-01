@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser, User
+from django.db import DataError
 
 from .mixins import TwoUserMixin, ProposalGroupMixin
 
@@ -42,3 +43,21 @@ class ProposalGroupTest(TwoUserMixin, ProposalGroupMixin, TestCase):
         # two for user 1 and 1 for user 2
         self.assertTrue(ProposalGroup.objects.owned(self.user).count() == 2)
         self.assertTrue(ProposalGroup.objects.owned(self.user2).count() == 1)
+
+    def test_join_proposal_group(self):
+        pg = self.create_proposal_group()
+        # get a list of groups that user is in
+        l = ProposalGroup.objects.list_of_membership(self.user)
+        self.assertTrue(pg.id in l)
+        # add second user to proposal group
+        pg.join_group(self.user2)
+        pg2 = self.create_proposal_group()
+        l2 = ProposalGroup.objects.list_of_membership(self.user2)
+        self.assertTrue(pg.id in l2)
+        self.assertTrue(pg2.id not in l2)
+        self.assertTrue(pg.id in l2)
+        self.assertTrue(ProposalGroup.objects.groups_for_member(self.user).count()==2)
+        self.assertTrue(ProposalGroup.objects.groups_for_member(self.user2).count()==1)
+        # test rejoining same group_proposals
+        with self.assertRaises(DataError) as e:
+            pg.join_group(self.user)
