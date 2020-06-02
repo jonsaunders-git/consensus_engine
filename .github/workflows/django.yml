@@ -28,7 +28,7 @@ jobs:
     - name: Run Tests
       run: |
         pytest --cov
-        ls
+        ls -la consensus_engine/
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
