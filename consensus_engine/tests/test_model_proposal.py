@@ -127,3 +127,60 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         # two for group 1 and 1 for group 2
         self.assertTrue(Proposal.objects.in_group(g).count() == 2)
         self.assertTrue(Proposal.objects.in_group(g2).count() == 1)
+
+    def test_get_active_choices(self):
+        p = self.create_proposal_with_two_proposal_choices()
+        # no votes
+        c = p.determine_consensus()
+        self.assertTrue(c is None)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==0)
+        # add a vote
+        pc1 = p.proposalchoice_set.first()
+        pc2 = p.proposalchoice_set.last()
+        v = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        c2 = p.determine_consensus()
+        self.assertTrue(c2.id == pc1.id and c2.current_consensus == True)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==1)
+        pc1.refresh_from_db()
+        pc2.refresh_from_db()
+        self.assertTrue(pc1.current_consensus==True)
+        self.assertTrue(pc2.current_consensus==False)
+        # add a vote to the other choice
+        v2 = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        c3 = p.determine_consensus()
+        self.assertTrue(c3 is None)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==0)
+        pc1.refresh_from_db()
+        pc2.refresh_from_db()
+        self.assertTrue(pc1.current_consensus==False)
+        self.assertTrue(pc2.current_consensus==False)
+        # remove the first vote
+        v.current = False
+        v.save()
+        c4 = p.determine_consensus()
+        self.assertTrue(c4.id == pc2.id and c4.current_consensus == True)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==1)
+        pc1.refresh_from_db()
+        pc2.refresh_from_db()
+        self.assertTrue(pc1.current_consensus==False)
+        self.assertTrue(pc2.current_consensus==True)
+        # add a vote for user 1 to the second choice
+        v3 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        c5 = p.determine_consensus()
+        self.assertTrue(c5.id == pc2.id and c5.current_consensus == True)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==1)
+        pc1.refresh_from_db()
+        pc2.refresh_from_db()
+        self.assertTrue(pc1.current_consensus==False)
+        self.assertTrue(pc2.current_consensus==True)
+        # change the vote to pc1
+        v3.current = False
+        v3.save()
+        v4 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        c6 = p.determine_consensus()
+        self.assertTrue(c6 is None)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==0)
+        pc1.refresh_from_db()
+        pc2.refresh_from_db()
+        self.assertTrue(pc1.current_consensus==False)
+        self.assertTrue(pc2.current_consensus==False)

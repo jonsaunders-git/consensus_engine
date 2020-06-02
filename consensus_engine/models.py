@@ -51,6 +51,7 @@ class ProposalManager(models.Manager):
                     .values('id','proposal_name', 'proposal_description'))
 
 
+
 class Proposal(models.Model):
     proposal_name = models.CharField(max_length=200)
     date_proposed = models.DateTimeField('date proposed')
@@ -65,7 +66,33 @@ class Proposal(models.Model):
     def get_absolute_url(self):
         return reverse ('view_proposal', kwargs = {'proposal_id': str (self.pk)})
     def user_can_edit(self, user):
+        """ Determines whether the passed in user can edit the proposal """
         return self.owned_by == user
+    def determine_consensus(self):
+        """ Sets the current consensus across the Proposal Choices on this proposal """
+        active_choices = self.proposalchoice_set.filter(deactivated_date__isnull=True)
+        # utilise simple - most votes = consensus
+        max_votes = 0
+        current_consensus = None
+        for choice in active_choices:
+            choice_votes = choice.current_vote_count
+            if  choice_votes > max_votes:
+                current_consensus = choice
+                max_votes = choice_votes
+            elif choice_votes == max_votes: # tie break (no consensus)
+                current_consensus = None
+        # update all the choices to the new values
+        if (current_consensus is None or
+                current_consensus.current_consensus == False): # short cut - no update if no change
+            with transaction.atomic():
+                for choice in active_choices:
+                    old_value = choice.current_consensus
+                    new_value = (choice == current_consensus) # i.e. only true if is current choice
+                    if old_value != new_value:
+                        # only update if the state changes
+                        choice.current_consensus = new_value
+                        choice.save()
+        return current_consensus
     # properties
     @property
     def short_name(self):
@@ -93,6 +120,7 @@ class ProposalChoice(models.Model):
     activated_date = models.DateTimeField('active date', null=True)
     deactivated_date = models.DateTimeField('deactivated date', null=True)
     objects = ProposalChoiceManager()
+    current_consensus = models.BooleanField(default=False, null=False)
     # class functions
     def get_absolute_url(self):
         return reverse ('view_proposal', kwargs = {'proposal_id': str (self.proposal.id)})
@@ -114,9 +142,11 @@ class ProposalChoice(models.Model):
             ticket = ChoiceTicket(user=user,
                         date_chosen=timezone.now(), proposal_choice=self)
             ticket.save()
+            # determine consensus opinion after voting
+            self.proposal.determine_consensus()
+
 
 class ChoiceTicketManager(models.Manager):
-
     def my_votes(self, user):
         return (ChoiceTicket.objects.filter(
                             current=True,

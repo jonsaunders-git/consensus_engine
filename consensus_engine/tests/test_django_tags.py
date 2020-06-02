@@ -71,3 +71,30 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
         self.assertTrue(my_vote(w.id, self.user.id)['my_vote'] == pc2.text)
         self.assertTrue(my_vote(w.id, self.user2.id)['my_vote'] == pc1.text)
         self.assertTrue(pc1.text != pc2.text)
+
+
+    def test_proposal_tags_current_consenus(self):
+        w = self.create_proposal_with_two_proposal_choices()
+        # check that total votes = 0 if there are no votes
+        self.assertTrue(isinstance(w, Proposal))
+        self.assertTrue(current_consensus(w.id)['current_consensus'] == 'No consensus')
+        pc1 = w.proposalchoice_set.first()
+        pc2 = w.proposalchoice_set.last()
+        v = ChoiceTicket.objects.create(user=self.user,
+            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        self.assertTrue(isinstance(v, ChoiceTicket))
+        w.determine_consensus()
+        self.assertTrue(current_consensus(w.id)['current_consensus'] == 'Yes')
+        # change votes - change current
+        v2 = ChoiceTicket.objects.create(user=self.user,
+            date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        v.current=False;
+        v.save();
+        w.determine_consensus()
+        self.assertTrue(current_consensus(w.id)['current_consensus'] == 'No')
+        # create a vote by another user and test that we have two votes
+        v3 = ChoiceTicket.objects.create(user=self.user2,
+            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        self.assertTrue(isinstance(v, ChoiceTicket))
+        w.determine_consensus()
+        self.assertTrue(current_consensus(w.id)['current_consensus'] == 'No consensus')

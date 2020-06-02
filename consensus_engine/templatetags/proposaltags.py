@@ -20,6 +20,20 @@ def total_votes(proposal_id):
                     .count())
     return {'total_votes': total_votes}
 
+
+# this needs refactoring as it calls multiple times per view...
+@register.inclusion_tag('consensus_engine/current_consensus.html')
+def current_consensus(proposal_id):
+    try:
+        consensus_consensus = (ProposalChoice.objects.get(
+                                    deactivated_date__isnull=True,
+                                    proposal__id=proposal_id,
+                                    current_consensus=True)
+                                    .text)
+    except:
+        consensus_consensus = "No consensus"
+    return { 'current_consensus' : consensus_consensus }
+
 # this needs refactoring as it calls multiple times per view...
 @register.inclusion_tag('consensus_engine/my_vote.html')
 def my_vote(proposal_id, user_id):
