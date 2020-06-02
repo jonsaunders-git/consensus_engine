@@ -1,5 +1,3 @@
-from django.http import HttpResponse
-from django.views import View
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.utils import timezone
@@ -10,7 +8,8 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup, GroupMembership
+from consensus_engine.models import Proposal, ProposalGroup, GroupMembership
+
 
 @method_decorator(login_required, name='dispatch')
 class CreateProposalGroupView(CreateView):
@@ -23,7 +22,8 @@ class CreateProposalGroupView(CreateView):
         self.object.owned_by = self.request.user
         self.object.save()
         # add the owner as the first member
-        member = GroupMembership(user=self.request.user, group=self.object, date_joined=timezone.now())
+        member = GroupMembership(user=self.request.user, group=self.object,
+                                 date_joined=timezone.now())
         member.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -42,14 +42,16 @@ class PickProposalGroupView(TemplateView):
 
     def get_context_data(self, **kwargs):
         proposalgroup_list = ProposalGroup.objects.all
-        context = {'proposalgroup_list': proposalgroup_list, 'current_group_id' : 0}
+        context = {'proposalgroup_list': proposalgroup_list,
+                   'current_group_id': 0}
         if 'proposal_id' in kwargs:
             proposal = get_object_or_404(Proposal, pk=kwargs['proposal_id'])
             if proposal.proposal_group is not None:
                 context['current_group_id'] = proposal.proposal_group.id
             if proposal.owned_by != self.request.user:
                 context.update({
-                    'error_message' : "You don't have permissions to edit the group."
+                    'error_message':
+                    "You don't have permissions to edit the group."
                 })
         return context
 
@@ -59,17 +61,16 @@ class PickProposalGroupView(TemplateView):
             success_url = reverse('view_proposal', args=[proposal.id])
             if proposal.owned_by != request.user:
                 return render(request, 'consensus_engine/edit_proposal.html', {
-                    'proposal' : proposal,
-                    'error_message' : "You don't have permissions for this activity."
-                })
+                              'proposal': proposal,
+                              'error_message': "You don't have permissions for this activity."})
             try:
                 selected_group = ProposalGroup.objects.get(pk=request.POST['proposal_group'])
                 proposal.proposal_group = selected_group
                 proposal.save()
             except (KeyError, ProposalGroup.DoesNotExist):
                 return render(request, 'consensus_engine/pick_proposal_group.html', {
-                    'proposal' : proposal,
-                    'error_message' : "You didn't select a choice.",
+                    'proposal': proposal,
+                    'error_message': "You didn't select a choice.",
                 })
         else:
             selected_group = ProposalGroup.objects.get(pk=request.POST['proposal_group'])
@@ -93,7 +94,8 @@ class ProposalGroupListView(TemplateView):
         # view the proposal choices
         proposalgroups_list = self.get_proposal_group_list()
         membership_list = self.get_group_membership_list(self.request.user)
-        context = {'proposalgroup_list': proposalgroups_list, 'membership_list' : membership_list}
+        context = {'proposalgroup_list': proposalgroups_list,
+                   'membership_list': membership_list}
         return context
 
 
@@ -113,7 +115,7 @@ class JoinProposalGroupMembersView(TemplateView):
 
     def get_context_data(self, **kwargs):
         proposalgroup = get_object_or_404(ProposalGroup, pk=kwargs['proposal_group_id'])
-        context = {'proposalgroup' : proposalgroup}
+        context = {'proposalgroup': proposalgroup}
         return context
 
     def post(self, request, **kwargs):

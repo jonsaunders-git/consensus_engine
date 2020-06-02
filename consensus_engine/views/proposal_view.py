@@ -1,17 +1,15 @@
-from django.http import HttpResponse
-from django.views import View
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.utils import timezone
-from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup
+
 
 @method_decorator(login_required, name='dispatch')
 class ProposalView(TemplateView):
@@ -20,12 +18,11 @@ class ProposalView(TemplateView):
     def get_context_data(self, **kwargs):
         # view the proposal choices
         proposal = get_object_or_404(Proposal, pk=self.kwargs['proposal_id'])
-        current_choice = ChoiceTicket.objects.get_current_choice(
-                                user=self.request.user,
-                                proposal=proposal)
+        current_choice = ChoiceTicket.objects.get_current_choice(user=self.request.user,
+                                                                 proposal=proposal)
         active_choices = proposal.proposalchoice_set.activated()
-        context = { 'proposal' : proposal, 'current_choice' : current_choice,
-                    'active_choices' : active_choices }
+        context = {'proposal': proposal, 'current_choice': current_choice,
+                   'active_choices': active_choices}
         return context
 
 
@@ -78,6 +75,7 @@ class ProposalListView(TemplateView):
         context = {'proposals_list': proposals_list}
         return context
 
+
 @method_decorator(login_required, name='dispatch')
 class ProposalListGroupView(ProposalListView):
     """ Sub class ProposalListView to get ones in group """
@@ -86,5 +84,5 @@ class ProposalListGroupView(ProposalListView):
         # view the proposal choices
         proposal_group = get_object_or_404(ProposalGroup, pk=kwargs['proposal_group_id'])
         proposals_list = Proposal.objects.in_group(proposal_group)
-        context = {'proposals_list': proposals_list, 'proposal_group': proposal_group }
+        context = {'proposals_list': proposals_list, 'proposal_group': proposal_group}
         return context

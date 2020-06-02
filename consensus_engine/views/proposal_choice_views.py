@@ -1,17 +1,14 @@
-from django.http import HttpResponse
-from django.views import View
-from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.utils import timezone
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
-from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 
-from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup, ProposalChoice
+from consensus_engine.models import Proposal, ProposalChoice
+
 
 @method_decorator(login_required, name='dispatch')
 class CreateProposalChoiceView(CreateView):
@@ -54,15 +51,15 @@ class EditProposalChoiceView(UpdateView):
 
 @method_decorator(login_required, name='dispatch')
 class DeleteProposalChoiceView(DeleteView):
-  model = ProposalChoice
-  template_name = 'consensus_engine/delete_choice.html'
+    model = ProposalChoice
+    template_name = 'consensus_engine/delete_choice.html'
 
-  def delete(self, request, *args, **kwargs):
-    self.object = self.get_object()
-    if not self.object.proposal.user_can_edit(self.request.user):
-        raise PermissionDenied("Editing is not allowed")
-    self.success_url = reverse('view_proposal', args=[self.object.proposal.id])
-    if 'okay_btn' in request.POST:
-        self.object.deactivated_date = timezone.now()
-        self.object.save()
-    return HttpResponseRedirect(self.get_success_url())
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.proposal.user_can_edit(self.request.user):
+            raise PermissionDenied("Editing is not allowed")
+        self.success_url = reverse('view_proposal', args=[self.object.proposal.id])
+        if 'okay_btn' in request.POST:
+            self.object.deactivated_date = timezone.now()
+            self .object.save()
+        return HttpResponseRedirect(self.get_success_url())

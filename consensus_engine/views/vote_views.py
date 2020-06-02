@@ -1,4 +1,3 @@
-from django.views import View
 from django.views.generic.base import TemplateView
 from django.http import HttpResponseRedirect
 
@@ -30,16 +29,15 @@ class VoteView(TemplateView):
         proposal = get_object_or_404(Proposal, pk=kwargs['proposal_id'])
         try:
             # should be just the one.
-            current_choice = ChoiceTicket.objects.get(user = self.request.user, proposal_choice__proposal = proposal, current=True)
+            current_choice = ChoiceTicket.objects.get(user=self.request.user,
+                                                      proposal_choice__proposal=proposal,
+                                                      current=True)
         except (KeyError, ChoiceTicket.DoesNotExist):
             current_choice = None
         active_choices = proposal.proposalchoice_set.activated()
-        context = {
-                    'proposal' : proposal, 'current_choice' : current_choice,
-                    'active_choices' : active_choices
-                    }
+        context = {'proposal': proposal, 'current_choice': current_choice,
+                   'active_choices': active_choices}
         return context
-
 
     def post(self, request, **kwargs):
         proposal = get_object_or_404(Proposal, pk=kwargs['proposal_id'])
@@ -48,8 +46,8 @@ class VoteView(TemplateView):
             selected_choice.vote(request.user)
         except (KeyError, ProposalChoice.DoesNotExist):
             return render(request, 'consensus_engine/vote_proposal.html', {
-                'proposal' : proposal,
-                'error_message' : "You didn't select a choice.",
+                'proposal': proposal,
+                'error_message': "You didn't select a choice.",
             })
         next = request.POST.get('next', '/')
         return HttpResponseRedirect(next)

@@ -1,6 +1,5 @@
-from django.forms import ModelForm, Textarea, BooleanField
+from django.forms import ModelForm, BooleanField
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
 
 from .models import Proposal, ProposalChoice, ProposalGroup
 
@@ -8,6 +7,7 @@ from .models import Proposal, ProposalChoice, ProposalGroup
 class RememberMeLoginForm(AuthenticationForm):
     #  add the remember_me field
     remember_me = BooleanField(required=False, initial=True)
+
 
 class ProposalForm(ModelForm):
     class Meta:
@@ -19,6 +19,7 @@ class ProposalChoiceForm(ModelForm):
     class Meta:
         model = ProposalChoice
         fields = ['text', 'priority']
+
 
 class ProposalGroupForm(ModelForm):
     class Meta:

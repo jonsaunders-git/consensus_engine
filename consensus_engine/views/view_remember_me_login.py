@@ -1,6 +1,7 @@
 from django.contrib.auth.views import LoginView
 from consensus_engine.forms import RememberMeLoginForm
 
+
 class RememberMeLoginView(LoginView):
     form_class = RememberMeLoginForm
 

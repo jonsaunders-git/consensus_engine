@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.urls import reverse
 
-# Create your models here.
 
 class GroupMembership(models.Model):
     """ Defines membership of Groups """
@@ -11,13 +10,18 @@ class GroupMembership(models.Model):
     group = models.ForeignKey('ProposalGroup', on_delete=models.CASCADE, null=False)
     date_joined = models.DateTimeField('date joined')
 
+
 class ProposalGroupManager(models.Manager):
+    """ Manager for Proposal Group data """
     def owned(self, user):
         return self.get_queryset().filter(owned_by_id=user.id)
+
     def groups_for_member(self, user):
         return self.get_queryset().filter(groupmembership__user=user)
+
     def list_of_membership(self, user):
         return self.get_queryset().filter(groupmembership__user=user).values_list('id', flat=True)
+
 
 class ProposalGroup(models.Model):
     """ Top level grouping for Proposals """
@@ -26,15 +30,18 @@ class ProposalGroup(models.Model):
     group_description = models.CharField(max_length=200, null=True)
     # managers
     objects = ProposalGroupManager()
+
     # class functions
     def get_absolute_url(self):
-        return reverse ('group_proposals', kwargs = {'proposal_group_id': str (self.pk)})
+        return reverse('group_proposals', kwargs={'proposal_group_id': str(self.pk)})
+
     def join_group(self, user):
-        if (GroupMembership.objects.filter(user=user, group=self).count() == 0):
+        if(GroupMembership.objects.filter(user=user, group=self).count() == 0):
             membership = GroupMembership(user=user, group=self, date_joined=timezone.now())
             membership.save()
         else:
             raise DataError("User is already a member of this group.")
+
     # properties
     @property
     def short_name(self):
@@ -42,14 +49,16 @@ class ProposalGroup(models.Model):
                 if len(self.group_name) > 30
                 else self.group_name)
 
+
 class ProposalManager(models.Manager):
+    """ Manager for Proposal data """
     def owned(self, user):
         return (self.get_queryset().filter(owned_by_id=user.id)
-                    .values('id','proposal_name', 'proposal_description' ))
+                    .values('id', 'proposal_name', 'proposal_description'))
+
     def in_group(self, group):
         return (self.get_queryset().filter(proposal_group__id=group.id)
-                    .values('id','proposal_name', 'proposal_description'))
-
+                    .values('id', 'proposal_name', 'proposal_description'))
 
 
 class Proposal(models.Model):
@@ -57,17 +66,20 @@ class Proposal(models.Model):
     date_proposed = models.DateTimeField('date proposed')
     proposal_description = models.CharField(max_length=200)
     owned_by = models.ForeignKey(User, on_delete=models.SET_NULL,
-                                    null=True, blank=True)
+                                 null=True, blank=True)
     proposal_group = models.ForeignKey(ProposalGroup,
-                                        on_delete=models.SET_NULL, null=True)
+                                       on_delete=models.SET_NULL, null=True)
     # managers
     objects = ProposalManager()
+
     # class functions
     def get_absolute_url(self):
-        return reverse ('view_proposal', kwargs = {'proposal_id': str (self.pk)})
+        return reverse('view_proposal', kwargs={'proposal_id': str(self.pk)})
+
     def user_can_edit(self, user):
         """ Determines whether the passed in user can edit the proposal """
         return self.owned_by == user
+
     def determine_consensus(self):
         """ Sets the current consensus across the Proposal Choices on this proposal """
         active_choices = self.proposalchoice_set.filter(deactivated_date__isnull=True)
@@ -76,41 +88,45 @@ class Proposal(models.Model):
         current_consensus = None
         for choice in active_choices:
             choice_votes = choice.current_vote_count
-            if  choice_votes > max_votes:
+            if choice_votes > max_votes:
                 current_consensus = choice
                 max_votes = choice_votes
-            elif choice_votes == max_votes: # tie break (no consensus)
+            elif choice_votes == max_votes:  # tie break (no consensus)
                 current_consensus = None
         # update all the choices to the new values
         if (current_consensus is None or
-                current_consensus.current_consensus == False): # short cut - no update if no change
+                not current_consensus.current_consensus):  # short cut - no update if no change
             with transaction.atomic():
                 for choice in active_choices:
                     old_value = choice.current_consensus
-                    new_value = (choice == current_consensus) # i.e. only true if is current choice
+                    new_value = (choice == current_consensus)  # i.e. only true if is current choice
                     if old_value != new_value:
                         # only update if the state changes
                         choice.current_consensus = new_value
                         choice.save()
         return current_consensus
+
     # properties
     @property
     def short_name(self):
-        return ((self.proposal_name[:27] + '...')
-            if len(self.proposal_name) > 30
-            else self.proposal_name)
+        return((self.proposal_name[:27] + '...')
+               if len(self.proposal_name) > 30
+               else self.proposal_name)
+
     @property
     def total_votes(self):
         return (Proposal.objects.filter(id=self.id,
-                    proposalchoice__choiceticket__isnull=False)
-                    .values('proposalchoice__choiceticket__user_id')
-                    .distinct().count())
+                proposalchoice__choiceticket__isnull=False)
+                .values('proposalchoice__choiceticket__user_id')
+                .distinct().count())
+
 
 class ProposalChoiceManager(models.Manager):
+    """ Manager for Proposal Choice """
     def activated(self):
         return (self.get_queryset()
-            .filter(activated_date__isnull=False,
-                deactivated_date__isnull=True))
+                .filter(activated_date__isnull=False,
+                        deactivated_date__isnull=True))
 
 
 class ProposalChoice(models.Model):
@@ -121,14 +137,17 @@ class ProposalChoice(models.Model):
     deactivated_date = models.DateTimeField('deactivated date', null=True)
     objects = ProposalChoiceManager()
     current_consensus = models.BooleanField(default=False, null=False)
+
     # class functions
     def get_absolute_url(self):
-        return reverse ('view_proposal', kwargs = {'proposal_id': str (self.proposal.id)})
+        return reverse('view_proposal', kwargs={'proposal_id': str(self.proposal.id)})
+
     # properties
     @property
     def current_vote_count(self):
         # counts all the choice tickets for this choice where it is the current choice ticket
         return self.choiceticket_set.filter(current=True).count()
+
     def vote(self, user):
         # reset the current flag on the last vote for this proposal and add another one.
         # -------------------------------------------------------------------------------
@@ -136,36 +155,37 @@ class ProposalChoice(models.Model):
         # model class (apart from joining to proposal choice) - TODO: Refactor
         # -------------------------------------------------------------------------------
         with transaction.atomic():
-            ChoiceTicket.objects.filter(user = user,
-                proposal_choice__proposal = self.proposal,
-                current=True).update(current=False)
+            ChoiceTicket.objects.filter(user=user,
+                                        proposal_choice__proposal=self.proposal,
+                                        current=True).update(current=False)
             ticket = ChoiceTicket(user=user,
-                        date_chosen=timezone.now(), proposal_choice=self)
+                                  date_chosen=timezone.now(), proposal_choice=self)
             ticket.save()
             # determine consensus opinion after voting
             self.proposal.determine_consensus()
 
 
 class ChoiceTicketManager(models.Manager):
+    """ Manager for Choice Ticket data """
     def my_votes(self, user):
-        return (ChoiceTicket.objects.filter(
-                            current=True,
-                            user=user,
-                            proposal_choice__deactivated_date__isnull=True,
-                            )
-            .annotate(choice_text=models.F('proposal_choice__text'))
-            .annotate(proposal_id=models.F('proposal_choice__proposal__id'))
-            .annotate(proposal_name=
-                models.F('proposal_choice__proposal__proposal_name'))\
-            .annotate(proposal_group=
-                models.F('proposal_choice__proposal__proposal_group__group_name'))\
-            .values('proposal_id', 'proposal_name',
-                'choice_text', 'proposal_group')
-            .order_by('proposal_group', 'proposal_name'))
+        return (ChoiceTicket.objects.filter(current=True,
+                                            user=user,
+                                            proposal_choice__deactivated_date__isnull=True,
+                                            )
+                .annotate(choice_text=models.F('proposal_choice__text'))
+                .annotate(proposal_id=models.F('proposal_choice__proposal__id'))
+                .annotate(proposal_name=models.F('proposal_choice__proposal__proposal_name'))
+                .annotate(proposal_group=models.F('proposal_choice__proposal__proposal_group__group_name'))
+                .values('proposal_id', 'proposal_name',
+                        'choice_text', 'proposal_group')
+                .order_by('proposal_group', 'proposal_name'))
 
     def get_current_choice(self, user, proposal):
         try:
-            current_choice = ChoiceTicket.objects.get(user = user, proposal_choice__proposal = proposal, current = True)
+            current_choice = (ChoiceTicket.objects
+                              .get(user=user,
+                                   proposal_choice__proposal=proposal,
+                                   current=True))
         except (KeyError, ChoiceTicket.DoesNotExist):
             current_choice = None
         return current_choice
@@ -174,9 +194,9 @@ class ChoiceTicketManager(models.Manager):
 class ChoiceTicket(models.Model):
     """ Defines a specific choice at a specific time """
     user = models.ForeignKey(User, on_delete=models.SET_NULL,
-                                    null=True, blank=True)
+                             null=True, blank=True)
     date_chosen = models.DateTimeField('date chosen')
     proposal_choice = models.ForeignKey(ProposalChoice,
-                                            on_delete=models.CASCADE)
+                                        on_delete=models.CASCADE)
     current = models.BooleanField(default=True, null=True)
     objects = ChoiceTicketManager()
