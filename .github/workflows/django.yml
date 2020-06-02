@@ -28,6 +28,11 @@ jobs:
     - name: Run Tests
       run: |
         coverage run manage.py test -v2
+    - name: Upload coverage
+      uses: actions/upload-artifact@v1
+      with:
+        name: coverage file
+        path: .coverage
     - name: Convert coverage
       run: coverage report --fail-under=100
     - name: Lint with flake8
