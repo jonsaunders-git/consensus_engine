@@ -200,3 +200,4 @@ class ChoiceTicket(models.Model):
                                         on_delete=models.CASCADE)
     current = models.BooleanField(default=True, null=True)
     objects = ChoiceTicketManager()
+    
