@@ -24,7 +24,7 @@ class EditProposalChoicdeViewTest(TwoUserMixin, TestCase,
         p = self.create_proposal_with_two_proposal_choices()
         pc1 = p.proposalchoice_set.first()
         pc2 = p.proposalchoice_set.last()
-        self.assertFalse(pc1.text == 'Yes')
+        self.assertTrue(pc1.text == 'Yes')
         self.assertTrue(pc1.priority == 100)
         self.assertTrue(pc2.text == 'No')
         self.assertTrue(pc2.priority == 200)
