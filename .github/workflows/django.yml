@@ -28,7 +28,8 @@ jobs:
     - name: Run Tests
       run: |
         pytest --cov
-        ls -la consensus_engine/
+        coverage annotate
+        cat consensus_engine/models.py,cover
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
