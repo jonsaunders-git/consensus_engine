@@ -28,8 +28,8 @@ jobs:
     - name: Run Tests
       run: |
         coverage run manage.py test -v2
-    - name: "Convert coverage"
-      run: "python -m coverage report --fail-under=100"
+    - name: Convert coverage
+      run: overage report --fail-under=100
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
