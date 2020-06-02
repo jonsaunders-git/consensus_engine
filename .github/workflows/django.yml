@@ -27,7 +27,13 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       run: |
-        python manage.py test
+        coverage run manage.py test
+    - name: "Convert coverage"
+      run: "python -m coverage xml"
+    - name: "Upload coverage to Codecov"
+      uses: "codecov/codecov-action@v1"
+      with:
+        fail_ci_if_error: true
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
