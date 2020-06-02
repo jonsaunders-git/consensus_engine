@@ -27,7 +27,7 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       run: |
-        coverage run manage.py test
+        coverage run manage.py test -v2
     - name: "Convert coverage"
       run: "python -m coverage report --fail-under=100"
     - name: Lint with flake8
