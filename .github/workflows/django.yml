@@ -11,7 +11,7 @@ jobs:
 
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 4
+      max-parallel: 1
       matrix:
         python-version: [3.8]
 
@@ -32,11 +32,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: coverage file
-<<<<<<< HEAD
-        path: .coverage 
-=======
-          path: .coverage
->>>>>>> 18262633b2e4721307b49f67aa0826ce5f1d9d69
+        path: .coverage
     - name: Convert coverage
       run: coverage report --fail-under=100
     - name: Lint with flake8
