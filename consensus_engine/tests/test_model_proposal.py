@@ -6,6 +6,7 @@ from .mixins import TwoUserMixin, ProposalMixin
 # Create your tests here.
 
 from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
+from consensus_engine.choice_templates import ChoiceTemplates
 from django.utils import timezone
 
 
@@ -184,3 +185,23 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         pc2.refresh_from_db()
         self.assertTrue(pc1.current_consensus==False)
         self.assertTrue(pc2.current_consensus==False)
+
+    def test_populate_proposal_from_template(self):
+        p = self.create_new_proposal()
+        self.populate_from_template(p, ChoiceTemplates.genericMoscow)
+
+    def test_populate_proposal_from_template_yes_no(self):
+        p = self.create_new_proposal()
+        self.populate_from_template(p, ChoiceTemplates.genericYesNo)
+
+    def test_populate_proposal_from_template_1_to_5(self):
+        p = self.create_new_proposal()
+        self.populate_from_template(p, ChoiceTemplates.generic1to5)
+
+    def test_populate_proposal_from_template_none(self):
+        p = self.create_new_proposal()
+        self.populate_from_template(p, None)
+
+    def test_populate_exising_proposal_from_template(self):
+        p = self.create_proposal_with_two_proposal_choices()
+        self.populate_from_template(p, ChoiceTemplates.genericMoscow)

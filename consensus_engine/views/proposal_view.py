@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup
+from consensus_engine.choice_templates import ChoiceTemplates
 
 
 @method_decorator(login_required, name='dispatch')
@@ -40,6 +41,12 @@ class CreateProposalView(CreateView):
             proposal_group = ProposalGroup.objects.get(pk=self.kwargs['proposal_group_id'])
             self.object.proposal_group = proposal_group
         self.object.save()
+        populate_option = int(self.request.POST["options"])
+        population_types = [None,
+                            ChoiceTemplates.genericMoscow,
+                            ChoiceTemplates.genericYesNo,
+                            ChoiceTemplates.generic1to5]
+        self.object.populate_from_template(population_types[populate_option])
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):

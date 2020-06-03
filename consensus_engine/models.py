@@ -80,9 +80,13 @@ class Proposal(models.Model):
         """ Determines whether the passed in user can edit the proposal """
         return self.owned_by == user
 
+    def get_active_choices(self):
+        """ Gets the ProposalChoices that are active currently """
+        return self.proposalchoice_set.filter(deactivated_date__isnull=True)
+
     def determine_consensus(self):
         """ Sets the current consensus across the Proposal Choices on this proposal """
-        active_choices = self.proposalchoice_set.filter(deactivated_date__isnull=True)
+        active_choices = self.get_active_choices()
         # utilise simple - most votes = consensus
         max_votes = 0
         current_consensus = None
@@ -105,6 +109,24 @@ class Proposal(models.Model):
                         choice.current_consensus = new_value
                         choice.save()
         return current_consensus
+
+    def populate_from_template(self, template):
+        """ Populates the proposal choices from the template """
+        # return if no template selected
+        if template is None:
+            return
+        # deactivate existing choices if there are any
+        if self.proposalchoice_set.count() > 0:
+            for existing_choice in self.get_active_choices():
+                existing_choice.deactivated_date = timezone.now()
+                existing_choice.save()
+        # create new choices based on the template
+        for template_choice in template:
+            new_choice = ProposalChoice(proposal=self,
+                                        text=template_choice['text'],
+                                        priority=template_choice['priority'],
+                                        activated_date=timezone.now())
+            new_choice.save()
 
     # properties
     @property
@@ -200,4 +222,3 @@ class ChoiceTicket(models.Model):
                                         on_delete=models.CASCADE)
     current = models.BooleanField(default=True, null=True)
     objects = ChoiceTicketManager()
-    

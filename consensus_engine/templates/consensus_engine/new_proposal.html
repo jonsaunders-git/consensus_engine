@@ -27,4 +27,13 @@
   <label for="{{ form.proposal_description.id_for_label }}">Proposal Description</label>
   <textarea class="form-control" name="proposal_description" cols="80" rows="5" maxlength={{ form.proposal_description.field.max_length }} required id="{{ form.proposal_description.id_for_label }}"  placeholder="Please enter more details about the proposal."></textarea>
 </div>
+<div class="form-group">
+<label">Populate as</label><br>
+<div class="btn-group btn-group-toggle" data-toggle="buttons">
+  <label class="btn btn-secondary active"><input type="radio" name="options" value="0" autocomplete="off" checked/>Empty</label>
+  <label class="btn btn-secondary"><input type="radio" name="options" value="1" autocomplete="off"/>MoSCow</label>
+  <label class="btn btn-secondary"><input type="radio" name="options" value="2" autocomplete="off"/>Yes/No</label>
+  <label class="btn btn-secondary"><input type="radio" name="options" value="3" autocomplete="off"/>1 to 5</label>
+</div>
+</div>
 {% endblock %}

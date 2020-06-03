@@ -64,6 +64,19 @@ class ProposalMixin(object):
             priority=200, activated_date=timezone.now())
         return p
 
+    def populate_from_template(self, proposal, template):
+        c = proposal.proposalchoice_set.count()
+        proposal.populate_from_template(template)
+        if template is None:
+            self.assertTrue(proposal.proposalchoice_set.count() == 0)
+        else:
+            self.assertTrue(proposal.proposalchoice_set.count() == c + len(template))
+            self.assertTrue(proposal.get_active_choices().count() == len(template))
+            pcs = proposal.get_active_choices().order_by('priority')
+            for c, pc in zip(template, pcs):
+                self.assertTrue(pc.text == c['text'])
+                self.assertTrue(pc.priority == c['priority'])
+
 
 class ViewMixin(object):
     path = None
@@ -98,7 +111,7 @@ class ViewMixin(object):
         request.session.save()
         return request
 
-    def getValidView(self, data, viewkwargs={}):
+    def getValidView(self, data, viewkwargs={}, postargs={}):
         request = self.getSessionRequest()
         v = self.get_view(kwargs=viewkwargs)
         if 'instance' in viewkwargs:
@@ -112,6 +125,13 @@ class ViewMixin(object):
                 v.object = v.model()
             except:
                 pass #ignore - not a model based class
+
+        if postargs:
+            mutable = request.POST._mutable
+            request.POST._mutable = True
+            request.POST.update(postargs)
+            request.POST._mutable = mutable
+
         v.request = request
         self.assertTrue(v.get_context_data(kwargs=viewkwargs))
         if isinstance(v, CreateView) or isinstance(v, UpdateView) or isinstance(v, LoginView):
