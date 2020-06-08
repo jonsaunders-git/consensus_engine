@@ -1,29 +1,30 @@
-{% extends "consensus_engine/base_userlayout.html" %}
+{% extends "consensus_engine/base_dialog.html" %}
 {% load static %}
 
-
-
-{% block page_content %}
-
-{% if error_message %}
-You don't have permission to edit the proposal.
-{% else %}
-
-<form action="" method="post">
-  {% csrf_token %}
-  <div class="form-group">
-    <label for="{{ form.proposal_name.id_for_label }}">Proposal Name</label>
-    <input type="text" class="form-control" name="proposal_name" maxlength={{ form.proposal_name.field.max_length }} required id="{{ form.proposal_name.id_for_label }}" value="{{ form.proposal_name.value}}" aria-describedby="proposalhelp" placeholder="Enter proposal name">
-    <small id="proposalHelp" class="form-text text-muted">Enter your proposal name.</small>
+{% block toolbar %}
+{% if proposal_group %}
+<div class="row bg-light border-bottom" ><div class="col my-2 ml-3 align-middle ">
+  <p class="font-weight-bold my-0">{{ proposal_group.group_name }}</p>
   </div>
-  <div class="form-group">
-    <label for="{{ form.proposal_description.id_for_label }}">Proposal Description</label>
-    <textarea class="form-control" name="proposal_description" cols="80" rows="5" maxlength={{ form.proposal_description.field.max_length }} required id="{{ form.proposal_description.id_for_label }}"  placeholder="Caption">{{ form.proposal_description.value }}</textarea>
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-
+</div>
 {% endif %}
+{% endblock %}
 
+{% block dialog_descriptor %}
+<h2>Edit proposal details</h2>
+<div>
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
+</div>
+{% endblock %}
 
+{% block form_fields %}
+<div class="form-group">
+  <label for="{{ form.proposal_name.id_for_label }}">Proposal Name</label>
+  <input type="text" class="form-control" name="proposal_name" maxlength={{ form.proposal_name.field.max_length }} required id="{{ form.proposal_name.id_for_label }}" aria-describedby="proposalhelp" placeholder="Enter proposal name" value="{{ proposal.proposal_name }}">
+  <small id="proposalHelp" class="form-text text-muted text-right">Max 30 chars.</small>
+</div>
+<div class="form-group">
+  <label for="{{ form.proposal_description.id_for_label }}">Proposal Description</label>
+  <textarea class="form-control" name="proposal_description" cols="80" rows="5" maxlength={{ form.proposal_description.field.max_length }} required id="{{ form.proposal_description.id_for_label }}"  placeholder="Please enter more details about the proposal.">{{ proposal.proposal_description }}</textarea>
+</div>
 {% endblock %}

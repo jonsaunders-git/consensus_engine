@@ -1,34 +1,24 @@
 {% extends "consensus_engine/base_userlayout.html" %}
 {% load static %}
+{% load proposaltags %}
 
 
-{% block child_actions %}
-<!-- creates a opportunity for child actions in the menu -->
-{% if proposal.owned_by == request.user %}
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'edit_proposal' proposal.id %}"">
-    <span data-feather="file-text"></span>
-    Edit Details
-  </a>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'new_choice' proposal.id %}"">
-    <span data-feather="file-text"></span>
-    New Choice
-  </a>
-</li>
-{% endif %}
-<li class="nav-item">
-  <a class="nav-link" href="{% url 'assign_proposals_group' proposal.id %}"">
-    <span data-feather="file-text"></span>
-    {% if proposal.proposal_group is None %}
-    Add to Group
-    {% else %}
-    Move Group
-    {% endif %}
-  </a>
-</li>
+{% block toolbar %}
+
+<div class="row bg-light border-bottom" >
+  <div class="col my-2 ml-3 align-middle px-2">
+    <p class="my-0">
+      <span class="font-weight-bold my-0">{{ proposal.proposal_group.group_name }}</span>
+      {% if proposal.owned_by == request.user %}
+      <a href="{% url 'assign_proposals_group' proposal.id %}"><span class="ml-2 text-muted" data-feather="edit-2"></span></a>
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+
 {% endblock %}
+
 
 {% block page_content %}
   {% if proposal %}
@@ -40,8 +30,14 @@
         <div class="row">
           <div class="col mt-2">
             <div class="jumbotron">
-                <h1 class="display-4">{{ proposal.proposal_name }}</h1>
-                <p class="lead">{{ proposal.proposal_caption }}</p>
+              <p>
+                <span class="display-3">{{ proposal.proposal_name }}</span>
+                {% if proposal.owned_by == request.user %}
+                  <a href="{% url 'edit_proposal' proposal.id %}"><span class="ml-2 text-muted" data-feather="edit"></span></a>
+                {% endif %}
+              </p>
+                <p class="lead">{{ proposal.proposal_description }}</p>
+                <p class="card-text">Current Consensus: {% current_consensus proposal.id %} </p>
             </div>
           </div>
         </div>
@@ -54,22 +50,25 @@
                 <div class="row">
                   <div class="col">
                     {{ choice.text }}
-                  </div>
-                  <div class="col-0.5">
-                    <span class="badge badge-pill badge-primary">{{ choice.current_vote_count }}</span>
+                    <span class="badge badge-warning">{{ choice.current_vote_count }}</span>
                   </div>
                   {% if proposal.owned_by == request.user %}
                   <div class="col-0.5">
-                    <a class="btn btn_secondary" href="{% url 'edit_choice' proposal.id choice.id %}">Edit</a>
+                    <a href="{% url 'edit_choice' proposal.id choice.id %}"><span class="ml-2 text-muted" data-feather="edit"></span></a>
                   </div>
                   <div class="col-0.5">
-                    <a class="btn btn_secondary mr-2" href="{% url 'delete_choice' proposal.id choice.id %}">Remove</a>
+                    <a href="{% url 'delete_choice' proposal.id choice.id %}"><span class="ml-2 text-muted" data-feather="trash-2"></span></a>
                   </div>
                   {% endif %}
                 </div>
               </li>
               {% endfor %}
             </ul>
+            {% if proposal.owned_by == request.user %}
+            <div class="col">
+                <a href="{% url 'new_choice' proposal.id %}"><span class="ml-0 px-0 mt-2" data-feather="plus-circle"></span> Add Choice</a>
+            </div>
+            {% endif %}
         </div>
       </div>
 
