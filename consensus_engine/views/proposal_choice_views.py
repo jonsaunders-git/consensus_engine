@@ -15,6 +15,7 @@ class CreateProposalChoiceView(CreateView):
     template_name = 'consensus_engine/new_choice.html'
     model = ProposalChoice
     fields = ['text', 'priority']
+    initial = {'priority': 100}
 
     def form_valid(self, form):
         proposal = Proposal.objects.get(pk=self.kwargs['proposal_id'])
@@ -43,10 +44,19 @@ class EditProposalChoiceView(UpdateView):
     fields = ['text', 'priority']
 
     def form_valid(self, form):
+        self.success_url = reverse('view_proposal', args=[self.object.proposal.id])
         if self.object.proposal.user_can_edit(self.request.user):
             return super().form_valid(form)
         else:
             raise PermissionDenied("Editing is not allowed")
+
+    def get_context_data(self, **kwargs):
+        # add the proposal_group to the context of it exists
+        context = super().get_context_data(**kwargs)
+        if 'proposal_id' in self.kwargs:
+            proposal = Proposal.objects.get(pk=self.kwargs['proposal_id'])
+            context['proposal'] = proposal
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
@@ -63,3 +73,12 @@ class DeleteProposalChoiceView(DeleteView):
             self.object.deactivated_date = timezone.now()
             self .object.save()
         return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        # add the proposal_group to the context of it exists
+        self.object = self.get_object()
+        context = super().get_context_data(**kwargs)
+        if 'proposal_id' in self.kwargs:
+            proposal = Proposal.objects.get(pk=self.kwargs['proposal_id'])
+            context['proposal'] = proposal
+        return context

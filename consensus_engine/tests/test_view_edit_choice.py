@@ -6,13 +6,11 @@ from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 
 from consensus_engine.views import EditProposalChoiceView
-from consensus_engine.forms import ProposalChoiceForm
 from consensus_engine.models import Proposal, ProposalChoice
 
-class EditProposalChoicdeViewTest(TwoUserMixin, TestCase,
+class EditProposalChoiceViewTest(TwoUserMixin, TestCase,
                                 ProposalMixin, ViewMixin):
     path = '/proposals/1/choice/2/'
-    form = ProposalChoiceForm
     view = EditProposalChoiceView
 
     def setUp(self):
