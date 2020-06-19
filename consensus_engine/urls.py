@@ -2,6 +2,7 @@ from django.urls import path
 from django.urls import include, re_path
 from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from . import views
 
@@ -47,3 +48,5 @@ urlpatterns = [
     re_path(r'^login/$', views.RememberMeLoginView.as_view(), name="login"),
     path('uiformat/', views.uiformat, name="uiformat"),  # just for testing UI stuff - to be removed
 ]
+
+urlpatterns += staticfiles_urlpatterns()
