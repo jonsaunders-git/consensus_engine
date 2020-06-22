@@ -25,51 +25,49 @@
 
 {% block page_content %}
 
+
 {% if proposals_list %}
-
-  {% for proposal in proposals_list %}
-      {% if forloop.first %}<div class="row"><div class="col"><div class="card-deck mt-2">{% endif %}
-
-          <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">{{ proposal.proposal_name}}</h5>
-          <p class="card-text">{{ proposal.proposal_description }}</p>
-          <p class="card-text">My Vote: {% my_vote proposal.id request.user.id %}</p>
-          <p class="card-text">Current Consensus: {% current_consensus proposal.id %} </p>
-          <p class="card-text">Number of Votes: {% total_votes proposal.id %}</p>
+    <div class="flex-body d-flex flex-wrap px-2">
+        {% for proposal in proposals_list %}
+        <div class="card">
+          <div class="card-body" style="height:15rem;">
+            <h5 class="card-title">{{ proposal.proposal_name}}</h5>
+            <p class="card-text">{{ proposal.proposal_description }}</p>
+            <p class="card-text">My Vote: {% my_vote proposal.id request.user.id %}</p>
+            <p class="card-text">Current Consensus: {% current_consensus proposal.id %} </p>
+            <p class="card-text">Number of Votes: {% total_votes proposal.id %}</p>
+          </div>
+          <div class="card-footer text-muted">
+            <a href="{% url 'vote_proposal' proposal.id %}?next={{ request.path|urlencode }}" class="btn btn-primary">Vote</a>
+            <a href="{% url 'view_proposal' proposal.id %}" class="btn">View</a>
+          </div>
         </div>
-        <div class="card-footer text-muted">
-          <a href="{% url 'vote_proposal' proposal.id %}?next={{ request.path|urlencode }}" class="btn btn-primary">Vote</a>
-          <a href="{% url 'view_proposal' proposal.id %}" class="btn">View</a>
-        </div>
-      </div>
-      {% if forloop.counter|divisibleby:5 %}</div></div></div><div class="row"><div class="col"><div class="card-deck mt-2">{% endif %}
-      {% if forloop.last %}</div>{% endif %}
-  {% endfor %}
-
+        {% endfor %}
+    </div>
 {% else %}
-<div class="row mt-4">
-  <div class="col-md-1"></div>
-  <div class="col">
-    <div class="row mt-2 ml-1 mr-1 px-2 py-2">
-      <div class="w-100 mb-4">
-        <h2>No proposals are available in this group.</h2>
-      </div>
-      <div>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
-      </div>
-      <div class="mt-2 w-100 p-4 rounded bg-light border">
-        <p>Why don't you add one...</p>
-        {% if proposal_group %}
-        <a href="{% url 'new_proposal_in_group' proposal_group.id|default:0 %}" class="btn btn-primary">Add Proposal</a>
-        {% else %}
-        <a href="{% url 'new_proposal' %}" class="btn btn-primary">Add Proposal</a>
-        {% endif %}
+  <div class="row mt-4">
+    <div class="col-md-1"></div>
+    <div class="col">
+      <div class="row mt-2 ml-1 mr-1 px-2 py-2">
+        <div class="w-100 mb-4">
+          <h2>No proposals are available in this group.</h2>
+        </div>
+        <div>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
+        </div>
+        <div class="mt-2 w-100 p-4 rounded bg-light border">
+          <p>Why don't you add one...</p>
+          {% if proposal_group %}
+          <a href="{% url 'new_proposal_in_group' proposal_group.id|default:0 %}" class="btn btn-primary">Add Proposal</a>
+          {% else %}
+          <a href="{% url 'new_proposal' %}" class="btn btn-primary">Add Proposal</a>
+          {% endif %}
+        </div>
       </div>
     </div>
+    <div class="col-md-1"></div>
   </div>
-  <div class="col-md-1"></div>
-</div>
 {% endif %}
+
 
 {% endblock %}

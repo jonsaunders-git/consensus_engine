@@ -20,6 +20,53 @@
 
 {% block page_content %}
 
+
+{% if proposalgroup_list %}
+    <div class="flex-body d-flex flex-wrap">
+        {% for proposalgroup in proposalgroup_list %}
+        <div class="card" style="height: 15rem; max-height:15rem;">
+            <div class="card-body" style="max-height:11rem;">
+              <p class="h5 card-title">{{ proposalgroup.group_name}}
+                <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="text-muted">
+                  <span class="ml-2 align-top" data-feather="edit"></span>
+                  </a>
+                  {% if proposalgroup.id not in membership_list %}
+                  <a href="{% url 'join_group_members' proposalgroup.id %}" class="text-muted">
+                    <span class="ml-2 align-top" data-feather="plus-circle"></span>
+                  </a>
+                  {% endif %}
+                </p>
+                <p class="text-muted"><small>{{ proposalgroup.group_description}}</small></p>
+            </div>
+            <div class="card-footer text-muted">
+              <a href="{% url 'group_proposals' proposalgroup.id %}" class="btn btn-primary">Proposals</a>
+            </div>
+          </div>
+        {% endfor %}
+    </div>
+{% else %}
+<div class="row mt-4">
+  <div class="col-md-1"></div>
+  <div class="col">
+    <div class="row mt-2 ml-1 mr-1 px-2 py-2">
+      <div class="w-100 mb-4">
+        <h2>No proposal groups are available.</h2>
+      </div>
+      <div>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
+      </div>
+      <div class="mt-2 w-100 p-4 rounded bg-light border">
+        <p>Why don't you add one...</p>
+        <a href="{% url 'new_proposal_group' %}" class="btn btn-primary">Add Group</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-1"></div>
+</div>
+
+{% endif %}
+
+<!--
 {% if proposalgroup_list %}
 
   {% for proposalgroup in proposalgroup_list %}
@@ -69,5 +116,7 @@
   </div>
 
 {% endif %}
+
+-->
 
 {% endblock %}
