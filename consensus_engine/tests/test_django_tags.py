@@ -98,3 +98,6 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
         self.assertTrue(isinstance(v, ChoiceTicket))
         w.determine_consensus()
         self.assertTrue(current_consensus(w.id)['current_consensus'] == 'No consensus')
+
+    def test_release_note(self):
+        release_notes()
