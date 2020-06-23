@@ -10,7 +10,7 @@
     <p class="my-0">
       <span class="font-weight-bold my-0">{{ proposal.proposal_group.group_name }}</span>
       {% if proposal.owned_by == request.user %}
-      <a href="{% url 'assign_proposals_group' proposal.id %}"><span class="ml-2 text-muted" data-feather="edit-2"></span></a>
+      <a href="{% url 'assign_proposals_group' proposal.id %}" title="Change the Group for this Proposal"><span class="ml-2 text-muted" data-feather="edit-2"></span></a>
       {% endif %}
     </p>
   </div>
@@ -33,7 +33,7 @@
               <p>
                 <span class="display-3">{{ proposal.proposal_name }}</span>
                 {% if proposal.owned_by == request.user %}
-                  <a href="{% url 'edit_proposal' proposal.id %}"><span class="ml-2 text-muted" data-feather="edit"></span></a>
+                  <a href="{% url 'edit_proposal' proposal.id %}" title="Edit Proposal details"><span class="ml-2 text-muted" data-feather="edit"></span></a>
                 {% endif %}
               </p>
                 <p class="lead">{{ proposal.proposal_description }}</p>
@@ -54,10 +54,10 @@
                   </div>
                   {% if proposal.owned_by == request.user %}
                   <div class="col-0.5">
-                    <a href="{% url 'edit_choice' proposal.id choice.id %}"><span class="ml-2 text-muted" data-feather="edit"></span></a>
+                    <a href="{% url 'edit_choice' proposal.id choice.id %}" title="Edit choice"><span class="ml-2 text-muted" data-feather="edit"></span></a>
                   </div>
                   <div class="col-0.5">
-                    <a href="{% url 'delete_choice' proposal.id choice.id %}"><span class="ml-2 text-muted" data-feather="trash-2"></span></a>
+                    <a href="{% url 'delete_choice' proposal.id choice.id %}" title="Remove choice"><span class="ml-2 text-muted" data-feather="trash-2"></span></a>
                   </div>
                   {% endif %}
                 </div>

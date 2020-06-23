@@ -46,3 +46,8 @@ def my_vote(proposal_id, user_id):
     except ProposalChoice.DoesNotExist:
         my_vote = "None"
     return {'my_vote': my_vote}
+
+@register.inclusion_tag('consensus_engine/release_notes.html')
+def release_notes():
+    # added this in so I can remove it easily and put multiple release notes in, in the future
+    return {}

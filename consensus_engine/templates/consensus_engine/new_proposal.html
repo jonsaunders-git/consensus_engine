@@ -13,7 +13,21 @@
 {% block dialog_descriptor %}
 <h2>Create a new proposal.</h2>
 <div>
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
+  <p>Proposals are the key part of the Consensus Engine. You can create proposals and ask people to vote on
+  them to get a consensus of opinion to show support for the proposal. Each proposal can have a set of choices
+  that any user can pick, and this is set up below using the &quot;Populate as&quot; selector. You can add choices later if required.</p>
+  <p>The currently supported choices are as follows
+    <ul>
+      <li>MoSCoW - gives the choices Must have, Should have, Could have, Wish list as per the populare prioritisation approach.</li>
+      <li>Yes/No - sets the choices to be Yes or No</li>
+      <li>1 to 5 - sets up the choices to be the digits 1 through 5 to allow for ranking</li>
+    </ul>
+  </p>
+  <p>Proposals have a name and a description, the name will appear against the votes and the description is used to provide members an idea
+  of what the proposal is for.
+  Note: Only the user who created the Proposal can edit it. Currently you can change the choices and the
+  choices, but this may not be available in the future. </p>
+
 </div>
 {% endblock %}
 

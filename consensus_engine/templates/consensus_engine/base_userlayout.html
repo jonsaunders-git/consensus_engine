@@ -13,8 +13,8 @@
         {% block page_nav %}
         <!-- page_nav base_userlayout -->
           <h6 class="sidebar-heading d-flex mt-4 mb-1 text-muted">
-            <a class="nav-link active" href="{% url 'list_proposal_groups' %}"><span>Groups</span></a>
-            <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal_group' %}">
+            <a class="nav-link active" href="{% url 'list_proposal_groups' %}" title="List Groups"><span>Groups</span></a>
+            <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal_group' %}" title="Add new Group">
               <span data-feather="plus-circle"></span>
             </a>
           </h6>
@@ -32,17 +32,17 @@
           <ul class="nav flex-column">
 
             <li class="nav-item d-flex">
-              <a class="nav-link active" href="{% url 'my_proposals' %}">
+              <a class="nav-link active" href="{% url 'my_proposals' %}" title="List my Proposals">
                 <span data-feather="folder"></span>
                 <span>My Proposals</span>
               </a>
-              <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal' %}">
+              <a class="d-flex align-items-center text-muted" href="{% url 'new_proposal' %}" title="Add new Proposal">
                 <span data-feather="plus-circle"></span>
               </a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link active" href="{% url 'view_my_votes' %}">
+              <a class="nav-link active" href="{% url 'view_my_votes' %}" title="Show all my votes">
                 <span data-feather="check-square"></span>
                 My Votes
               </a>

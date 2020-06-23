@@ -1,0 +1,54 @@
+<p>
+<h2>Welcome to the Consensus Engine</h2>
+<p>This application is a &quot;work in progress&quot; to build an engine to collect the consensus of decision across an enterprise.
+  The key concepts are below, and currently the application allows only the basic functionality.</p>
+</p>
+<h3>Key Concepts for Consensus Engine</h3>
+<br>
+<b>Proposals</b>
+<p>Proposals are the key part of the Consensus Engine. Users create proposals and ask people to vote on
+them to get a consensus of opinion to show support for the proposal. Each proposal can have a set of choices
+that any user can pick, and this is set up at creation time. Currently you can change the choices and the
+choices, but this may not be available in the future. Only the user who created the Proposal can edit it.</p>
+<b>Votes</b>
+<p>Votes are cast for a proposal choice, a user can change their vote as many times as wanted, but each vote is
+captured with only the last one counting toward the consensus. By saving all the votes cast we can analyse
+the state of the consensus over time. All the votes that a user has cast can be found in the My Votes function
+on the task bar.</p>
+<b>Consensus</b>
+<p>The consensus is currently calculated as the option with the highest number of votes, but the creator will be
+  allowed to pick a general calculation - i.e. % of votes, % of members of group, etc (we need to review
+  statistical analysis). </p>
+<b>Proposal Groups</b>
+<p>Proposals can be grouped under a single category, currently I am working on the approach that we will only have one
+level of hierarchy to keep it simple. Users can view and vote on the proposals within the groups they are members of.
+At the moment all users are members of all groups, but group membership will be refined in the future. Only the user that
+created the Group can edit it</p>
+<h3>Future Enhancements</h3>
+<ul>
+<li>Proposals ultimately should be immutable when majority voting occurs, witj a publishing mechanisms, and possibly a trial run needs to be implemented.</li>
+<li>There shoud be multiple owners of a proposal than can contribute to the proposal before publishing</li>
+<li>Membership of groups need to be implemented</li>
+<li>Analysis of voting across time needs to be implemented</li>
+<li>Mulitple different consensus calculation types</li>
+<li>Allow for Group defaults for choice - so that consensus can be aggregated at Group level</li>
+<li>Improvements in User Experience</li>
+<li>Menu implementation for iPhone/SmartPhone</li>
+<li>Statistics of current vote</li>
+<li>News feed of changes to Group and Proposals</li>
+<li>API connectivity to vote and get votes</li>
+<li>Anonymity of voters</li>
+<li>Tagging and searching to create more complex relationships between proposals</li>
+<li>Implementation of user management, registration and permissions</li>
+</ul>
+<p></p>
+
+
+<h3>Release Notes for version 0.1</h3>
+This is the first development release of the Consensus Engine application.
+<ul>
+<li>Added Key Concepts to index to show how the application is built</li>
+<li>Added tooltips for icons and links</li>
+</ul>
+<br>
+</p>

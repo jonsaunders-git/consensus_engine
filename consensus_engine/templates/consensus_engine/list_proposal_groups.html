@@ -27,11 +27,11 @@
         <div class="card" style="height: 15rem; max-height:15rem;">
             <div class="card-body" style="max-height:11rem;">
               <p class="h5 card-title">{{ proposalgroup.group_name}}
-                <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="text-muted">
+                <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="text-muted" title="Edit Group details">
                   <span class="ml-2 align-top" data-feather="edit"></span>
                   </a>
                   {% if proposalgroup.id not in membership_list %}
-                  <a href="{% url 'join_group_members' proposalgroup.id %}" class="text-muted">
+                  <a href="{% url 'join_group_members' proposalgroup.id %}" class="text-muted" title="Add Proposal to group">
                     <span class="ml-2 align-top" data-feather="plus-circle"></span>
                   </a>
                   {% endif %}

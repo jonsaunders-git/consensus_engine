@@ -1,8 +1,10 @@
 {% extends "consensus_engine/base_userlayout.html" %}
 {% load static %}
-
+{% load proposaltags %}
 
 {% block page_content %}
+
+{% release_notes %}
 
 {% if user.is_authenticated %}
 

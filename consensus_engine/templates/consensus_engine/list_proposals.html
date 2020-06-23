@@ -8,8 +8,8 @@
   <div class="col my-2 ml-3 align-middle px-2">
     <p class="my-0">
       <span class="font-weight-bold my-0">{% if proposal_group %}{{ proposal_group.group_name }}{% else %}My Proposals{% endif %}</span>
-      {% if proposal_group %}<a href="{% url 'edit_proposal_group' proposal_group.id %}"><span class="ml-2 text-muted" data-feather="edit"></span></a>
-      <a href=""><span class="ml-2 text-muted" data-feather="info"></span></a>  <a href="new/"><span class="ml-2 text-muted" data-feather="plus-circle"></span></a>{% endif %}
+      {% if proposal_group %}<a href="{% url 'edit_proposal_group' proposal_group.id %}" title="Edit the {{proposal_group.group_name}} Group"><span class="ml-2 text-muted" data-feather="edit"></span></a>
+      <a href="new/" title="Add new Proposal in {{proposal_group.group_name}}"><span class="ml-2 text-muted" data-feather="plus-circle"></span></a>{% endif %}
     </p>
     <p class="my-0 py-0 text-muted"><small>{% if proposal_group %}{{ proposal_group.group_description }}{% else %}These are the proposals you owned and can contribute to{% endif %}</small></p>
   </div>
@@ -50,10 +50,13 @@
     <div class="col">
       <div class="row mt-2 ml-1 mr-1 px-2 py-2">
         <div class="w-100 mb-4">
-          <h2>No proposals are available in this group.</h2>
+          <h2>No proposals are currently available in this group.</h2>
         </div>
         <div>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean fringilla risus a elit tristique tincidunt. Curabitur suscipit eget ex in varius. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum in gravida risus, vitae finibus est. Etiam scelerisque dignissim bibendum. Nullam et pharetra eros, at viverra est. Vivamus sed ex leo. Nunc tempus vulputate lorem et sollicitudin. Proin elementum nunc in fermentum condimentum. Ut in lacus imperdiet, luctus just facilisis tortor. Nulla fringilla, magna a bibendum euismod, sem leo vulputate elit, eu venenatis erat velit eget nulla. Suspendisse pretium eleifend nisl in suscipit. Nunc mi lectus, pretium eu lacus quis, iaculis hendrerit nunc. Mauris interdum, augue vitae fermentum maximus, urna quam tempor tellus, ut dictum mauris est auctor velit.
+          <p>Proposals are the key part of the Consensus Engine. Users create proposals and people are asked to vote on
+          them to get a consensus of opinion to show support for your proposal. Adding a Proposal here will add that proposal to the group &quot;{{ proposal_group.group_name}}&quot;.
+          If this is not what you want to do, you can add a new Proposal to any group from the task bar on the left. </p>
+          <p>Note: Only the user who created the Proposal can edit it.</p>
         </div>
         <div class="mt-2 w-100 p-4 rounded bg-light border">
           <p>Why don't you add one...</p>
