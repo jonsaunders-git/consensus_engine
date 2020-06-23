@@ -31,8 +31,8 @@
                   <span class="ml-2 align-top" data-feather="edit"></span>
                   </a>
                   {% if proposalgroup.id not in membership_list %}
-                  <a href="{% url 'join_group_members' proposalgroup.id %}" class="text-muted" title="Add Proposal to group">
-                    <span class="ml-2 align-top" data-feather="plus-circle"></span>
+                  <a href="{% url 'join_group_members' proposalgroup.id %}" class="text-muted" title="Join Group">
+                    <span class="ml-2 align-top" data-feather="check-circle"></span>
                   </a>
                   {% endif %}
                 </p>
