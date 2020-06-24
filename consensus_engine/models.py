@@ -2,6 +2,7 @@ from django.db import models, transaction, DataError
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.urls import reverse
+from django.core.exceptions import PermissionDenied
 
 
 class GroupMembership(models.Model):
@@ -9,6 +10,30 @@ class GroupMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     group = models.ForeignKey('ProposalGroup', on_delete=models.CASCADE, null=False)
     date_joined = models.DateTimeField('date joined')
+
+
+class GroupInvite(models.Model):
+    """ Defines an invite to a Group """
+    group = models.ForeignKey('ProposalGroup', on_delete=models.CASCADE, null=False)
+    invitee = models.ForeignKey(User, on_delete=models.CASCADE, null=False, related_name="invites")
+    inviter = models.ForeignKey(User, on_delete=models.CASCADE, null=False, related_name="invited")
+    invite_date_time = models.DateTimeField('date invited', null=False)
+    # accepted - True = accepted, False=declined, null=Neither accepted or declined
+    accepted = models.BooleanField(null=True)
+    date_accepted_or_declined = models.DateTimeField('date accepted or declined', null=True)
+
+    def accept(self):
+        with transaction.atomic():
+            self.accepted = True
+            self.date_accepted_or_declined = timezone.now()
+            self.group.join_group(self.invitee)
+            self.save()
+
+    def decline(self):
+        with transaction.atomic():
+            self.accepted = False
+            self.date_accepted_or_declined = timezone.now()
+            self.save()
 
 
 class ProposalGroupManager(models.Manager):
@@ -35,12 +60,31 @@ class ProposalGroup(models.Model):
     def get_absolute_url(self):
         return reverse('group_proposals', kwargs={'proposal_group_id': str(self.pk)})
 
+    def is_user_member(self, user):
+        return GroupMembership.objects.filter(user=user, group=self).count() == 1
+
+    def has_user_been_invited(self, user):
+        return GroupInvite.objects.filter(invitee=user, group=self, accepted=None).count() == 1
+
     def join_group(self, user):
-        if(GroupMembership.objects.filter(user=user, group=self).count() == 0):
+        if not self.is_user_member(user):
             membership = GroupMembership(user=user, group=self, date_joined=timezone.now())
             membership.save()
         else:
             raise DataError("User is already a member of this group.")
+
+    def invite_user(self, inviter_user, invitee_user):
+        if not self.is_user_member(inviter_user):
+            raise PermissionDenied("Inviter is not a member of the group")
+        if self.is_user_member(invitee_user):
+            raise DataError("User is already a member of this group")
+        if self.has_user_been_invited(invitee_user):
+            raise DataError("User has already been invited")
+        invite = GroupInvite(group=self, invitee=invitee_user,
+                             inviter=inviter_user,
+                             invite_date_time=timezone.now())
+        invite.save()
+        return invite
 
     # properties
     @property
