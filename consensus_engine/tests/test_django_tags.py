@@ -101,3 +101,6 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
 
     def test_release_note(self):
         release_notes()
+
+    def test_user_search(self):
+        user_search()

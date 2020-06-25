@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from consensus_engine.views import DeleteProposalChoiceView
 from consensus_engine.models import Proposal, ProposalChoice
 
-class EditProposalChoicdeViewTest(TwoUserMixin, TestCase,
+class DeleteProposalChoiceViewTest(TwoUserMixin, TestCase,
                                 ProposalMixin, ViewMixin):
     path = '/proposals/1/choice/1/delete'
     view = DeleteProposalChoiceView
@@ -33,7 +33,7 @@ class EditProposalChoicdeViewTest(TwoUserMixin, TestCase,
         request = self.getSessionRequest()
         v = self.get_view(kwargs=viewkwargs)
 
-        c = v.get_context_data(kwargs=viewkwargs)
+        c = v.get_context_data(**viewkwargs)
         self.assertTrue(c['proposal'] is not None)
 
         mutable = request.POST._mutable

@@ -1,0 +1,46 @@
+{% extends "consensus_engine/base_dialog.html" %}
+{% load static %}
+
+{% block dialog_descriptor %}
+
+{% if error_message %}
+Error is.... {{error_message}}
+{% endif %}
+
+
+{% if invite %}
+<h2>{{ invite.group.group_name }}</h2>
+<div><p><b>{{ invite.group.group_name }}</b></p></div>
+<div>
+  <p>Accept or Decline this invitation to the group</p>
+  <p>Proposals can be grouped under a single category, only one level of
+  hierarchy is allowed to keep the process simple, and proposals can only exist in one group. Users can view and vote on the proposals within the groups they are members of.
+  At the moment all users are members of all groups, but group membership will be refined in the future. </p>
+</div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block form_fields %}
+
+
+{% if invite %}
+
+  {% csrf_token %}
+  <div class="form-group">
+  <div class="list-group">
+  <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+  </div>
+  </div>
+{% else %}
+    <p>No proposal choices are available.</p>
+{% endif %}
+
+{% endblock %}
+
+{% block submit_button %}
+      <button type="submit" name="accept_btn" value="Accept" class="btn btn-primary">Accept</button>
+      <button type="submit" name="decline_btn" value="Decline" class="btn ">Decline</button>
+{% endblock %}

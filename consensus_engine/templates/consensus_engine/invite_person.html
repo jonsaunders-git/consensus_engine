@@ -1,0 +1,42 @@
+{% extends "consensus_engine/base_dialog.html" %}
+{% load static %}
+{% load proposaltags %}
+
+{% block dialog_descriptor %}
+
+{% if error_message %}
+Error is.... {{error_message}}
+{% endif %}
+
+
+ksjfjksfjdf
+
+{% if group %}
+
+<h2>{{ group.group_name }}</h2>
+<div><p><b>{{ group.group_name }}</b></p></div>
+<div>
+  <p>Add People to this Group</p>
+  <p>{% lorem 3 p %} </p>
+</div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block form_fields %}
+
+{% if group %}
+
+  {% csrf_token %}
+  <div class="form-group">
+  <div class="list-group">
+  <input type="hidden" name="next" value="{{ request.GET.next }}">
+  {% user_search %}
+  </div>
+  </div>
+{% else %}
+
+{% endif %}
+
+{% endblock %}

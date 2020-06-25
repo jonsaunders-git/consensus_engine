@@ -47,6 +47,13 @@
                 My Votes
               </a>
             </li>
+
+            <li class="nav-item">
+              <a class="nav-link active" href="{% url 'view_invites' %}" title="Show all my group invites">
+                <span data-feather="mail"></span>
+                Invites {% my_open_invites_count request.user %}
+              </a>
+            </li>
           </ul>
 
           <ul class="nav flex-column mb-2">

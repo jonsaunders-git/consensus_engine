@@ -12,6 +12,25 @@ class GroupMembership(models.Model):
     date_joined = models.DateTimeField('date joined')
 
 
+class GroupInviteManager(models.Manager):
+    """ Manager for Group Invites """
+    def my_open_invites(self, user):
+        return self.get_queryset().filter(invitee=user, accepted=None)
+
+    def my_open_invites_count(self, user):
+        return self.my_open_invites(user).count()
+
+    # To implement when needed
+    # def my_accepted_invites(self, user):
+    #    return self.get_queryset().filter(invitee=user, accepted=True)
+    #
+    # def my_declined_invites(self, user):
+    #    return self.get_queryset().filter(invitee=user, accepted=True)
+    #
+    # def my_open_send_invitations(self, user):
+    #    return self.get_queryset().filter(inviter=user, accepted=None)
+
+
 class GroupInvite(models.Model):
     """ Defines an invite to a Group """
     group = models.ForeignKey('ProposalGroup', on_delete=models.CASCADE, null=False)
@@ -21,6 +40,8 @@ class GroupInvite(models.Model):
     # accepted - True = accepted, False=declined, null=Neither accepted or declined
     accepted = models.BooleanField(null=True)
     date_accepted_or_declined = models.DateTimeField('date accepted or declined', null=True)
+    # managers
+    objects = GroupInviteManager()
 
     def accept(self):
         with transaction.atomic():

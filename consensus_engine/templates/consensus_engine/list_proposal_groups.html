@@ -27,9 +27,14 @@
         <div class="card" style="height: 15rem; max-height:15rem;">
             <div class="card-body" style="max-height:11rem;">
               <p class="h5 card-title">{{ proposalgroup.group_name}}
+                {% if  proposalgroup.id in membership_list %}
                 <a href="{% url 'edit_proposal_group' proposalgroup.id %}" class="text-muted" title="Edit Group details">
                   <span class="ml-2 align-top" data-feather="edit"></span>
                   </a>
+                  <a href="{% url 'invite_people' proposalgroup.id %}?next={{ request.path|urlencode }}" class="text-muted" title="Invite People to this Group">
+                    <span class="ml-2 align-top" data-feather="user-plus"></span>
+                    </a>
+                  {% endif %} 
                   {% if proposalgroup.id not in membership_list %}
                   <a href="{% url 'join_group_members' proposalgroup.id %}" class="text-muted" title="Join Group">
                     <span class="ml-2 align-top" data-feather="check-circle"></span>

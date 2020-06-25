@@ -1,5 +1,7 @@
 from django import template
 from consensus_engine.models import ProposalGroup, ChoiceTicket, ProposalChoice
+from consensus_engine.models import GroupInvite
+from django.contrib.auth.models import User
 
 register = template.Library()
 
@@ -48,7 +50,19 @@ def my_vote(proposal_id, user_id):
     return {'my_vote': my_vote}
 
 
+@register.inclusion_tag('consensus_engine/my_open_invites_count.html')
+def my_open_invites_count(user):
+    open_invites_count = GroupInvite.objects.my_open_invites_count(user)
+    return {'open_invites_count': open_invites_count}
+
+
 @register.inclusion_tag('consensus_engine/release_notes.html')
 def release_notes():
     # added this in so I can remove it easily and put multiple release notes in, in the future
     return {}
+
+
+@register.inclusion_tag('consensus_engine/user_search.html')
+def user_search():
+    users = User.objects.all
+    return {'users': users}
