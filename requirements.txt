@@ -7,3 +7,6 @@ gunicorn
 django-heroku
 django_compressor==2.4
 django-libsass==0.8
+psycopg2-binary
+dj-database-url
+python-dotenv

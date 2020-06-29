@@ -6,3 +6,5 @@ consensus_engine/views/__pycache__/
 .DS_Store
 htmlcov/
 .coverage
+.env
+datadump.json
