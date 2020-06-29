@@ -205,3 +205,32 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
     def test_populate_exising_proposal_from_template(self):
         p = self.create_proposal_with_two_proposal_choices()
         self.populate_from_template(p, ChoiceTemplates.genericMoscow)
+
+    def test_get_current_vote_spread(self):
+        # create a proposal and populate it from the MoSCow template
+        p = self.create_new_proposal()
+        self.populate_from_template(p, ChoiceTemplates.genericMoscow)
+        # get voting spread for current time, returns a dictionary with all the
+        # choices and their current votes
+        s = p.get_voting_spread()
+        # check it is 0 for all choices
+        self.assertTrue(len(s) == 4)
+        cs = ["", "Must have", "Should have", "Could have", "Wishlist"]
+        for c in range(1,4):
+            self.assertTrue(s[c]['text'] == cs[c])
+            self.assertTrue(s[c]['count'] == 0)
+            self.assertTrue(s[c]['percentage'] == 0)
+        # vote on a choice
+        ac = p.get_active_choices()
+        pc = ac.first()
+        pc.vote(self.user)
+        s2 = p.get_voting_spread()
+        for c2 in range(1,4):
+            if c2 == pc.id:
+                self.assertTrue(s2[c2]['text'] == cs[c2])
+                self.assertTrue(s2[c2]['count'] == 1)
+                self.assertTrue(s2[c2]['percentage'] == 100.0)
+            else:
+                self.assertTrue(s2[c2]['text'] == cs[c2])
+                self.assertTrue(s2[c2]['count'] == 0)
+                self.assertTrue(s2[c2]['percentage'] == 0)

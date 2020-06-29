@@ -1,5 +1,12 @@
 <!doctype html>
 {% load static %}
+{% load compress %}
+
+{% compress css %}
+    <link type="text/x-scss" href="{% static 'scss/consensus_style.scss' %}" rel="stylesheet" media="screen">
+{% endcompress %}
+
+
 
 <html lang="en">
 

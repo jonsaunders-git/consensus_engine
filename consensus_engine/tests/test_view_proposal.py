@@ -33,6 +33,7 @@ class PickProposalGroupViewTest(OneUserMixin, TestCase,
         self.assertTrue(p2.id == p.id)
         self.assertTrue(context['current_choice'] is None)
         self.assertTrue(context['active_choices'].count() == 2)
+        self.assertTrue(len(context['vote_spread']) == 2)
 
     def test_view_new_proposal_with_choices_and_votes(self):
         p = self.create_proposal_with_two_proposal_choices()
@@ -47,3 +48,10 @@ class PickProposalGroupViewTest(OneUserMixin, TestCase,
         self.assertTrue(p2.id == p.id)
         self.assertTrue(context['current_choice'].id == v.id)
         self.assertTrue(context['active_choices'].count() == 2)
+        self.assertTrue(len(context['vote_spread']) == 2)
+        self.assertTrue(context['vote_spread'][1]['text'] == "Yes")
+        self.assertTrue(context['vote_spread'][1]['count'] == 1)
+        self.assertTrue(context['vote_spread'][1]['percentage'] == 100.0)
+        self.assertTrue(context['vote_spread'][2]['text'] == "No")
+        self.assertTrue(context['vote_spread'][2]['count'] == 0)
+        self.assertTrue(context['vote_spread'][2]['percentage'] == 0)

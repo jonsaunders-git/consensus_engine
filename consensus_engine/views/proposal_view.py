@@ -22,8 +22,9 @@ class ProposalView(TemplateView):
         current_choice = ChoiceTicket.objects.get_current_choice(user=self.request.user,
                                                                  proposal=proposal)
         active_choices = proposal.proposalchoice_set.activated()
+        vote_spread = proposal.get_voting_spread()
         context = {'proposal': proposal, 'current_choice': current_choice,
-                   'active_choices': active_choices}
+                   'active_choices': active_choices, 'vote_spread': vote_spread}
         return context
 
 

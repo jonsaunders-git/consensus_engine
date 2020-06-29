@@ -193,6 +193,23 @@ class Proposal(models.Model):
                                         activated_date=timezone.now())
             new_choice.save()
 
+    def get_voting_spread(self, analysis_date=None):
+        """ Gets the spread of votes in a dictionary based on the date and time """
+        spread = {}
+        if(analysis_date is None):
+            num_total_votes_cast = self.total_votes
+            for choice in self.get_active_choices():
+                vote_analysis = {}
+                vote_count = choice.current_vote_count
+                vote_analysis["text"] = choice.text
+                vote_analysis["count"] = vote_count
+                if num_total_votes_cast > 0 and vote_count > 0:
+                    vote_analysis["percentage"] = (vote_count / num_total_votes_cast) * 100.0
+                else:
+                    vote_analysis["percentage"] = 0
+                spread[choice.id] = vote_analysis
+        return spread
+
     # properties
     @property
     def short_name(self):
@@ -203,7 +220,7 @@ class Proposal(models.Model):
     @property
     def total_votes(self):
         return (Proposal.objects.filter(id=self.id,
-                proposalchoice__choiceticket__isnull=False)
+                proposalchoice__choiceticket__current=True)
                 .values('proposalchoice__choiceticket__user_id')
                 .distinct().count())
 
