@@ -16,9 +16,7 @@
   </div>
 </div>
 
-
 {% endblock %}
-
 
 {% block page_content %}
   {% if proposal %}
@@ -43,28 +41,30 @@
         </div>
 
         <div class="row">
-                  <div class="col">
-        <dl>
-        <dt>Spread of Votes</dt>
-
-        {% for choice, vote_analysis in vote_spread.items %}
-        <dd class="percentage percentage-{{vote_analysis.percentage|floatformat:"0"}}">
-        <span class="text">
-          {{vote_analysis.text}}: {{vote_analysis.percentage|floatformat:"0"}}%
-          {% if proposal.owned_by == request.user %}
-          <div class="col-0.5">
-            <a href="{% url 'edit_choice' proposal.id choice %}" title="Edit choice"><span class="ml-2 text-muted" data-feather="edit"></span></a>
+          <div class="col">
+            {% if error_message %}
+              <p>{{error_message}}</p>
+            {% else %}
+              <dl>
+              <dt>Spread of Votes {% if query_date %} ({{query_date}}){% endif %}</dt>
+              {% for choice, vote_analysis in vote_spread.items %}
+              <dd class="percentage percentage-{{vote_analysis.percentage|floatformat:"0"}}">
+              <span class="text">
+                {{vote_analysis.text}}: {{vote_analysis.percentage|floatformat:"0"}}%
+                {% if proposal.owned_by == request.user %}
+                <div class="col-0.5">
+                  <a href="{% url 'edit_choice' proposal.id choice %}" title="Edit choice"><span class="ml-2 text-muted" data-feather="edit"></span></a>
+                </div>
+                <div class="col-0.5">
+                  <a href="{% url 'delete_choice' proposal.id choice %}" title="Remove choice"><span class="ml-2 text-muted" data-feather="trash-2"></span></a>
+                </div>
+                {% endif %}
+              </span>
+              </dd>
+                  {% endfor %}
+              </dl>
+            {% endif %}
           </div>
-          <div class="col-0.5">
-            <a href="{% url 'delete_choice' proposal.id choice %}" title="Remove choice"><span class="ml-2 text-muted" data-feather="trash-2"></span></a>
-          </div>
-          {% endif %}
-        </span>
-        </dd>
-            {% endfor %}
-        </dl>
-
-        </div>
         </div>
 
         <div class="row">
@@ -82,9 +82,6 @@
     </div>
 
   </div>
-
-
-
 
   {% endif %}
 

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
+import json
 
 
 class GroupMembership(models.Model):
@@ -201,14 +202,30 @@ class Proposal(models.Model):
             for choice in self.get_active_choices():
                 vote_analysis = {}
                 vote_count = choice.current_vote_count
-                vote_analysis["text"] = choice.text
-                vote_analysis["count"] = vote_count
+                vote_analysis['text'] = choice.text
+                vote_analysis['count'] = vote_count
                 if num_total_votes_cast > 0 and vote_count > 0:
-                    vote_analysis["percentage"] = (vote_count / num_total_votes_cast) * 100.0
+                    vote_analysis['percentage'] = (vote_count / num_total_votes_cast) * 100.0
                 else:
-                    vote_analysis["percentage"] = 0
+                    vote_analysis['percentage'] = 0
                 spread[choice.id] = vote_analysis
+        else:
+            historical_data = self.get_consensus_at_datetime(analysis_date).get_consensus_data()
+            num_total_votes_cast = sum(item['count'] for item in historical_data)
+            for data_element in historical_data:
+                vote_analysis = {}
+                vote_count = data_element['count']
+                vote_analysis['text'] = data_element['text']
+                vote_analysis['count'] = vote_count
+                if num_total_votes_cast > 0 and vote_count > 0:
+                    vote_analysis['percentage'] = (vote_count / num_total_votes_cast) * 100.0
+                else:
+                    vote_analysis['percentage'] = 0
+                spread[data_element['choice_id']] = vote_analysis
         return spread
+
+    def get_consensus_at_datetime(self, request_datetime):
+        return ConsensusHistory.objects.at_date(self, request_datetime)
 
     # properties
     @property
@@ -223,6 +240,16 @@ class Proposal(models.Model):
                 proposalchoice__choiceticket__current=True)
                 .values('proposalchoice__choiceticket__user_id')
                 .distinct().count())
+
+    @property
+    def current_consensus(self):
+        try:
+            current_consensus = ProposalChoice.objects.get(deactivated_date__isnull=True,
+                                                           proposal=self,
+                                                           current_consensus=True)
+        except ProposalChoice.DoesNotExist:
+            current_consensus = None
+        return current_consensus
 
 
 class ProposalChoiceManager(models.Manager):
@@ -267,6 +294,9 @@ class ProposalChoice(models.Model):
             ticket.save()
             # determine consensus opinion after voting
             self.proposal.determine_consensus()
+            # save consensus history
+            snapshot = ConsensusHistory.build_snapshot(self.proposal)
+            snapshot.save()
 
 
 class ChoiceTicketManager(models.Manager):
@@ -304,3 +334,54 @@ class ChoiceTicket(models.Model):
                                         on_delete=models.CASCADE)
     current = models.BooleanField(default=True, null=True)
     objects = ChoiceTicketManager()
+
+
+class ConsensusHistoryManager(models.Manager):
+    """ A manager to get the information for ConsensusHistory """
+    def at_date(self, proposal, at_date):
+        # make it the end of the day
+        query_datetime = at_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+        snapshot = ConsensusHistory.objects.filter(proposal=proposal,
+                                                   snapshot_date__lte=query_datetime
+                                                   ).latest('snapshot_date')
+        return snapshot
+
+    def all_history_for_proposal(self, proposal):
+        history = ConsensusHistory.objects.all().order_by('snapshot_date')
+        return history
+
+
+class ConsensusHistory(models.Model):
+    """
+    Saves a snapshot of the vote at a particular time
+    - snapshot data is stored in a list of dictionaries
+    """
+    snapshot_date = models.DateTimeField('snapshot date')
+    proposal = models.ForeignKey(Proposal, on_delete=models.CASCADE)
+    consensus = models.ForeignKey(ProposalChoice, on_delete=models.CASCADE, null=True)
+    consensus_data = models.TextField()
+    # manager
+    objects = ConsensusHistoryManager()
+
+    # class functions
+    @classmethod
+    def build_snapshot(cls, proposal):
+        history_item = ConsensusHistory()
+        history_item.snapshot(proposal)
+        return history_item
+
+    def snapshot(self, proposal):
+        self.snapshot_date = timezone.now()
+        self.proposal = proposal
+        self.consensus = proposal.current_consensus
+        data_list = []
+        active_choices = proposal.get_active_choices()
+        for choice in active_choices:
+            data_element = {"choice_id": choice.id,
+                            "text": choice.text,
+                            "count": choice.current_vote_count}
+            data_list.append(data_element)
+        self.consensus_data = json.dumps(data_list)
+
+    def get_consensus_data(self):
+        return json.loads(self.consensus_data)

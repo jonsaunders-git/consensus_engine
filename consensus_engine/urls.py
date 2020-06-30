@@ -1,10 +1,13 @@
 from django.urls import path
-from django.urls import include, re_path
+from django.urls import include, re_path, register_converter
 from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from consensus_engine.converters import DateConverter
 
 from . import views
+
+register_converter(DateConverter, 'date')
 
 urlpatterns = [
     path('', login_required(
@@ -20,6 +23,8 @@ urlpatterns = [
          views.ProposalListView.as_view(), name="my_proposals"),
     path('proposals/<int:proposal_id>/',
          views.ProposalView.as_view(), name='view_proposal'),
+    path('proposals/<int:proposal_id>/<date:query_date>/',
+         views.ProposalView.as_view(), name='view_proposal_at_date'),
     path('proposals/<int:pk>/edit/',
          views.EditProposalView.as_view(), name='edit_proposal'),
     path('proposals/<int:proposal_id>/assign/group/',

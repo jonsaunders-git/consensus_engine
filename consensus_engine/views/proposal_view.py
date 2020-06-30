@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup
+from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup, ConsensusHistory
 from consensus_engine.choice_templates import ChoiceTemplates
 
 
@@ -19,12 +19,21 @@ class ProposalView(TemplateView):
     def get_context_data(self, **kwargs):
         # view the proposal choices
         proposal = get_object_or_404(Proposal, pk=self.kwargs['proposal_id'])
+        if 'query_date' in self.kwargs:
+            query_date = self.kwargs['query_date']
+        else:
+            query_date = None
         current_choice = ChoiceTicket.objects.get_current_choice(user=self.request.user,
                                                                  proposal=proposal)
         active_choices = proposal.proposalchoice_set.activated()
-        vote_spread = proposal.get_voting_spread()
         context = {'proposal': proposal, 'current_choice': current_choice,
-                   'active_choices': active_choices, 'vote_spread': vote_spread}
+                   'active_choices': active_choices, 'query_date': query_date}
+        try:
+            vote_spread = proposal.get_voting_spread(query_date)
+        except (KeyError, ConsensusHistory.DoesNotExist):
+            context['error_message'] = 'No data for query date'
+        else:
+            context['vote_spread'] = vote_spread
         return context
 
 
@@ -48,6 +57,10 @@ class CreateProposalView(CreateView):
                             ChoiceTemplates.genericYesNo,
                             ChoiceTemplates.generic1to5]
         self.object.populate_from_template(population_types[populate_option])
+        self.object.determine_consensus()
+        # save consensus history
+        snapshot = ConsensusHistory.build_snapshot(self.object)
+        snapshot.save()
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):

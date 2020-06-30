@@ -79,27 +79,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'devsite.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#    }
-#}
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#        'NAME': 'consensus_engine',
-#        'USER': 'admin',
-#        'PASSWORD': 'P0stAdm1n!',
-#        'HOST': 'localhost',
-#        'PORT': '',
-#    }
-#}
-
 DATABASES = {}
 DATABASES['default'] = dj_database_url.config(conn_max_age=600)
 
