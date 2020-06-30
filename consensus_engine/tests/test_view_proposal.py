@@ -106,6 +106,13 @@ class ProposalViewTest(OneUserMixin, TestCase,
         self.assertTrue('vote_spread' in context)
         votes_data = {1: {'text': 'Yes', 'count': 1, 'percentage': 100.0}, 2: {'text': 'No', 'count': 0, 'percentage': 0}}
         self.assertTrue(context['vote_spread'] == votes_data)
+        # fudge the date to test the history date list
+        ss3 = ConsensusHistory.build_snapshot(p)
+        dt = ss3.snapshot_date.replace(year=ss3.snapshot_date.year-1)
+        ss3.snapshot_date = dt
+        ss3.save()
+        context, _ = self.executeView(viewkwargs={'proposal_id' : p.id})
+        self.assertTrue(context["history_date_list"])
 
     def test_view_new_proposal_with_choices_and_votes_and_old_date(self):
         p = self.create_proposal_with_two_proposal_choices()

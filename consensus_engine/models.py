@@ -350,6 +350,11 @@ class ConsensusHistoryManager(models.Manager):
         history = ConsensusHistory.objects.all().order_by('snapshot_date')
         return history
 
+    def earliest_snapshot(self, proposal):
+        snapshot = ConsensusHistory.objects.filter(proposal=proposal
+                                                   ).earliest('snapshot_date')
+        return snapshot
+
 
 class ConsensusHistory(models.Model):
     """

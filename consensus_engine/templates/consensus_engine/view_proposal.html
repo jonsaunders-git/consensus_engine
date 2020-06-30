@@ -79,6 +79,22 @@
         </div>
       </div>
 
+        {% if history_date_list %}
+        <div class="row">
+          <div class="col">
+            <h3> Historical Data </h3>
+            <ul>
+              {% for history_date in history_date_list %}
+              <li>
+                <a href="{% url 'view_proposal_at_date' proposal.id history_date %}">{{ history_date }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+
+<br><br><br><br>
     </div>
 
   </div>

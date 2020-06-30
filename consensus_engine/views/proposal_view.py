@@ -34,6 +34,27 @@ class ProposalView(TemplateView):
             context['error_message'] = 'No data for query date'
         else:
             context['vote_spread'] = vote_spread
+            # get a list of previous months for history
+            date_list = []
+            if ConsensusHistory.objects.filter(proposal=proposal).count() > 0:
+                earliest_history = ConsensusHistory.objects.earliest_snapshot(proposal)
+                earliest_date = earliest_history.snapshot_date
+                now = timezone.now()
+                inc_date = earliest_date
+                inc_year = earliest_date.year
+                while True:
+                    if inc_date.month == 12:
+                        next_month = 1
+                        inc_year += 1
+                    else:
+                        next_month = inc_date.month + 1
+                    inc_date = inc_date.replace(day=1, month=next_month, year=inc_year,
+                                                hour=0, minute=0, second=0, microsecond=0)
+                    if inc_date >= now:
+                        break
+                    date_list.append(inc_date)
+                if date_list != []:
+                    context['history_date_list'] = date_list
         return context
 
 
