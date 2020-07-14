@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 import json
+from .utils import ProposalState
+from .exceptions import ProposalStateInvalid
 
 
 class GroupMembership(models.Model):
@@ -135,6 +137,7 @@ class Proposal(models.Model):
                                  null=True, blank=True)
     proposal_group = models.ForeignKey(ProposalGroup,
                                        on_delete=models.SET_NULL, null=True)
+    state = models.IntegerField(choices=ProposalState.choices(), default=ProposalState.DRAFT)
     # managers
     objects = ProposalManager()
 
@@ -226,6 +229,32 @@ class Proposal(models.Model):
 
     def get_consensus_at_datetime(self, request_datetime):
         return ConsensusHistory.objects.at_date(self, request_datetime)
+
+    def updateState(self, accepted_states, state):
+        if self.state in accepted_states:
+            self.state = state
+            self.save()
+        else:
+            raise ProposalStateInvalid()
+
+    def trial(self):
+        accepted_states = [ProposalState.DRAFT]
+        self.updateState(accepted_states, ProposalState.TRIAL)
+
+    def publish(self):
+        accepted_states = [ProposalState.DRAFT, ProposalState.TRIAL,
+                           ProposalState.ON_HOLD]
+        self.updateState(accepted_states, ProposalState.PUBLISHED)
+
+    def hold(self):
+        accepted_states = [ProposalState.DRAFT, ProposalState.TRIAL,
+                           ProposalState.PUBLISHED]
+        self.updateState(accepted_states, ProposalState.ON_HOLD)
+
+    def archive(self):
+        accepted_states = [ProposalState.DRAFT, ProposalState.TRIAL,
+                           ProposalState.ON_HOLD, ProposalState.PUBLISHED]
+        self.updateState(accepted_states, ProposalState.ARCHIVED)
 
     # properties
     @property

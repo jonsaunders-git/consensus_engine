@@ -2,11 +2,12 @@ from django.test import TestCase
 from django.contrib.auth.models import AnonymousUser, User
 
 from .mixins import TwoUserMixin, ProposalMixin
-
 # Create your tests here.
 
 from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup
 from consensus_engine.choice_templates import ChoiceTemplates
+from consensus_engine.utils import ProposalState
+from consensus_engine.exceptions import ProposalStateInvalid
 from django.utils import timezone
 
 
@@ -20,6 +21,7 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         self.assertTrue(w.proposal_name == "only a test")
         self.assertTrue(w.proposal_description == "yes, this is only a test")
         self.assertTrue(w.owned_by == self.user)
+        self.assertTrue(w.state == ProposalState.DRAFT)
 
     def test_proposal_short_name(self):
         w = self.create_new_proposal()
@@ -234,3 +236,144 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
                 self.assertTrue(s2[c2]['text'] == cs[c2])
                 self.assertTrue(s2[c2]['count'] == 0)
                 self.assertTrue(s2[c2]['percentage'] == 0)
+
+    def test_proposal_state(self):
+        # change the state and check the value
+        p = self.create_new_proposal()
+        self.assertTrue(p.state == ProposalState.DRAFT)
+        p.trial()
+        self.assertTrue(p.state == ProposalState.TRIAL)
+        p.publish()
+        self.assertTrue(p.state == ProposalState.PUBLISHED)
+        p.hold()
+        self.assertTrue(p.state == ProposalState.ON_HOLD)
+        p.archive()
+        self.assertTrue(p.state == ProposalState.ARCHIVED)
+
+    def test_proposal_draft(self):
+        # change the state and check the value
+        p = self.create_new_proposal()
+        self.assertTrue(p.state == ProposalState.DRAFT)
+        # trial is okay
+        p.trial()
+        self.assertTrue(p.state == ProposalState.TRIAL)
+        # check we can't redo trial
+        with self.assertRaises(ProposalStateInvalid) as e:
+            p.trial()
+        # change the state and check the value
+        p2 = self.create_new_proposal()
+        p2.publish()
+        self.assertTrue(p2.state == ProposalState.PUBLISHED)
+        with self.assertRaises(ProposalStateInvalid) as e2:
+            p2.publish()
+        # change the state and check the value
+        p3 = self.create_new_proposal()
+        p3.hold()
+        self.assertTrue(p3.state == ProposalState.ON_HOLD)
+        with self.assertRaises(ProposalStateInvalid) as e3:
+            p3.hold()
+        # change the state and check the value
+        p4 = self.create_new_proposal()
+        p4.archive()
+        self.assertTrue(p4.state == ProposalState.ARCHIVED)
+        with self.assertRaises(ProposalStateInvalid) as e4:
+            p4.archive()
+
+    def test_proposal_trial(self):
+        # change the state and check the value
+        p = self.create_new_proposal()
+        # trial is okay
+        p.trial()
+        self.assertTrue(p.state == ProposalState.TRIAL)
+        # change the state and check the value
+        p2 = self.create_new_proposal()
+        p2.trial()
+        p2.publish()
+        self.assertTrue(p2.state == ProposalState.PUBLISHED)
+        with self.assertRaises(ProposalStateInvalid) as e2:
+            p2.publish()
+        # change the state and check the value
+        p3 = self.create_new_proposal()
+        p3.trial()
+        p3.hold()
+        self.assertTrue(p3.state == ProposalState.ON_HOLD)
+        with self.assertRaises(ProposalStateInvalid) as e3:
+            p3.hold()
+        # change the state and check the value
+        p4 = self.create_new_proposal()
+        p4.trial()
+        p4.archive()
+        self.assertTrue(p4.state == ProposalState.ARCHIVED)
+        with self.assertRaises(ProposalStateInvalid) as e4:
+            p4.archive()
+
+    def test_proposal_publish(self):
+        # change the state and check the value
+        p = self.create_new_proposal()
+        p.publish()
+        self.assertTrue(p.state == ProposalState.PUBLISHED)
+        # change the state and check the value
+        p2 = self.create_new_proposal()
+        p2.publish()
+        with self.assertRaises(ProposalStateInvalid) as e2:
+            p2.trial()
+        # change the state and check the value
+        p3 = self.create_new_proposal()
+        p3.publish()
+        p3.hold()
+        self.assertTrue(p3.state == ProposalState.ON_HOLD)
+        with self.assertRaises(ProposalStateInvalid) as e3:
+            p3.hold()
+        # change the state and check the value
+        p4 = self.create_new_proposal()
+        p4.trial()
+        p4.archive()
+        self.assertTrue(p4.state == ProposalState.ARCHIVED)
+        with self.assertRaises(ProposalStateInvalid) as e4:
+            p4.archive()
+
+    def test_proposal_hold(self):
+        # change the state and check the value
+        p = self.create_new_proposal()
+        p.hold()
+        self.assertTrue(p.state == ProposalState.ON_HOLD)
+        # change the state and check the value
+        p2 = self.create_new_proposal()
+        p2.hold()
+        with self.assertRaises(ProposalStateInvalid) as e2:
+            p2.trial()
+        # change the state and check the value
+        p3 = self.create_new_proposal()
+        p3.hold()
+        p3.publish()
+        self.assertTrue(p3.state == ProposalState.PUBLISHED)
+        with self.assertRaises(ProposalStateInvalid) as e3:
+            p3.publish()
+        # change the state and check the value
+        p4 = self.create_new_proposal()
+        p4.trial()
+        p4.archive()
+        self.assertTrue(p4.state == ProposalState.ARCHIVED)
+        with self.assertRaises(ProposalStateInvalid) as e4:
+            p4.archive()
+
+    def test_proposal_archive(self):
+        # change the state and check the value
+        p = self.create_new_proposal()
+        p.archive()
+        self.assertTrue(p.state == ProposalState.ARCHIVED)
+        # change the state and check the value
+        p2 = self.create_new_proposal()
+        p2.archive()
+        with self.assertRaises(ProposalStateInvalid) as e2:
+            p2.trial()
+        # change the state and check the value
+        p3 = self.create_new_proposal()
+        p3.archive()
+        with self.assertRaises(ProposalStateInvalid) as e3:
+            p3.publish()
+        # change the state and check the value
+        p4 = self.create_new_proposal()
+        p4.archive()
+        with self.assertRaises(ProposalStateInvalid) as e4:
+            p4.hold()
