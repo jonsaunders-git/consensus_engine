@@ -1,0 +1,40 @@
+{% extends "consensus_engine/base_dialog.html" %}
+{% load static %}
+
+{% block dialog_descriptor %}
+
+{% if error_message %}
+{{ error_message }}
+{% endif %}
+
+{% if proposal %}
+
+<h2>{{ proposal.proposal_name }}</h2>
+<div><p><b>{{ proposal.proposal_description }}</b></p></div>
+<div>
+  <p>Change the state of the proposal</p>
+  <p>{% lorem  %}</p></div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block form_fields %}
+
+{% if proposal %}
+
+  {% csrf_token %}
+  <div class="form-group">
+  <div class="list-group">
+  <input type="hidden" name="next" value="{{ request.GET.next }}">
+  {% for state in possible_states %}
+    <input type="radio" name="state" id="state{{ forloop.counter }}" value="{{ state.value }}"/>
+    <label class="list-group-item" for="state{{ forloop.counter }}">{{ state.name }}</label>
+  {% endfor %}
+  </div>
+  </div>
+{% else %}
+    <p>No proposal choices are available.</p>
+{% endif %}
+
+{% endblock %}

@@ -31,6 +31,8 @@ urlpatterns = [
          views.PickProposalGroupView.as_view(), name='assign_proposals_group'),
     path('proposals/<int:proposal_id>/vote/',
          views.VoteView.as_view(), name='vote_proposal'),
+    path('proposals/<int:proposal_id>/change_state/',
+         views.StateView.as_view(), name='change_state'),
     path('invite/<int:invite_id>/',
          views.InviteView.as_view(), name='accept_invite'),
     path('proposals/<int:proposal_id>/choice/new/',

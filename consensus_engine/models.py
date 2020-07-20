@@ -147,7 +147,10 @@ class Proposal(models.Model):
 
     def user_can_edit(self, user):
         """ Determines whether the passed in user can edit the proposal """
-        return self.owned_by == user
+        can_edit = ((self.owned_by == user) and
+                    ((self.state == ProposalState.DRAFT) or
+                     (self.state == ProposalState.TRIAL)))
+        return can_edit
 
     def get_active_choices(self):
         """ Gets the ProposalChoices that are active currently """
@@ -230,31 +233,28 @@ class Proposal(models.Model):
     def get_consensus_at_datetime(self, request_datetime):
         return ConsensusHistory.objects.at_date(self, request_datetime)
 
-    def updateState(self, accepted_states, state):
-        if self.state in accepted_states:
+    def updateState(self, state):
+        valid_states = self.current_state.get_next_states()
+        if state in valid_states:
             self.state = state
             self.save()
         else:
             raise ProposalStateInvalid()
 
+    def draft(self):
+        self.updateState(ProposalState.DRAFT)
+
     def trial(self):
-        accepted_states = [ProposalState.DRAFT]
-        self.updateState(accepted_states, ProposalState.TRIAL)
+        self.updateState(ProposalState.TRIAL)
 
     def publish(self):
-        accepted_states = [ProposalState.DRAFT, ProposalState.TRIAL,
-                           ProposalState.ON_HOLD]
-        self.updateState(accepted_states, ProposalState.PUBLISHED)
+        self.updateState(ProposalState.PUBLISHED)
 
     def hold(self):
-        accepted_states = [ProposalState.DRAFT, ProposalState.TRIAL,
-                           ProposalState.PUBLISHED]
-        self.updateState(accepted_states, ProposalState.ON_HOLD)
+        self.updateState(ProposalState.ON_HOLD)
 
     def archive(self):
-        accepted_states = [ProposalState.DRAFT, ProposalState.TRIAL,
-                           ProposalState.ON_HOLD, ProposalState.PUBLISHED]
-        self.updateState(accepted_states, ProposalState.ARCHIVED)
+        self.updateState(ProposalState.ARCHIVED)
 
     # properties
     @property
@@ -279,6 +279,10 @@ class Proposal(models.Model):
         except ProposalChoice.DoesNotExist:
             current_consensus = None
         return current_consensus
+
+    @property
+    def current_state(self):
+        return ProposalState(self.state)
 
 
 class ProposalChoiceManager(models.Manager):

@@ -279,12 +279,15 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         with self.assertRaises(ProposalStateInvalid) as e4:
             p4.archive()
 
+
     def test_proposal_trial(self):
         # change the state and check the value
         p = self.create_new_proposal()
         # trial is okay
         p.trial()
         self.assertTrue(p.state == ProposalState.TRIAL)
+        with self.assertRaises(ProposalStateInvalid) as e5:
+            p.draft()
         # change the state and check the value
         p2 = self.create_new_proposal()
         p2.trial()
@@ -312,6 +315,8 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         p = self.create_new_proposal()
         p.publish()
         self.assertTrue(p.state == ProposalState.PUBLISHED)
+        with self.assertRaises(ProposalStateInvalid) as e5:
+            p.draft()
         # change the state and check the value
         p2 = self.create_new_proposal()
         p2.publish()
@@ -337,6 +342,8 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         p = self.create_new_proposal()
         p.hold()
         self.assertTrue(p.state == ProposalState.ON_HOLD)
+        with self.assertRaises(ProposalStateInvalid) as e5:
+            p.draft()
         # change the state and check the value
         p2 = self.create_new_proposal()
         p2.hold()
@@ -362,6 +369,8 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         p = self.create_new_proposal()
         p.archive()
         self.assertTrue(p.state == ProposalState.ARCHIVED)
+        with self.assertRaises(ProposalStateInvalid) as e5:
+            p.draft()
         # change the state and check the value
         p2 = self.create_new_proposal()
         p2.archive()

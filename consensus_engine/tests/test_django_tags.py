@@ -100,7 +100,34 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
         self.assertTrue(current_consensus(w.id)['current_consensus'] == 'No consensus')
 
     def test_release_note(self):
+        # to implement when I implement release notes
         release_notes()
 
     def test_user_search(self):
+        # to implement when I implement user search
         user_search()
+
+    def test_proposal_state(self):
+        w = self.create_new_proposal()
+        # check that total votes = 0 if there are no votes
+        self.assertTrue(isinstance(w, Proposal))
+        self.assertTrue(total_votes(w.id)['total_votes'] == 0)
+        l = proposal_state(w)
+        self.assertTrue('proposal_state' in l)
+        self.assertTrue(l['proposal_state'] == 'DRAFT')
+        w.trial()
+        l2 = proposal_state(w)
+        self.assertTrue('proposal_state' in l2)
+        self.assertTrue(l2['proposal_state'] == 'TRIAL')
+        w.publish()
+        l3 = proposal_state(w)
+        self.assertTrue('proposal_state' in l3)
+        self.assertTrue(l3['proposal_state'] == 'PUBLISHED')
+        w.hold()
+        l4 = proposal_state(w)
+        self.assertTrue('proposal_state' in l4)
+        self.assertTrue(l4['proposal_state'] == 'ON_HOLD')
+        w.archive()
+        l5 = proposal_state(w)
+        self.assertTrue('proposal_state' in l5)
+        self.assertTrue(l5['proposal_state'] == 'ARCHIVED')

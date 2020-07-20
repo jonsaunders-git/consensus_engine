@@ -27,7 +27,8 @@ class ProposalView(TemplateView):
                                                                  proposal=proposal)
         active_choices = proposal.proposalchoice_set.activated()
         context = {'proposal': proposal, 'current_choice': current_choice,
-                   'active_choices': active_choices, 'query_date': query_date}
+                   'active_choices': active_choices, 'query_date': query_date,
+                   'can_edit': proposal.user_can_edit(self.request.user)}
         try:
             vote_spread = proposal.get_voting_spread(query_date)
         except (KeyError, ConsensusHistory.DoesNotExist):

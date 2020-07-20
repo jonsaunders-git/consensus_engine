@@ -66,3 +66,8 @@ def release_notes():
 def user_search():
     users = User.objects.all
     return {'users': users}
+
+
+@register.inclusion_tag('consensus_engine/proposal_state.html')
+def proposal_state(proposal):
+    return {'proposal_state': proposal.current_state.name}
