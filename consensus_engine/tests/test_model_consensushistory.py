@@ -1,13 +1,6 @@
 from django.test import TestCase
-from django.contrib.auth.models import AnonymousUser, User
-
 from .mixins import TwoUserMixin, ProposalMixin
-
-# Create your tests here.
-
-from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket
 from consensus_engine.models import ConsensusHistory
-from consensus_engine.choice_templates import ChoiceTemplates
 from django.utils import timezone
 
 

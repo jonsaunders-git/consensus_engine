@@ -17,6 +17,7 @@ class GroupMembership(models.Model):
 
 class GroupInviteManager(models.Manager):
     """ Manager for Group Invites """
+
     def my_open_invites(self, user):
         return self.get_queryset().filter(invitee=user, accepted=None)
 
@@ -62,6 +63,7 @@ class GroupInvite(models.Model):
 
 class ProposalGroupManager(models.Manager):
     """ Manager for Proposal Group data """
+
     def owned(self, user):
         return self.get_queryset().filter(owned_by_id=user.id)
 
@@ -120,6 +122,7 @@ class ProposalGroup(models.Model):
 
 class ProposalManager(models.Manager):
     """ Manager for Proposal data """
+
     def owned(self, user):
         return (self.get_queryset().filter(owned_by_id=user.id)
                     .values('id', 'proposal_name', 'proposal_description'))
@@ -147,9 +150,9 @@ class Proposal(models.Model):
 
     def user_can_edit(self, user):
         """ Determines whether the passed in user can edit the proposal """
-        can_edit = ((self.owned_by == user) and
-                    ((self.state == ProposalState.DRAFT) or
-                     (self.state == ProposalState.TRIAL)))
+        can_edit = ((self.owned_by == user)
+                    and ((self.state == ProposalState.DRAFT)
+                    or (self.state == ProposalState.TRIAL)))
         return can_edit
 
     def get_active_choices(self):
@@ -170,8 +173,7 @@ class Proposal(models.Model):
             elif choice_votes == max_votes:  # tie break (no consensus)
                 current_consensus = None
         # update all the choices to the new values
-        if (current_consensus is None or
-                not current_consensus.current_consensus):  # short cut - no update if no change
+        if (current_consensus is None or not current_consensus.current_consensus):
             with transaction.atomic():
                 for choice in active_choices:
                     old_value = choice.current_consensus
@@ -287,6 +289,7 @@ class Proposal(models.Model):
 
 class ProposalChoiceManager(models.Manager):
     """ Manager for Proposal Choice """
+
     def activated(self):
         return (self.get_queryset()
                 .filter(activated_date__isnull=False,
@@ -334,6 +337,7 @@ class ProposalChoice(models.Model):
 
 class ChoiceTicketManager(models.Manager):
     """ Manager for Choice Ticket data """
+
     def my_votes(self, user):
         return (ChoiceTicket.objects.filter(current=True,
                                             user=user,
@@ -371,6 +375,7 @@ class ChoiceTicket(models.Model):
 
 class ConsensusHistoryManager(models.Manager):
     """ A manager to get the information for ConsensusHistory """
+
     def at_date(self, proposal, at_date):
         # make it the end of the day
         query_datetime = at_date.replace(hour=23, minute=59, second=59, microsecond=999999)

@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.contrib.auth.models import AnonymousUser, User
 
 from .mixins import TwoUserMixin, ProposalMixin
 # Create your tests here.
@@ -53,19 +52,17 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         self.assertTrue(w.total_votes == 0)
         pc1 = w.proposalchoice_set.first()
         pc2 = w.proposalchoice_set.last()
-        v = ChoiceTicket.objects.create(user=self.user,
-            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        v = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(isinstance(v, ChoiceTicket))
         self.assertTrue(w.total_votes == 1)
         # change votes - change current
-        v2 = ChoiceTicket.objects.create(user=self.user,
-            date_chosen=timezone.now(), proposal_choice=pc2, current=True)
-        v.current=False;
-        v.save();
+        _ = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        v.current = False
+        v.save()
         self.assertTrue(w.total_votes == 1)
         # create a vote by another user and test that we have two votes
-        v3 = ChoiceTicket.objects.create(user=self.user2,
-            date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        _ = ChoiceTicket.objects.create(user=self.user2,
+                                        date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(isinstance(v, ChoiceTicket))
         self.assertTrue(w.total_votes == 2)
 
@@ -80,33 +77,33 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         self.assertTrue(isinstance(v, ChoiceTicket))
         self.assertTrue(w.total_votes == 1)
         # change votes - change current
-        v2 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
-        v.current=False;
-        v.save();
+        _ = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        v.current = False
+        v.save()
         self.assertTrue(w.total_votes == 1)
         # create a vote by another user and test that we have two votes
-        v3 = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        _ = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         self.assertTrue(isinstance(v, ChoiceTicket))
         self.assertTrue(w.total_votes == 2)
-
 
     def test_proposal_owned_set(self):
         # should be no proposals for this user at start of test
         self.assertTrue(Proposal.objects.owned(self.user).count() == 0)
         # add one
-        p = self.create_new_proposal()
+        _ = self.create_new_proposal()
         self.assertTrue(Proposal.objects.owned(self.user).count() == 1)
         # add another
-        p1 = self.create_new_proposal()
+        _ = self.create_new_proposal()
         self.assertTrue(Proposal.objects.owned(self.user).count() == 2)
         # add one for the secind user
-        p2 = self.create_new_proposal(owned_by=self.user2)
+        _ = self.create_new_proposal(owned_by=self.user2)
         # two for user 1 and 1 for user 2
         self.assertTrue(Proposal.objects.owned(self.user).count() == 2)
         self.assertTrue(Proposal.objects.owned(self.user2).count() == 1)
 
     def test_proposal_in_group_creation(self):
-        g = ProposalGroup.objects.create(group_name="Test Group", owned_by=self.user, group_description="it's only a test group")
+        g = ProposalGroup.objects.create(group_name="Test Group", owned_by=self.user,
+                                         group_description="it's only a test group")
         w = self.create_new_proposal(proposal_group=g)
         self.assertTrue(isinstance(w, Proposal))
         self.assertTrue(w.date_proposed <= timezone.now())
@@ -115,18 +112,20 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         self.assertTrue(w.owned_by == self.user)
 
     def test_proposal_in_group_set(self):
-        g = ProposalGroup.objects.create(group_name="Test Group", owned_by=self.user, group_description="it's only a test group")
+        g = ProposalGroup.objects.create(group_name="Test Group", owned_by=self.user,
+                                         group_description="it's only a test group")
         # should be no proposals for this user at start of test
         self.assertTrue(Proposal.objects.in_group(g).count() == 0)
         # add one
-        p = self.create_new_proposal(proposal_group=g)
+        _ = self.create_new_proposal(proposal_group=g)
         self.assertTrue(Proposal.objects.in_group(g).count() == 1)
         # add another
-        p1 = self.create_new_proposal(proposal_group=g)
+        _ = self.create_new_proposal(proposal_group=g)
         self.assertTrue(Proposal.objects.in_group(g).count() == 2)
-        g2 = ProposalGroup.objects.create(group_name="Test Group 2", owned_by=self.user, group_description="it's only a test group")
+        g2 = ProposalGroup.objects.create(group_name="Test Group 2", owned_by=self.user,
+                                          group_description="it's only a test group")
         # add one for the second group
-        p2 = self.create_new_proposal(proposal_group=g2)
+        _ = self.create_new_proposal(proposal_group=g2)
         # two for group 1 and 1 for group 2
         self.assertTrue(Proposal.objects.in_group(g).count() == 2)
         self.assertTrue(Proposal.objects.in_group(g2).count() == 1)
@@ -136,57 +135,59 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         # no votes
         c = p.determine_consensus()
         self.assertTrue(c is None)
-        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==0)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count() == 0)
         # add a vote
         pc1 = p.proposalchoice_set.first()
         pc2 = p.proposalchoice_set.last()
         v = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
         c2 = p.determine_consensus()
-        self.assertTrue(c2.id == pc1.id and c2.current_consensus == True)
-        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==1)
+        self.assertTrue(c2.id == pc1.id and c2.current_consensus is True)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count() == 1)
         pc1.refresh_from_db()
         pc2.refresh_from_db()
-        self.assertTrue(pc1.current_consensus==True)
-        self.assertTrue(pc2.current_consensus==False)
+        self.assertTrue(pc1.current_consensus is True)
+        self.assertTrue(pc2.current_consensus is False)
         # add a vote to the other choice
-        v2 = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
+        _ = ChoiceTicket.objects.create(user=self.user2, date_chosen=timezone.now(),
+                                        proposal_choice=pc2, current=True)
         c3 = p.determine_consensus()
         self.assertTrue(c3 is None)
-        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==0)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count() == 0)
         pc1.refresh_from_db()
         pc2.refresh_from_db()
-        self.assertTrue(pc1.current_consensus==False)
-        self.assertTrue(pc2.current_consensus==False)
+        self.assertTrue(pc1.current_consensus is False)
+        self.assertTrue(pc2.current_consensus is False)
         # remove the first vote
         v.current = False
         v.save()
         c4 = p.determine_consensus()
-        self.assertTrue(c4.id == pc2.id and c4.current_consensus == True)
-        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==1)
+        self.assertTrue(c4.id == pc2.id and c4.current_consensus is True)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count() == 1)
         pc1.refresh_from_db()
         pc2.refresh_from_db()
-        self.assertTrue(pc1.current_consensus==False)
-        self.assertTrue(pc2.current_consensus==True)
+        self.assertTrue(pc1.current_consensus is False)
+        self.assertTrue(pc2.current_consensus is True)
         # add a vote for user 1 to the second choice
         v3 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc2, current=True)
         c5 = p.determine_consensus()
-        self.assertTrue(c5.id == pc2.id and c5.current_consensus == True)
-        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==1)
+        self.assertTrue(c5.id == pc2.id and c5.current_consensus is True)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count() == 1)
         pc1.refresh_from_db()
         pc2.refresh_from_db()
-        self.assertTrue(pc1.current_consensus==False)
-        self.assertTrue(pc2.current_consensus==True)
+        self.assertTrue(pc1.current_consensus is False)
+        self.assertTrue(pc2.current_consensus is True)
         # change the vote to pc1
         v3.current = False
         v3.save()
-        v4 = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(), proposal_choice=pc1, current=True)
+        _ = ChoiceTicket.objects.create(user=self.user, date_chosen=timezone.now(),
+                                        proposal_choice=pc1, current=True)
         c6 = p.determine_consensus()
         self.assertTrue(c6 is None)
-        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count()==0)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p, current_consensus=True).count() == 0)
         pc1.refresh_from_db()
         pc2.refresh_from_db()
-        self.assertTrue(pc1.current_consensus==False)
-        self.assertTrue(pc2.current_consensus==False)
+        self.assertTrue(pc1.current_consensus is False)
+        self.assertTrue(pc2.current_consensus is False)
 
     def test_populate_proposal_from_template(self):
         p = self.create_new_proposal()
@@ -218,7 +219,7 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         # check it is 0 for all choices
         self.assertTrue(len(s) == 4)
         cs = ["", "Must have", "Should have", "Could have", "Wishlist"]
-        for c in range(1,4):
+        for c in range(1, 4):
             self.assertTrue(s[c]['text'] == cs[c])
             self.assertTrue(s[c]['count'] == 0)
             self.assertTrue(s[c]['percentage'] == 0)
@@ -227,7 +228,7 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         pc = ac.first()
         pc.vote(self.user)
         s2 = p.get_voting_spread()
-        for c2 in range(1,4):
+        for c2 in range(1, 4):
             if c2 == pc.id:
                 self.assertTrue(s2[c2]['text'] == cs[c2])
                 self.assertTrue(s2[c2]['count'] == 1)
@@ -258,27 +259,26 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         p.trial()
         self.assertTrue(p.state == ProposalState.TRIAL)
         # check we can't redo trial
-        with self.assertRaises(ProposalStateInvalid) as e:
+        with self.assertRaises(ProposalStateInvalid):
             p.trial()
         # change the state and check the value
         p2 = self.create_new_proposal()
         p2.publish()
         self.assertTrue(p2.state == ProposalState.PUBLISHED)
-        with self.assertRaises(ProposalStateInvalid) as e2:
+        with self.assertRaises(ProposalStateInvalid):
             p2.publish()
         # change the state and check the value
         p3 = self.create_new_proposal()
         p3.hold()
         self.assertTrue(p3.state == ProposalState.ON_HOLD)
-        with self.assertRaises(ProposalStateInvalid) as e3:
+        with self.assertRaises(ProposalStateInvalid):
             p3.hold()
         # change the state and check the value
         p4 = self.create_new_proposal()
         p4.archive()
         self.assertTrue(p4.state == ProposalState.ARCHIVED)
-        with self.assertRaises(ProposalStateInvalid) as e4:
+        with self.assertRaises(ProposalStateInvalid):
             p4.archive()
-
 
     def test_proposal_trial(self):
         # change the state and check the value
@@ -286,28 +286,28 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         # trial is okay
         p.trial()
         self.assertTrue(p.state == ProposalState.TRIAL)
-        with self.assertRaises(ProposalStateInvalid) as e5:
+        with self.assertRaises(ProposalStateInvalid):
             p.draft()
         # change the state and check the value
         p2 = self.create_new_proposal()
         p2.trial()
         p2.publish()
         self.assertTrue(p2.state == ProposalState.PUBLISHED)
-        with self.assertRaises(ProposalStateInvalid) as e2:
+        with self.assertRaises(ProposalStateInvalid):
             p2.publish()
         # change the state and check the value
         p3 = self.create_new_proposal()
         p3.trial()
         p3.hold()
         self.assertTrue(p3.state == ProposalState.ON_HOLD)
-        with self.assertRaises(ProposalStateInvalid) as e3:
+        with self.assertRaises(ProposalStateInvalid):
             p3.hold()
         # change the state and check the value
         p4 = self.create_new_proposal()
         p4.trial()
         p4.archive()
         self.assertTrue(p4.state == ProposalState.ARCHIVED)
-        with self.assertRaises(ProposalStateInvalid) as e4:
+        with self.assertRaises(ProposalStateInvalid):
             p4.archive()
 
     def test_proposal_publish(self):
@@ -315,26 +315,26 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         p = self.create_new_proposal()
         p.publish()
         self.assertTrue(p.state == ProposalState.PUBLISHED)
-        with self.assertRaises(ProposalStateInvalid) as e5:
+        with self.assertRaises(ProposalStateInvalid):
             p.draft()
         # change the state and check the value
         p2 = self.create_new_proposal()
         p2.publish()
-        with self.assertRaises(ProposalStateInvalid) as e2:
+        with self.assertRaises(ProposalStateInvalid):
             p2.trial()
         # change the state and check the value
         p3 = self.create_new_proposal()
         p3.publish()
         p3.hold()
         self.assertTrue(p3.state == ProposalState.ON_HOLD)
-        with self.assertRaises(ProposalStateInvalid) as e3:
+        with self.assertRaises(ProposalStateInvalid):
             p3.hold()
         # change the state and check the value
         p4 = self.create_new_proposal()
         p4.trial()
         p4.archive()
         self.assertTrue(p4.state == ProposalState.ARCHIVED)
-        with self.assertRaises(ProposalStateInvalid) as e4:
+        with self.assertRaises(ProposalStateInvalid):
             p4.archive()
 
     def test_proposal_hold(self):
@@ -342,26 +342,26 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         p = self.create_new_proposal()
         p.hold()
         self.assertTrue(p.state == ProposalState.ON_HOLD)
-        with self.assertRaises(ProposalStateInvalid) as e5:
+        with self.assertRaises(ProposalStateInvalid):
             p.draft()
         # change the state and check the value
         p2 = self.create_new_proposal()
         p2.hold()
-        with self.assertRaises(ProposalStateInvalid) as e2:
+        with self.assertRaises(ProposalStateInvalid):
             p2.trial()
         # change the state and check the value
         p3 = self.create_new_proposal()
         p3.hold()
         p3.publish()
         self.assertTrue(p3.state == ProposalState.PUBLISHED)
-        with self.assertRaises(ProposalStateInvalid) as e3:
+        with self.assertRaises(ProposalStateInvalid):
             p3.publish()
         # change the state and check the value
         p4 = self.create_new_proposal()
         p4.trial()
         p4.archive()
         self.assertTrue(p4.state == ProposalState.ARCHIVED)
-        with self.assertRaises(ProposalStateInvalid) as e4:
+        with self.assertRaises(ProposalStateInvalid):
             p4.archive()
 
     def test_proposal_archive(self):
@@ -369,20 +369,20 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         p = self.create_new_proposal()
         p.archive()
         self.assertTrue(p.state == ProposalState.ARCHIVED)
-        with self.assertRaises(ProposalStateInvalid) as e5:
+        with self.assertRaises(ProposalStateInvalid):
             p.draft()
         # change the state and check the value
         p2 = self.create_new_proposal()
         p2.archive()
-        with self.assertRaises(ProposalStateInvalid) as e2:
+        with self.assertRaises(ProposalStateInvalid):
             p2.trial()
         # change the state and check the value
         p3 = self.create_new_proposal()
         p3.archive()
-        with self.assertRaises(ProposalStateInvalid) as e3:
+        with self.assertRaises(ProposalStateInvalid):
             p3.publish()
         # change the state and check the value
         p4 = self.create_new_proposal()
         p4.archive()
-        with self.assertRaises(ProposalStateInvalid) as e4:
+        with self.assertRaises(ProposalStateInvalid):
             p4.hold()
