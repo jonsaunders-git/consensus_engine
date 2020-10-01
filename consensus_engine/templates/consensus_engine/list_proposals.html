@@ -8,11 +8,15 @@
   <div class="col my-2 ml-3 align-middle px-2">
     <p class="my-0">
       <span class="font-weight-bold my-0">{% if proposal_group %}{{ proposal_group.group_name }}{% else %}My Proposals{% endif %}</span>
-      {% if proposal_group %}<a href="{% url 'edit_proposal_group' proposal_group.id %}" title="Edit the {{proposal_group.group_name}} Group"><span class="ml-2 text-muted" data-feather="edit"></span></a>
+      {% if proposal_group and can_edit %}<a href="{% url 'edit_proposal_group' proposal_group.id %}" title="Edit the {{proposal_group.group_name}} Group"><span class="ml-2 text-muted" data-feather="edit"></span></a>
+      {% if can_invite %}
       <a href="{% url 'invite_people' proposal_group.id %}?next={{ request.path|urlencode }}" class="text-muted" title="Invite People to this Group">
         <span class="ml-2 align-top" data-feather="user-plus"></span>
         </a>
+      {% endif %}
+      {% if can_create_proposals %}
       <a href="new/" title="Add new Proposal in {{proposal_group.group_name}}"><span class="ml-2 text-muted" data-feather="plus-circle"></span></a>{% endif %}
+      {% endif %}
     </p>
     <p class="my-0 py-0 text-muted"><small>{% if proposal_group %}{{ proposal_group.group_description }}{% else %}These are the proposals you owned and can contribute to{% endif %}</small></p>
   </div>
@@ -20,7 +24,6 @@
 
 
 {% endblock %}
-
 
 {% block child_actions %}
 {# create an opportunity for actions #}
@@ -61,14 +64,16 @@
           If this is not what you want to do, you can add a new Proposal to any group from the task bar on the left. </p>
           <p>Note: Only the user who created the Proposal can edit it.</p>
         </div>
+        {% if can_create_proposals %}
         <div class="mt-2 w-100 p-4 rounded bg-light border">
           <p>Why don't you add one...</p>
           {% if proposal_group %}
           <a href="{% url 'new_proposal_in_group' proposal_group.id|default:0 %}" class="btn btn-primary">Add Proposal</a>
           {% else %}
           <a href="{% url 'new_proposal' %}" class="btn btn-primary">Add Proposal</a>
-          {% endif %}
+            {% endif %}
         </div>
+          {% endif %}
       </div>
     </div>
     <div class="col-md-1"></div>

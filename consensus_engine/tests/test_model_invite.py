@@ -1,13 +1,10 @@
 from django.test import TestCase
-from django.contrib.auth.models import AnonymousUser, User
-from  django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied
 
 from .mixins import TwoUserMixin, ProposalGroupMixin
 from django.db import DataError
 
 # Create your tests here.
-
-from consensus_engine.models import ProposalGroup
 from django.utils import timezone
 
 
@@ -28,19 +25,19 @@ class InviteTest(TwoUserMixin, ProposalGroupMixin, TestCase):
     def test_already_in_group(self):
         pg = self.create_proposal_group()
         # check owner
-        with self.assertRaises(DataError, msg="User is already a member of this group") as e:
-            i = pg.invite_user(self.user, self.user)
+        with self.assertRaises(DataError, msg="User is already a member of this group"):
+            pg.invite_user(self.user, self.user)
         # check joined user
         pg.join_group(self.user2)
-        with self.assertRaises(DataError, msg="User is already a member of this group") as e:
-            i2 = pg.invite_user(self.user, self.user2)
+        with self.assertRaises(DataError, msg="User is already a member of this group"):
+            pg.invite_user(self.user, self.user2)
 
     def test_already_invited(self):
         pg = self.create_proposal_group()
-        i = pg.invite_user(self.user, self.user2)
+        pg.invite_user(self.user, self.user2)
         # check invited user
-        with self.assertRaises(DataError, msg="User has already been invited") as e:
-            i2 = pg.invite_user(self.user, self.user2)
+        with self.assertRaises(DataError, msg="User has already been invited"):
+            pg.invite_user(self.user, self.user2)
 
     def test_no_allowed_to_invite(self):
         pg = self.create_proposal_group()

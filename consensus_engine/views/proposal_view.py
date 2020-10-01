@@ -66,12 +66,17 @@ class CreateProposalView(CreateView):
     fields = ['proposal_name', 'proposal_description']
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.owned_by = self.request.user
-        self.object.date_proposed = timezone.now()
+        current_user = self.request.user
         if 'proposal_group_id' in self.kwargs:
             proposal_group = ProposalGroup.objects.get(pk=self.kwargs['proposal_group_id'])
-            self.object.proposal_group = proposal_group
+            if not proposal_group.is_user_member(current_user):
+                raise PermissionDenied("Adding a Proposal to a group you are not a member of is not allowed")
+        else:
+            proposal_group = None
+        self.object = form.save(commit=False)
+        self.object.owned_by = current_user
+        self.object.date_proposed = timezone.now()
+        self.object.proposal_group = proposal_group
         self.object.save()
         populate_option = int(self.request.POST["options"])
         population_types = [None,
@@ -127,5 +132,8 @@ class ProposalListGroupView(ProposalListView):
         # view the proposal choices
         proposal_group = get_object_or_404(ProposalGroup, pk=kwargs['proposal_group_id'])
         proposals_list = Proposal.objects.in_group(proposal_group)
-        context = {'proposals_list': proposals_list, 'proposal_group': proposal_group}
+        can_edit = proposal_group.is_user_member(self.request.user)
+        context = {'proposals_list': proposals_list, 'proposal_group': proposal_group,
+                   'can_edit': can_edit,
+                   'can_create_proposals': can_edit, 'can_invite': can_edit}
         return context
