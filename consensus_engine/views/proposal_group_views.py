@@ -73,8 +73,14 @@ class PickProposalGroupView(TemplateView):
                     'error_message': "You didn't select a choice.",
                 })
         else:
-            selected_group = ProposalGroup.objects.get(pk=request.POST['proposal_group'])
-            success_url = reverse('new_proposal_in_group', args=[selected_group.id])
+            try:
+                selected_group = ProposalGroup.objects.get(pk=request.POST['proposal_group'])
+                success_url = reverse('new_proposal_in_group', args=[selected_group.id])
+            except (KeyError, ProposalGroup.DoesNotExist):
+                return render(request, 'consensus_engine/pick_proposal_group.html', {
+                    'proposal': None,
+                    'error_message': "You didn't select a choice.",
+                })
 
         return HttpResponseRedirect(success_url)
 
