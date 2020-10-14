@@ -3,7 +3,7 @@ from .mixins import TwoUserMixin, ProposalGroupMixin, ProposalMixin
 from consensus_engine.models import Proposal, ChoiceTicket
 from django.utils import timezone
 from consensus_engine.templatetags.proposaltags import (visible_groups, total_votes, my_vote, current_consensus,
-                                                        release_notes, user_search, proposal_state)
+                                                        release_notes, user_search, proposal_state, proposal_list_element)
 
 
 class ProposalGroupTagsTest(TwoUserMixin, ProposalGroupMixin, TestCase):
@@ -24,6 +24,7 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
 
     def test_proposal_tags_total_votes(self):
         w = self.create_proposal_with_two_proposal_choices()
+        w.publish()
         # check that total votes = 0 if there are no votes
         self.assertTrue(isinstance(w, Proposal))
         self.assertTrue(total_votes(w.id)['total_votes'] == 0)
@@ -47,6 +48,7 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
 
     def test_proposal_tags_my_vote(self):
         w = self.create_proposal_with_two_proposal_choices()
+        w.publish()
         self.assertTrue(my_vote(w.id, self.user.id)['my_vote'] == 'None')
         # vote for the first choice
         pc1 = w.proposalchoice_set.first()
@@ -69,6 +71,7 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
 
     def test_proposal_tags_current_consenus(self):
         w = self.create_proposal_with_two_proposal_choices()
+        w.publish()
         # check that total votes = 0 if there are no votes
         self.assertTrue(isinstance(w, Proposal))
         self.assertTrue(current_consensus(w.id)['current_consensus'] == 'No consensus')
@@ -125,3 +128,7 @@ class ProposalTagsTest(TwoUserMixin, ProposalMixin, TestCase):
         l5 = proposal_state(w)
         self.assertTrue('proposal_state' in l5)
         self.assertTrue(l5['proposal_state'] == 'ARCHIVED')
+
+    def test_proposal_list_element(self):
+        p = self.create_new_proposal()
+        proposal_list_element(p, 0)

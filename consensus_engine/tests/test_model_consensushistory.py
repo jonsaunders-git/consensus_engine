@@ -22,6 +22,7 @@ class ConsensusHistoryTest(TwoUserMixin, ProposalMixin, TestCase):
                         ]
         self.assertTrue(ss.get_consensus_data() == no_votes_data)
         pc = p.proposalchoice_set.first()
+        p.publish()
         pc.vote(self.user)
         ss2 = ConsensusHistory.objects.at_date(proposal=p, at_date=timezone.now())
         one_vote_data = [

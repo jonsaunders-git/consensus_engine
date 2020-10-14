@@ -12,6 +12,18 @@ class ProposalState(IntEnum):
     def choices(cls):
         return [(key.value, key.name) for key in cls]
 
+    @classmethod
+    def all_states(cls):
+        return [key.value for key in cls]
+
+    @classmethod
+    def reporting_as_state(cls, state):
+        # on-hold and archived proposals always report results from published state
+        if state in {ProposalState.ON_HOLD, ProposalState.ARCHIVED}:
+            return ProposalState.PUBLISHED
+        else:
+            return state
+
     def get_next_states(self):
         """ Returns a list of all the possible next states given a current state """
         # implemented this as a definition rather than something more optimised for readability

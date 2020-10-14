@@ -31,6 +31,7 @@ class VoteView(TemplateView):
             # should be just the one.
             current_choice = ChoiceTicket.objects.get(user=self.request.user,
                                                       proposal_choice__proposal=proposal,
+                                                      state=proposal.state,
                                                       current=True)
         except (KeyError, ChoiceTicket.DoesNotExist):
             current_choice = None

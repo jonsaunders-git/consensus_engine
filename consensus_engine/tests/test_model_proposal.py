@@ -47,6 +47,7 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
 
     def test_total_votes_for_proposal_with_two_proposal_choices_with_voting(self):
         w = self.create_proposal_with_two_proposal_choices()
+        w.publish()
         # check that total votes = 0 if there are no votes
         self.assertTrue(isinstance(w, Proposal))
         self.assertTrue(w.total_votes == 0)
@@ -68,6 +69,7 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
 
     def test_total_votes_for_proposal_with_a_deactivated_proposal_choice(self):
         w = self.create_proposal_with_two_proposal_choices()
+        w.publish()
         # check that total votes = 0 if there are no votes
         self.assertTrue(isinstance(w, Proposal))
         self.assertTrue(w.total_votes == 0)
@@ -115,23 +117,24 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         g = ProposalGroup.objects.create(group_name="Test Group", owned_by=self.user,
                                          group_description="it's only a test group")
         # should be no proposals for this user at start of test
-        self.assertTrue(Proposal.objects.in_group(g).count() == 0)
+        self.assertTrue(Proposal.objects.in_group(g, states=ProposalState.all_states()).count() == 0)
         # add one
         _ = self.create_new_proposal(proposal_group=g)
-        self.assertTrue(Proposal.objects.in_group(g).count() == 1)
+        self.assertTrue(Proposal.objects.in_group(g, states=ProposalState.all_states()).count() == 1)
         # add another
         _ = self.create_new_proposal(proposal_group=g)
-        self.assertTrue(Proposal.objects.in_group(g).count() == 2)
+        self.assertTrue(Proposal.objects.in_group(g, states=ProposalState.all_states()).count() == 2)
         g2 = ProposalGroup.objects.create(group_name="Test Group 2", owned_by=self.user,
                                           group_description="it's only a test group")
         # add one for the second group
         _ = self.create_new_proposal(proposal_group=g2)
         # two for group 1 and 1 for group 2
-        self.assertTrue(Proposal.objects.in_group(g).count() == 2)
-        self.assertTrue(Proposal.objects.in_group(g2).count() == 1)
+        self.assertTrue(Proposal.objects.in_group(g, states=ProposalState.all_states()).count() == 2)
+        self.assertTrue(Proposal.objects.in_group(g2, states=ProposalState.all_states()).count() == 1)
 
     def test_get_active_choices(self):
         p = self.create_proposal_with_two_proposal_choices()
+        p.publish()
         # no votes
         c = p.determine_consensus()
         self.assertTrue(c is None)
@@ -213,6 +216,7 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         # create a proposal and populate it from the MoSCow template
         p = self.create_new_proposal()
         self.populate_from_template(p, ChoiceTemplates.genericMoscow)
+        p.publish()
         # get voting spread for current time, returns a dictionary with all the
         # choices and their current votes
         s = p.get_voting_spread()

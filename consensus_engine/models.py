@@ -123,13 +123,14 @@ class ProposalGroup(models.Model):
 class ProposalManager(models.Manager):
     """ Manager for Proposal data """
 
-    def owned(self, user):
-        return (self.get_queryset().filter(owned_by_id=user.id)
+    def owned(self, user, states={ProposalState.DRAFT, ProposalState.TRIAL, ProposalState.PUBLISHED,
+                                  ProposalState.ON_HOLD, ProposalState.ARCHIVED}):
+        return (self.get_queryset().filter(owned_by_id=user.id, state__in=states)
                     .values('id', 'proposal_name', 'proposal_description'))
 
-    def in_group(self, group):
-        return (self.get_queryset().filter(proposal_group__id=group.id)
-                    .values('id', 'proposal_name', 'proposal_description'))
+    def in_group(self, group, states={ProposalState.PUBLISHED}):
+        return (self.get_queryset().filter(proposal_group__id=group.id, state__in=states)
+                    .values('id', 'proposal_name', 'proposal_description', 'state'))
 
 
 class Proposal(models.Model):
@@ -155,7 +156,19 @@ class Proposal(models.Model):
                     or (self.state == ProposalState.TRIAL)))
         return can_edit
 
-    def get_active_choices(self):
+    def can_vote(self):
+        return self.state in (ProposalState.TRIAL, ProposalState.PUBLISHED)
+
+    def get_total_votes(self):
+        total_votes = (ChoiceTicket.objects
+                       .filter(proposal_choice__deactivated_date__isnull=True,
+                               proposal_choice__proposal=self,
+                               state=ProposalState.reporting_as_state(self.state),
+                               current=True)
+                       .count())
+        return total_votes
+
+    def get_active_choices(self, states={ProposalState.PUBLISHED}):
         """ Gets the ProposalChoices that are active currently """
         return self.proposalchoice_set.filter(deactivated_date__isnull=True)
 
@@ -267,11 +280,12 @@ class Proposal(models.Model):
 
     @property
     def total_votes(self):
+        reporting_state = ProposalState.reporting_as_state(self.state)
         return (Proposal.objects.filter(id=self.id,
-                proposalchoice__choiceticket__current=True)
+                proposalchoice__choiceticket__current=True, proposalchoice__choiceticket__state=reporting_state)
                 .values('proposalchoice__choiceticket__user_id')
                 .distinct().count())
-
+                
     @property
     def current_consensus(self):
         try:
@@ -313,7 +327,8 @@ class ProposalChoice(models.Model):
     @property
     def current_vote_count(self):
         # counts all the choice tickets for this choice where it is the current choice ticket
-        return self.choiceticket_set.filter(current=True).count()
+        reporting_state = ProposalState.reporting_as_state(self.proposal.state)
+        return self.choiceticket_set.filter(current=True, state=reporting_state).count()
 
     def vote(self, user):
         # reset the current flag on the last vote for this proposal and add another one.
@@ -321,18 +336,22 @@ class ProposalChoice(models.Model):
         # this function probably doesn't sit here as it doesn't affect the data in the
         # model class (apart from joining to proposal choice) - TODO: Refactor
         # -------------------------------------------------------------------------------
-        with transaction.atomic():
-            ChoiceTicket.objects.filter(user=user,
-                                        proposal_choice__proposal=self.proposal,
-                                        current=True).update(current=False)
-            ticket = ChoiceTicket(user=user,
-                                  date_chosen=timezone.now(), proposal_choice=self)
-            ticket.save()
-            # determine consensus opinion after voting
-            self.proposal.determine_consensus()
-            # save consensus history
-            snapshot = ConsensusHistory.build_snapshot(self.proposal)
-            snapshot.save()
+        if self.proposal.can_vote():
+            with transaction.atomic():
+                # important: do not consider state in clearing the previous current
+                ChoiceTicket.objects.filter(user=user,
+                                            proposal_choice__proposal=self.proposal,
+                                            current=True).update(current=False)
+                ticket = ChoiceTicket(user=user,
+                                      date_chosen=timezone.now(), proposal_choice=self, state=self.proposal.state)
+                ticket.save()
+                # determine consensus opinion after voting
+                self.proposal.determine_consensus()
+                # save consensus history
+                snapshot = ConsensusHistory.build_snapshot(self.proposal)
+                snapshot.save()
+        else:
+            raise PermissionDenied("Cannot vote in a proposal in this state.")
 
 
 class ChoiceTicketManager(models.Manager):
@@ -352,11 +371,13 @@ class ChoiceTicketManager(models.Manager):
                 .order_by('proposal_group', 'proposal_name'))
 
     def get_current_choice(self, user, proposal):
+        # if the proposal state trial show the trial data otherwise always show published.
+        reporting_state = ProposalState.reporting_as_state(proposal.state)
         try:
             current_choice = (ChoiceTicket.objects
                               .get(user=user,
                                    proposal_choice__proposal=proposal,
-                                   current=True))
+                                   current=True, state=reporting_state))
         except (KeyError, ChoiceTicket.DoesNotExist):
             current_choice = None
         return current_choice
@@ -370,6 +391,7 @@ class ChoiceTicket(models.Model):
     proposal_choice = models.ForeignKey(ProposalChoice,
                                         on_delete=models.CASCADE)
     current = models.BooleanField(default=True, null=True)
+    state = models.IntegerField(choices=ProposalState.choices(), default=ProposalState.PUBLISHED)
     objects = ChoiceTicketManager()
 
 

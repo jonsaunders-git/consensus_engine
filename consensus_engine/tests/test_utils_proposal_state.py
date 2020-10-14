@@ -39,3 +39,10 @@ class ProposalStateTest(TestCase):
         s = ProposalState.ARCHIVED
         sl = s.get_next_states()
         self.assertTrue(len(sl) == 0)
+
+    def test_reporting_as_state(self):
+        self.assertTrue(ProposalState.reporting_as_state(ProposalState.DRAFT) == ProposalState.DRAFT)
+        self.assertTrue(ProposalState.reporting_as_state(ProposalState.TRIAL) == ProposalState.TRIAL)
+        self.assertTrue(ProposalState.reporting_as_state(ProposalState.PUBLISHED) == ProposalState.PUBLISHED)
+        self.assertTrue(ProposalState.reporting_as_state(ProposalState.ON_HOLD) == ProposalState.PUBLISHED)
+        self.assertTrue(ProposalState.reporting_as_state(ProposalState.ARCHIVED) == ProposalState.PUBLISHED)

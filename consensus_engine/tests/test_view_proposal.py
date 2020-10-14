@@ -65,6 +65,7 @@ class ProposalViewTest(OneUserMixin, TestCase,
 
     def test_view_new_proposal_with_choices_and_votes(self):
         p = self.create_proposal_with_two_proposal_choices()
+        p.publish()
         # check that total votes = 0 if there are no votes
         pc1 = p.proposalchoice_set.first()
         _ = p.proposalchoice_set.last()
@@ -86,6 +87,7 @@ class ProposalViewTest(OneUserMixin, TestCase,
 
     def test_view_new_proposal_with_choices_and_votes_and_date(self):
         p = self.create_proposal_with_two_proposal_choices()
+        p.publish()
         p.determine_consensus()
         # save consensus history
         ss = ConsensusHistory.build_snapshot(p)

@@ -1,5 +1,5 @@
 <p>
-<h2>Welcome to the Consensus Engine 0.4</h2>
+<h2>Welcome to the Consensus Engine 0.5</h2>
 <p>This application is a &quot;work in progress&quot; to build an engine to collect the consensus of decision across an enterprise.
   The key concepts are below, and currently the application allows only the basic functionality.</p>
 </p>
@@ -44,6 +44,20 @@ created the Group can edit it</p>
 <li>Implementation of user management, registration and permissions</li>
 </ul>
 <p></p>
+
+<h3>Release Notes for version 0.5</h3>
+<ul>
+  <li><p>Added functionality for proposal states, these states are described below
+    <ul>
+      <li><b>DRAFT</b> - when a user creates a proposal, the status is draft, the user can edit the proposal and change the options the user can select</li>
+      <li><b>TRIAL</b> - a proposal can be put into trial with a small group to see if the proposal works and has all the options needed. All votes are specific to the trial and are not part of a published consensus</li>
+      <li><b>PUBLISHED</b> - a proposal can be published for people to create a consensus on the proposal</li>
+      <li><b>ON HOLD</b> - a proposal can be be put on hold from any state, and no changes or votes can be changed</li>
+      <li><b>ARCHIVED</b> - a proposal can be archived, so that it can be viewed but not edited at a later date</li>
+    </ul>
+    </p></li>
+</ul>
+<br>
 
 <h3>Release Notes for version 0.4</h3>
 <ul>

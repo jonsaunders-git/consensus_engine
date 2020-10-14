@@ -1,0 +1,19 @@
+{% load static %}
+{% load proposaltags %}
+
+<div class="card">
+  <div class="card-body" style="height:15rem;">
+    <h5 class="card-title">{{ proposal.proposal_name}}</h5>
+    <p class="card-text">{{ proposal.proposal_description }}</p>
+    <p class="card-text">My Vote: {% my_vote proposal.id current_user_id %}</p>
+    <p class="card-text">Current Consensus: {% current_consensus proposal.id %} </p>
+    <p class="card-text">Number of Votes: {% total_votes proposal.id %}</p>
+    <p class="card-text">State: {{ proposal.state }}</p>
+  </div>
+  <div class="card-footer text-muted">
+    {% if vote_enabled %}
+    <a href="{% url 'vote_proposal' proposal.id %}?next={{ next|urlencode }}" class="btn btn-primary">Vote</a>
+    {% endif %}
+    <a href="{% url 'view_proposal' proposal.id %}" class="btn">View</a>
+  </div>
+</div>

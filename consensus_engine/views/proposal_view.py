@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup, ConsensusHistory
+from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup, ConsensusHistory, ProposalState
 from consensus_engine.choice_templates import ChoiceTemplates
 
 
@@ -115,23 +115,34 @@ class EditProposalView(UpdateView):
 @method_decorator(login_required, name='dispatch')
 class ProposalListView(TemplateView):
     """ Shows a list of proposals """
-    template_name = 'consensus_engine/list_proposals.html'
+    template_name = 'consensus_engine/list_my_proposals.html'
 
     def get_context_data(self, **kwargs):
         # view the proposal choices
-        proposals_list = Proposal.objects.owned(self.request.user)
-        context = {'proposals_list': proposals_list}
+        context = {}
+        proposals_list = Proposal.objects.owned(self.request.user, states={ProposalState.DRAFT})
+        context['draft_proposals_list'] = proposals_list
+        proposals_list = Proposal.objects.owned(self.request.user, states={ProposalState.TRIAL})
+        context['trial_proposals_list'] = proposals_list
+        proposals_list = Proposal.objects.owned(self.request.user, states={ProposalState.PUBLISHED})
+        context['published_proposals_list'] = proposals_list
+        proposals_list = Proposal.objects.owned(self.request.user, states={ProposalState.ON_HOLD})
+        context['on_hold_proposals_list'] = proposals_list
+        proposals_list = Proposal.objects.owned(self.request.user, states={ProposalState.ARCHIVED})
+        context['archived_proposals_list'] = proposals_list
         return context
 
 
 @method_decorator(login_required, name='dispatch')
 class ProposalListGroupView(ProposalListView):
     """ Sub class ProposalListView to get ones in group """
+    template_name = 'consensus_engine/list_proposals.html'
 
     def get_context_data(self, **kwargs):
         # view the proposal choices
         proposal_group = get_object_or_404(ProposalGroup, pk=kwargs['proposal_group_id'])
-        proposals_list = Proposal.objects.in_group(proposal_group)
+        proposals_list = Proposal.objects.in_group(proposal_group,
+                                                   states={ProposalState.TRIAL, ProposalState.PUBLISHED})
         can_edit = proposal_group.is_user_member(self.request.user)
         context = {'proposals_list': proposals_list, 'proposal_group': proposal_group,
                    'can_edit': can_edit,

@@ -31,19 +31,45 @@
 
 {% block page_content %}
 
-{% if proposals_list %}
+{% if draft_proposals_list or trial_proposals_list or published_proposals_list or on_hold_proposals_list or archived_proposals_list %}
+  <div class="stateheader">Draft Proposals</div>
     <div class="flex-body d-flex flex-wrap px-2">
-        {% for proposal in proposals_list %}
-        {% proposal_list_element proposal request.user.id 1 request.path|urlencode %}
+        {% for proposal in draft_proposals_list %}
+        {% proposal_list_element proposal request.user.id %}
         {% endfor %}
     </div>
+  <div class="stateheader">Trial Proposals</div>
+    <div class="flex-body d-flex flex-wrap px-2">
+        {% for proposal in trial_proposals_list %}
+        {% proposal_list_element proposal request.user.id %}
+        {% endfor %}
+    </div>
+  <div class="stateheader">Published Proposals</div>
+    <div class="flex-body d-flex flex-wrap px-2">
+        {% for proposal in published_proposals_list %}
+        {% proposal_list_element proposal request.user.id %}
+        {% endfor %}
+    </div>
+  <div class="stateheader">On-Hold Proposals</div>
+    <div class="flex-body d-flex flex-wrap px-2">
+        {% for proposal in on_hold_proposals_list %}
+        {% proposal_list_element proposal request.user.id %}
+        {% endfor %}
+    </div>
+  <div class="stateheader">Archived Proposals</div>
+    <div class="flex-body d-flex flex-wrap px-2">
+        {% for proposal in archived_proposals_list %}
+        {% proposal_list_element proposal request.user.id %}
+        {% endfor %}
+    </div>
+
 {% else %}
   <div class="row mt-4">
     <div class="col-md-1"></div>
     <div class="col">
       <div class="row mt-2 ml-1 mr-1 px-2 py-2">
         <div class="w-100 mb-4">
-          <h2>No proposals are currently available in this group.</h2>
+          <h2>You haven't created any proposals.</h2>
         </div>
         <div>
           <p>Proposals are the key part of the Consensus Engine. Users create proposals and people are asked to vote on

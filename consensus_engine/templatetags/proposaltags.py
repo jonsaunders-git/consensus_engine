@@ -1,5 +1,5 @@
 from django import template
-from consensus_engine.models import ProposalGroup, ChoiceTicket, ProposalChoice
+from consensus_engine.models import ProposalGroup, ProposalChoice, Proposal
 from consensus_engine.models import GroupInvite
 from django.contrib.auth.models import User
 
@@ -15,12 +15,8 @@ def visible_groups(user):
 # this needs refactoring as it calls multiple times per view...
 @register.inclusion_tag('consensus_engine/total_votes.html')
 def total_votes(proposal_id):
-    total_votes = (ChoiceTicket.objects
-                   .filter(proposal_choice__deactivated_date__isnull=True,
-                           proposal_choice__proposal__id=proposal_id,
-                           current=1)
-                   .count())
-    return {'total_votes': total_votes}
+    proposal = Proposal.objects.get(pk=proposal_id)
+    return {'total_votes': proposal.get_total_votes()}
 
 
 # this needs refactoring as it calls multiple times per view...
@@ -39,11 +35,13 @@ def current_consensus(proposal_id):
 # this needs refactoring as it calls multiple times per view...
 @register.inclusion_tag('consensus_engine/my_vote.html')
 def my_vote(proposal_id, user_id):
+    proposal = Proposal.objects.get(pk=proposal_id)
     try:
         my_vote = (ProposalChoice.objects.get(deactivated_date__isnull=True,
                                               proposal__id=proposal_id,
                                               choiceticket__user_id=user_id,
-                                              choiceticket__current=True)
+                                              choiceticket__current=True,
+                                              choiceticket__state=proposal.state)
                                          .text)
     except ProposalChoice.DoesNotExist:
         my_vote = "None"
@@ -71,3 +69,8 @@ def user_search():
 @register.inclusion_tag('consensus_engine/proposal_state.html')
 def proposal_state(proposal):
     return {'proposal_state': proposal.current_state.name}
+
+
+@register.inclusion_tag('consensus_engine/proposal_list_element.html')
+def proposal_list_element(proposal, current_user_id, vote_enabled='', next=''):
+    return {'proposal': proposal, 'current_user_id': current_user_id, 'vote_enabled': vote_enabled, 'next': next}
