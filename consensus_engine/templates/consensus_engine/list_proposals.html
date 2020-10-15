@@ -17,6 +17,9 @@
       {% if can_create_proposals %}
       <a href="new/" title="Add new Proposal in {{proposal_group.group_name}}"><span class="ml-2 text-muted" data-feather="plus-circle"></span></a>{% endif %}
       {% endif %}
+      {% if can_trial %}
+        <span class="ml-2 text-muted" data-feather="compass"></span>Trial
+      {% endif %}
     </p>
     <p class="my-0 py-0 text-muted"><small>{% if proposal_group %}{{ proposal_group.group_description }}{% else %}These are the proposals you owned and can contribute to{% endif %}</small></p>
   </div>

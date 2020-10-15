@@ -53,8 +53,9 @@ class InvitePersonView(TemplateView):
     def post(self, request, **kwargs):
         group = get_object_or_404(ProposalGroup, pk=kwargs['pk'])
         selected_user = User.objects.get(pk=request.POST['user_id'])
+        allow_trials = 'allow_trials' in request.POST
         try:
-            group.invite_user(inviter_user=self.request.user, invitee_user=selected_user)
+            group.invite_user(inviter_user=self.request.user, invitee_user=selected_user, allow_trials=allow_trials)
         except DataError as e:
             return render(request, 'consensus_engine/invite_person.html', {
                 'error_message': str(e),

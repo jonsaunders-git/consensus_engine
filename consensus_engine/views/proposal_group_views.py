@@ -23,7 +23,7 @@ class CreateProposalGroupView(CreateView):
         self.object.save()
         # add the owner as the first member
         member = GroupMembership(user=self.request.user, group=self.object,
-                                 date_joined=timezone.now())
+                                 date_joined=timezone.now(), can_trial=True)
         member.save()
         return HttpResponseRedirect(self.get_success_url())
 

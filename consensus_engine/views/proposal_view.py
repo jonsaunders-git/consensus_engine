@@ -141,10 +141,14 @@ class ProposalListGroupView(ProposalListView):
     def get_context_data(self, **kwargs):
         # view the proposal choices
         proposal_group = get_object_or_404(ProposalGroup, pk=kwargs['proposal_group_id'])
-        proposals_list = Proposal.objects.in_group(proposal_group,
-                                                   states={ProposalState.TRIAL, ProposalState.PUBLISHED})
+        states = [ProposalState.PUBLISHED]
+        if proposal_group.is_user_part_of_trial(self.request.user):
+            states.append(ProposalState.TRIAL)
+        proposals_list = Proposal.objects.in_group(proposal_group, states=states)
         can_edit = proposal_group.is_user_member(self.request.user)
+        can_trial = proposal_group.is_user_part_of_trial(self.request.user)
         context = {'proposals_list': proposals_list, 'proposal_group': proposal_group,
                    'can_edit': can_edit,
-                   'can_create_proposals': can_edit, 'can_invite': can_edit}
+                   'can_create_proposals': can_edit and can_trial,
+                   'can_invite': can_edit and can_trial, 'can_trial': can_trial}
         return context

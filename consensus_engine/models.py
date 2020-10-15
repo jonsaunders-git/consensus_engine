@@ -13,6 +13,7 @@ class GroupMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     group = models.ForeignKey('ProposalGroup', on_delete=models.CASCADE, null=False)
     date_joined = models.DateTimeField('date joined')
+    can_trial = models.BooleanField(default=False, null=True)
 
 
 class GroupInviteManager(models.Manager):
@@ -44,6 +45,7 @@ class GroupInvite(models.Model):
     # accepted - True = accepted, False=declined, null=Neither accepted or declined
     accepted = models.BooleanField(null=True)
     date_accepted_or_declined = models.DateTimeField('date accepted or declined', null=True)
+    can_trial = models.BooleanField(null=True)
     # managers
     objects = GroupInviteManager()
 
@@ -51,7 +53,7 @@ class GroupInvite(models.Model):
         with transaction.atomic():
             self.accepted = True
             self.date_accepted_or_declined = timezone.now()
-            self.group.join_group(self.invitee)
+            self.group.join_group(self.invitee, can_trial=self.can_trial)
             self.save()
 
     def decline(self):
@@ -89,17 +91,20 @@ class ProposalGroup(models.Model):
     def is_user_member(self, user):
         return GroupMembership.objects.filter(user=user, group=self).count() == 1
 
+    def is_user_part_of_trial(self, user):
+        return GroupMembership.objects.filter(user=user, group=self, can_trial=True).count() == 1
+
     def has_user_been_invited(self, user):
         return GroupInvite.objects.filter(invitee=user, group=self, accepted=None).count() == 1
 
-    def join_group(self, user):
+    def join_group(self, user, can_trial=False):
         if not self.is_user_member(user):
-            membership = GroupMembership(user=user, group=self, date_joined=timezone.now())
+            membership = GroupMembership(user=user, group=self, date_joined=timezone.now(), can_trial=can_trial)
             membership.save()
         else:
             raise DataError("User is already a member of this group.")
 
-    def invite_user(self, inviter_user, invitee_user):
+    def invite_user(self, inviter_user, invitee_user, allow_trials=False):
         if not self.is_user_member(inviter_user):
             raise PermissionDenied("Inviter is not a member of the group")
         if self.is_user_member(invitee_user):
@@ -108,6 +113,7 @@ class ProposalGroup(models.Model):
             raise DataError("User has already been invited")
         invite = GroupInvite(group=self, invitee=invitee_user,
                              inviter=inviter_user,
+                             can_trial=allow_trials,
                              invite_date_time=timezone.now())
         invite.save()
         return invite
@@ -285,7 +291,7 @@ class Proposal(models.Model):
                 proposalchoice__choiceticket__current=True, proposalchoice__choiceticket__state=reporting_state)
                 .values('proposalchoice__choiceticket__user_id')
                 .distinct().count())
-                
+
     @property
     def current_consensus(self):
         try:

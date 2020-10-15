@@ -1,14 +1,12 @@
 from django.test import TestCase, RequestFactory
-from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.sessions.middleware import SessionMiddleware
 from .mixins import TwoUserMixin, ProposalGroupMixin, ViewMixin, ProposalMixin, TemplateViewMixin
-from django.utils import timezone
-
 from consensus_engine.views import InvitesView, InviteView, InvitePersonView
-from consensus_engine.models import ProposalGroup, GroupInvite
+from consensus_engine.models import GroupInvite
+
 
 class InvitesViewTest(TwoUserMixin, TestCase,
-                                ProposalGroupMixin, ProposalMixin, TemplateViewMixin):
+                      ProposalGroupMixin, ProposalMixin, TemplateViewMixin):
     view = InvitesView
 
     def setUp(self):
@@ -39,7 +37,7 @@ class InvitesViewTest(TwoUserMixin, TestCase,
 
 
 class InviteViewTest(TwoUserMixin, TestCase,
-                                ProposalGroupMixin, ViewMixin):
+                     ProposalGroupMixin, ViewMixin):
     path = '/'
     view = InviteView
 
@@ -79,7 +77,7 @@ class InviteViewTest(TwoUserMixin, TestCase,
         pg = self.create_proposal_group(owned_by=self.user2)
         i = pg.invite_user(self.user2, self.user)
         self.assertTrue(pg.has_user_been_invited(self.user))
-        request = self.executeAcceptView(
+        _ = self.executeAcceptView(
                     data={'accept_btn'},
                     viewkwargs={'invite_id': i.id})
         self.assertFalse(pg.has_user_been_invited(self.user))
@@ -89,7 +87,7 @@ class InviteViewTest(TwoUserMixin, TestCase,
         pg = self.create_proposal_group(owned_by=self.user2)
         i = pg.invite_user(self.user2, self.user)
         self.assertTrue(pg.has_user_been_invited(self.user))
-        request = self.executeAcceptView(
+        _ = self.executeAcceptView(
                     data={'decline_btn'},
                     viewkwargs={'invite_id': i.id})
         self.assertFalse(pg.has_user_been_invited(self.user))
@@ -97,7 +95,7 @@ class InviteViewTest(TwoUserMixin, TestCase,
 
 
 class InvitePersonViewTest(TwoUserMixin, TestCase,
-                                ProposalGroupMixin, ViewMixin):
+                           ProposalGroupMixin, ViewMixin):
     path = '/'
     view = InvitePersonView
 
@@ -133,23 +131,23 @@ class InvitePersonViewTest(TwoUserMixin, TestCase,
 
     def test_invite_person(self):
         pg = self.create_proposal_group()
-        request = self.executeAcceptView(
-                    data={'user_id' : self.user2.id},
+        _ = self.executeAcceptView(
+                    data={'user_id': self.user2.id},
                     viewkwargs={'pk': pg.id})
         self.assertTrue(pg.has_user_been_invited(self.user2))
 
     def test_invite_person_already_a_member(self):
         pg = self.create_proposal_group()
         pg.join_group(self.user2)
-        request = self.executeAcceptView(
-                    data={'user_id' : self.user2.id},
+        _ = self.executeAcceptView(
+                    data={'user_id': self.user2.id},
                     viewkwargs={'pk': pg.id})
         self.assertFalse(pg.has_user_been_invited(self.user2))
 
     def test_invite_person_already_invited(self):
         pg = self.create_proposal_group()
         pg.invite_user(self.user, self.user2)
-        request = self.executeAcceptView(
-                    data={'user_id' : self.user2.id},
+        _ = self.executeAcceptView(
+                    data={'user_id': self.user2.id},
                     viewkwargs={'pk': pg.id})
         self.assertTrue(GroupInvite.objects.my_open_invites_count(self.user2) == 1)

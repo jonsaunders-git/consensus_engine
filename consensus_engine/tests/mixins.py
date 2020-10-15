@@ -1,7 +1,6 @@
 from django.test import TestCase
-from django.contrib.auth.models import AnonymousUser, User
-from consensus_engine.models import Proposal, ProposalChoice, ChoiceTicket, ProposalGroup, GroupMembership
-from django.test import TestCase
+from django.contrib.auth.models import User
+from consensus_engine.models import Proposal, ProposalChoice, ProposalGroup
 from django.utils import timezone
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.views.generic.edit import CreateView, UpdateView
@@ -30,12 +29,12 @@ class ProposalGroupMixin(object):
     def create_proposal_group(self, group_name="test group",
                               owned_by=None,
                               group_description="it's only a test group"):
-        if owned_by==None:
+        if owned_by is None:
             owned_by = self.user
         pg = ProposalGroup.objects.create(group_name=group_name,
                                           owned_by=owned_by,
                                           group_description=group_description)
-        pg.join_group(owned_by)
+        pg.join_group(owned_by, can_trial=True)
         return pg
 
 
@@ -45,7 +44,7 @@ class ProposalMixin(object):
                             date_proposed=timezone.now(),
                             proposal_description="yes, this is only a test",
                             proposal_group=None, owned_by=None):
-        if owned_by==None:
+        if owned_by is None:
             owned_by = self.user
         return Proposal.objects.create(proposal_name=proposal_name,
                                        date_proposed=date_proposed,
@@ -54,14 +53,15 @@ class ProposalMixin(object):
                                        proposal_group=proposal_group)
 
     def create_proposal_with_two_proposal_choices(self,
-            proposal_name="only a test", date_proposed=timezone.now(),
-            proposal_description="yes, this is only a test", proposal_group=None, owned_by=None,
-            proposal_choice_1_name="Yes", proposal_choice_2_name="No"):
+                                                  proposal_name="only a test", date_proposed=timezone.now(),
+                                                  proposal_description="yes, this is only a test",
+                                                  proposal_group=None, owned_by=None,
+                                                  proposal_choice_1_name="Yes", proposal_choice_2_name="No"):
         p = self.create_new_proposal(proposal_name, date_proposed, proposal_description, proposal_group, owned_by)
-        pc1 = ProposalChoice.objects.create(proposal=p, text=proposal_choice_1_name,
-            priority=100, activated_date=timezone.now())
-        pc2 = ProposalChoice.objects.create(proposal=p, text=proposal_choice_2_name,
-            priority=200, activated_date=timezone.now())
+        _ = ProposalChoice.objects.create(proposal=p, text=proposal_choice_1_name,
+                                          priority=100, activated_date=timezone.now())
+        _ = ProposalChoice.objects.create(proposal=p, text=proposal_choice_2_name,
+                                          priority=200, activated_date=timezone.now())
         return p
 
     def populate_from_template(self, proposal, template):
@@ -123,8 +123,8 @@ class ViewMixin(object):
             try:
                 f = self.get_form(data=data)
                 v.object = v.model()
-            except:
-                pass #ignore - not a model based class
+            except AttributeError:
+                pass  # ignore - not a model based class
 
         if postargs:
             mutable = request.POST._mutable
@@ -138,6 +138,7 @@ class ViewMixin(object):
             self.assertTrue(f.is_valid())
             self.assertTrue(v.form_valid(f))
         return request
+
 
 class TemplateViewMixin(ViewMixin):
 

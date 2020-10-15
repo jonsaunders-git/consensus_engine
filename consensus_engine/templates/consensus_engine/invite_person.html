@@ -34,6 +34,10 @@ ksjfjksfjdf
   <input type="hidden" name="next" value="{{ request.GET.next }}">
   {% user_search %}
   </div>
+  <!-- Default unchecked -->
+  <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" name="allow_trials" id="allow_trials">
+      <label class="custom-control-label" for="allow_trials">Allow user to trial proposals</label>
   </div>
 {% else %}
 
