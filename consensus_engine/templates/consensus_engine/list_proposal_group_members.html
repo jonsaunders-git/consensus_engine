@@ -37,16 +37,21 @@
       {% if member.user == proposal_group.owned_by %}
       Owner
       {% else %}
+       {% if proposal_group.owned_by == request.user %}
       <a href="{% url 'edit_group_membership' member.id %}" class="text-muted" title="Change Trial">
                 {% if member.can_trial %}Can Trial{% else %}Cannot Trial{% endif %}
               </a>
+              {% else %}
+        {% if member.can_trial %}Can Trial{% else %}Cannot Trial{% endif %}
+        {% endif %}
       {% endif %}
 
-
+       {% if proposal_group.owned_by == request.user %}
      {% if member.user.id != request.user.id %}
      <a href="{% url 'remove_group_member' member.id %}" class="text-muted" title="Remove user from group">
        <span class="ml-2 align-top" data-feather="trash-2"></span>
        </a>
+    {% endif %}
     {% endif %}
     </div>
     </div>
