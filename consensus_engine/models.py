@@ -118,6 +118,24 @@ class ProposalGroup(models.Model):
         invite.save()
         return invite
 
+    def get_members(self):
+        return GroupMembership.objects.filter(group=self)
+
+    def deactivate_votes_for_user_in_group(self, user):
+        ChoiceTicket.objects.filter(proposal_choice__proposal__proposal_group=self,
+                                    user=user).update(current=False)
+
+    def remove_member(self, user):
+        if user == self.owned_by:
+            raise PermissionDenied("Cannot remove the owner of the proposal group from the group.")
+        # removing members - need to remove the votes too!
+        try:
+            removed_membership = GroupMembership.objects.get(group=self, user=user)
+            self.deactivate_votes_for_user_in_group(user)
+            removed_membership.delete()
+        except GroupMembership.DoesNotExist:
+            raise DataError("User is not a member of the group and cannot be removed")
+
     # properties
     @property
     def short_name(self):
@@ -162,8 +180,23 @@ class Proposal(models.Model):
                     or (self.state == ProposalState.TRIAL)))
         return can_edit
 
-    def can_vote(self):
-        return self.state in (ProposalState.TRIAL, ProposalState.PUBLISHED)
+    def can_vote(self, user):
+        # rules:
+        # 1. proposal is in state Trial or Published
+        # 2. User is a member of the group or the proposal does not have a group
+        # 3. User can trial if the Proposal state is Trial or the proposal does not have a group
+        if self.proposal_group is None:
+            membership_okay = True
+            trial_okay = True
+        else:
+            membership = GroupMembership.objects.filter(group=self.proposal_group, user=user)
+            membership_okay = membership.count() == 1
+            if membership_okay:
+                trial_okay = membership.first().can_trial
+            else:
+                trial_okay = False
+        return ((self.state == ProposalState.PUBLISHED and membership_okay)
+                or (self.state == ProposalState.TRIAL and membership_okay and trial_okay))
 
     def get_total_votes(self):
         total_votes = (ChoiceTicket.objects
@@ -342,7 +375,7 @@ class ProposalChoice(models.Model):
         # this function probably doesn't sit here as it doesn't affect the data in the
         # model class (apart from joining to proposal choice) - TODO: Refactor
         # -------------------------------------------------------------------------------
-        if self.proposal.can_vote():
+        if self.proposal.can_vote(user):
             with transaction.atomic():
                 # important: do not consider state in clearing the previous current
                 ChoiceTicket.objects.filter(user=user,

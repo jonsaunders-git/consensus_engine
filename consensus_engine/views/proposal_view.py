@@ -147,8 +147,10 @@ class ProposalListGroupView(ProposalListView):
         proposals_list = Proposal.objects.in_group(proposal_group, states=states)
         can_edit = proposal_group.is_user_member(self.request.user)
         can_trial = proposal_group.is_user_part_of_trial(self.request.user)
+        voting_enabled = can_edit
         context = {'proposals_list': proposals_list, 'proposal_group': proposal_group,
                    'can_edit': can_edit,
                    'can_create_proposals': can_edit and can_trial,
-                   'can_invite': can_edit and can_trial, 'can_trial': can_trial}
+                   'can_invite': can_edit and can_trial, 'can_trial': can_trial,
+                   'voting_enabled': voting_enabled}
         return context

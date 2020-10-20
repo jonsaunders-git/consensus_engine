@@ -2,7 +2,6 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.utils import timezone
 from django.urls import reverse
 from django.http import HttpResponseRedirect
-
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied

@@ -12,7 +12,10 @@
       {% if can_invite %}
       <a href="{% url 'invite_people' proposal_group.id %}?next={{ request.path|urlencode }}" class="text-muted" title="Invite People to this Group">
         <span class="ml-2 align-top" data-feather="user-plus"></span>
-        </a>
+      </a>
+      <a href="{% url 'list_group_members' proposal_group.id %}" class="text-muted" title="List Members">
+        <span class="ml-2 aling-top" data-feather="user"></span>
+      </a>
       {% endif %}
       {% if can_create_proposals %}
       <a href="new/" title="Add new Proposal in {{proposal_group.group_name}}"><span class="ml-2 text-muted" data-feather="plus-circle"></span></a>{% endif %}
@@ -37,7 +40,7 @@
 {% if proposals_list %}
     <div class="flex-body d-flex flex-wrap px-2">
         {% for proposal in proposals_list %}
-        {% proposal_list_element proposal request.user.id 1 request.path|urlencode %}
+        {% proposal_list_element proposal request.user.id voting_enabled request.path|urlencode %}
         {% endfor %}
     </div>
 {% else %}

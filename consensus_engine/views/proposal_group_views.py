@@ -1,9 +1,9 @@
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.utils import timezone
 from django.urls import reverse
 from django.http import HttpResponseRedirect
-
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -129,3 +129,42 @@ class JoinProposalGroupMembersView(TemplateView):
         success_url = reverse('group_proposals', args=[proposalgroup.id])
         proposalgroup.join_group(request.user)
         return HttpResponseRedirect(success_url)
+
+
+@method_decorator(login_required, name='dispatch')
+class ProposalGroupMemberListView(TemplateView):
+    """ Shows the list of users who are members of a group """
+    template_name = 'consensus_engine/list_proposal_group_members.html'
+
+    def get_member_list(self, proposal_group):
+        return proposal_group.get_members()
+
+    def get_context_data(self, **kwargs):
+        proposal_group = get_object_or_404(ProposalGroup, pk=kwargs['proposal_group_id'])
+        members_list = self.get_member_list(proposal_group)
+        context = {'proposal_group': proposal_group, 'members_list': members_list}
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class RemoveGroupMemberView(DeleteView):
+    model = GroupMembership
+    template_name = 'consensus_engine/remove_member.html'
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.group.owned_by == self.request.user:
+            raise PermissionDenied("User management is only permitted for group owner.")
+        self.success_url = reverse('list_group_members', args=[self.object.group.id])
+        if 'okay_btn' in request.POST:
+            self.object.group.remove_member(self.object.user)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        # add the proposal_group to the context of it exists
+        self.object = self.get_object()
+        context = super().get_context_data(**kwargs)
+        if 'proposal_group_id' in self.kwargs:
+            proposal_group = ProposalGroup.objects.get(pk=self.kwargs['proposal_group_id'])
+            context['proposal_group'] = proposal_group
+        return context

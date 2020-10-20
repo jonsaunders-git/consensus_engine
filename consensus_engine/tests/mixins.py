@@ -1,10 +1,10 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
 from consensus_engine.models import Proposal, ProposalChoice, ProposalGroup
 from django.utils import timezone
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.views import LoginView
+from django.db import DataError
 
 
 class OneUserMixin(object):
@@ -37,32 +37,68 @@ class ProposalGroupMixin(object):
         pg.join_group(owned_by, can_trial=True)
         return pg
 
+    def create_proposal_group_with_test_proposal(self, group_name="test group",
+                                                 owned_by=None,
+                                                 group_description="it's only a test group"):
+        pg = self.create_proposal_group(group_name, owned_by, group_description)
+        p = ProposalTestHelper.new_proposal_with_two_choices(proposal_group=pg, owned_by=self.user,
+                                                             date_proposed=timezone.now())
+        return pg, p
 
-class ProposalMixin(object):
-    # needs to be used inconjunction with a UserMixin or it won't work
-    def create_new_proposal(self, proposal_name="only a test",
-                            date_proposed=timezone.now(),
-                            proposal_description="yes, this is only a test",
-                            proposal_group=None, owned_by=None):
+
+class ProposalTestHelper:
+    @staticmethod
+    def new_proposal(proposal_name="only a test",
+                     date_proposed=None,
+                     proposal_description="yes, this is only a test",
+                     proposal_group=None, owned_by=None):
+        if not date_proposed:
+            date_proposed = timezone.now()
         if owned_by is None:
-            owned_by = self.user
+            raise DataError("Owned by must be set for proposal creation.")
         return Proposal.objects.create(proposal_name=proposal_name,
                                        date_proposed=date_proposed,
                                        proposal_description=proposal_description,
                                        owned_by=owned_by,
                                        proposal_group=proposal_group)
 
-    def create_proposal_with_two_proposal_choices(self,
-                                                  proposal_name="only a test", date_proposed=timezone.now(),
-                                                  proposal_description="yes, this is only a test",
-                                                  proposal_group=None, owned_by=None,
-                                                  proposal_choice_1_name="Yes", proposal_choice_2_name="No"):
-        p = self.create_new_proposal(proposal_name, date_proposed, proposal_description, proposal_group, owned_by)
+    @staticmethod
+    def new_proposal_with_two_choices(proposal_name="only a test",
+                                      date_proposed=None,
+                                      proposal_description="yes, this is only a test",
+                                      proposal_group=None, owned_by=None,
+                                      proposal_choice_1_name="Yes", proposal_choice_2_name="No"):
+        p = ProposalTestHelper.new_proposal(proposal_name, date_proposed, proposal_description,
+                                            proposal_group, owned_by)
         _ = ProposalChoice.objects.create(proposal=p, text=proposal_choice_1_name,
                                           priority=100, activated_date=timezone.now())
         _ = ProposalChoice.objects.create(proposal=p, text=proposal_choice_2_name,
                                           priority=200, activated_date=timezone.now())
         return p
+
+
+class ProposalMixin(object):
+    # needs to be used inconjunction with a UserMixin or it won't work
+    def create_new_proposal(self, proposal_name="only a test",
+                            date_proposed=None,
+                            proposal_description="yes, this is only a test",
+                            proposal_group=None, owned_by=None):
+        if owned_by is None:
+            owned_by = self.user
+
+        return ProposalTestHelper.new_proposal(proposal_name, date_proposed, proposal_description,
+                                               proposal_group, owned_by)
+
+    def create_proposal_with_two_proposal_choices(self,
+                                                  proposal_name="only a test", date_proposed=None,
+                                                  proposal_description="yes, this is only a test",
+                                                  proposal_group=None, owned_by=None,
+                                                  proposal_choice_1_name="Yes", proposal_choice_2_name="No"):
+        if owned_by is None:
+            owned_by = self.user
+        return ProposalTestHelper.new_proposal_with_two_choices(proposal_name, date_proposed, proposal_description,
+                                                                proposal_group, owned_by, proposal_choice_1_name,
+                                                                proposal_choice_2_name)
 
     def populate_from_template(self, proposal, template):
         c = proposal.proposalchoice_set.count()

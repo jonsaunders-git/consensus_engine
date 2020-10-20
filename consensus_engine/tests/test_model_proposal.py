@@ -390,3 +390,20 @@ class ProposalTest(TwoUserMixin, ProposalMixin, TestCase):
         p4.archive()
         with self.assertRaises(ProposalStateInvalid):
             p4.hold()
+
+    def test_can_vote_no_group(self):
+        p = self.create_new_proposal()
+        self.assertFalse(p.can_vote(self.user))
+        self.assertFalse(p.can_vote(self.user2))
+        p.trial()
+        self.assertTrue(p.can_vote(self.user))
+        self.assertTrue(p.can_vote(self.user2))
+        p.publish()
+        self.assertTrue(p.can_vote(self.user))
+        self.assertTrue(p.can_vote(self.user2))
+        p.hold()
+        self.assertFalse(p.can_vote(self.user))
+        self.assertFalse(p.can_vote(self.user2))
+        p.archive()
+        self.assertFalse(p.can_vote(self.user))
+        self.assertFalse(p.can_vote(self.user2))
