@@ -34,13 +34,18 @@
     <div class="card" style="width: 100%;">
     <div class="card-body">
       {{ member.user.username }}
-      <div class="bs-example">
-       <button type="button" class="btn btn-success {% if member.can_trial %}active{% endif %}" data-toggle="button" autocomplete="off">Can Trial</button>
-     </div>
-     {{ member.user.id }} {{ request.user.id }}
+      {% if member.user == proposal_group.owned_by %}
+      Owner
+      {% else %}
+      <a href="{% url 'edit_group_membership' member.id %}" class="text-muted" title="Change Trial">
+                {% if member.can_trial %}Can Trial{% else %}Cannot Trial{% endif %}
+              </a>
+      {% endif %}
+
+
      {% if member.user.id != request.user.id %}
      <a href="{% url 'remove_group_member' member.id %}" class="text-muted" title="Remove user from group">
-       <span class="ml-2 align-top" data-feather="trash"></span>
+       <span class="ml-2 align-top" data-feather="trash-2"></span>
        </a>
     {% endif %}
     </div>

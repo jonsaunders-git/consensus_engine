@@ -57,6 +57,8 @@ urlpatterns = [
          views.ProposalGroupMemberListView.as_view(), name='list_group_members'),
     path('groupmembership/<int:pk>/delete/',
          views.RemoveGroupMemberView.as_view(), name='remove_group_member'),
+    path('groupmembership/<int:pk>/edit/',
+         views.EditGroupMembershipView.as_view(), name='edit_group_membership'),
     path('proposalgroups/<int:proposal_group_id>/join/',
          views.JoinProposalGroupMembersView.as_view(), name='join_group_members'),
     path('proposalgroups/<int:proposal_group_id>/proposals/new/',

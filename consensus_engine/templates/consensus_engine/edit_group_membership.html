@@ -1,0 +1,23 @@
+{% extends "consensus_engine/base_dialog.html" %}
+{% load static %}
+
+{% block dialog_descriptor %}
+<h2>Edit the membership to a group</h2>
+<div>
+  <p>A person can be a member of many groups and may be allowed to particpate in the trialling of new proposals.<p>
+  <p>This screen allows the change of the ability to participate in groups</a>
+  <p>Note: Only the user which created the Group can edit it.</p></div>
+{% endblock %}
+
+{% block form_fields %}
+<div class="form-group">
+  <label for="{{ form.can_trial.id_for_label }}">Allow user to trial proposals</label>
+  <select name="{{ form.can_trial.html_name }}" id="{{ form.can_trial.id_for_label }}">
+    <option value="true" {% if form.can_trial.value %}selected{% endif %}>Yes</option>
+    <option value="false" {% if not form.can_trial.value %}selected{% endif %}>No</option>
+
+  </select>
+
+</div>
+
+{% endblock %}

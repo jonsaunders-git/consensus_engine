@@ -16,6 +16,7 @@ from .proposal_group_views import MyProposalGroupListView
 from .proposal_group_views import JoinProposalGroupMembersView
 from .proposal_group_views import ProposalGroupMemberListView
 from .proposal_group_views import RemoveGroupMemberView
+from .proposal_group_views import EditGroupMembershipView
 from .vote_views import MyVotesView
 from .vote_views import VoteView
 from .invite_view import InvitesView
@@ -40,6 +41,7 @@ __all__ = ['uiformat',
            'MyProposalGroupListView',
            'ProposalGroupMemberListView',
            'RemoveGroupMemberView',
+           'EditGroupMembershipView',
            'JoinProposalGroupMembersView',
            'MyVotesView',
            'VoteView',

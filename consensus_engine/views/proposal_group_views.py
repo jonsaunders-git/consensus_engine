@@ -34,6 +34,12 @@ class EditProposalGroupView(UpdateView):
     model = ProposalGroup
     fields = ['group_name', 'group_description']
 
+    def form_valid(self, form):
+        if self.object.owned_by == self.request.user:
+            return super().form_valid(form)
+        else:
+            raise PermissionDenied("Only the owner is allowed to edit group details.")
+
 
 @method_decorator(login_required, name='dispatch')
 class PickProposalGroupView(TemplateView):
@@ -168,3 +174,17 @@ class RemoveGroupMemberView(DeleteView):
             proposal_group = ProposalGroup.objects.get(pk=self.kwargs['proposal_group_id'])
             context['proposal_group'] = proposal_group
         return context
+
+
+@method_decorator(login_required, name='dispatch')
+class EditGroupMembershipView(UpdateView):
+    template_name = 'consensus_engine/edit_group_membership.html'
+    model = GroupMembership
+    fields = ['can_trial']
+
+    def form_valid(self, form):
+        self.success_url = reverse('list_group_members', args=[self.object.group.id])
+        if self.object.group.owned_by == self.request.user:
+            return super().form_valid(form)
+        else:
+            raise PermissionDenied("Editing is not allowed")
