@@ -1,16 +1,17 @@
-from .models import GroupMembership
-from .models import GroupInviteManager
-from .models import GroupInvite
-from .models import ProposalGroupManager
-from .models import ProposalGroup
-from .models import ProposalManager
-from .models import Proposal
-from .models import ProposalChoiceManager
-from .models import ProposalChoice
-from .models import ChoiceTicketManager
-from .models import ChoiceTicket
-from .models import ConsensusHistoryManager
-from .models import ConsensusHistory
+from .voting_models import ChoiceTicketManager
+from .voting_models import ChoiceTicket
+from .analytics_models import ConsensusHistoryManager
+from .analytics_models import ConsensusHistory
+from .proposal_group_membership_models import GroupMembership
+from .proposal_group_membership_models import GroupInviteManager
+from .proposal_group_membership_models import GroupInvite
+from .proposal_models import ProposalManager
+from .proposal_models import Proposal
+from .proposal_models import ProposalChoiceManager
+from .proposal_models import ProposalChoice
+from .proposal_group_models import ProposalGroupManager
+from .proposal_group_models import ProposalGroup
+
 
 __all__ = ['GroupMembership',
            'GroupInviteManager',

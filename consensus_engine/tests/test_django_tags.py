@@ -3,7 +3,8 @@ from .mixins import TwoUserMixin, ProposalGroupMixin, ProposalMixin
 from consensus_engine.models import Proposal, ChoiceTicket
 from django.utils import timezone
 from consensus_engine.templatetags.proposaltags import (visible_groups, total_votes, my_vote, current_consensus,
-                                                        release_notes, user_search, proposal_state, proposal_list_element)
+                                                        release_notes, user_search, proposal_state,
+                                                        proposal_list_element)
 
 
 class ProposalGroupTagsTest(TwoUserMixin, ProposalGroupMixin, TestCase):
