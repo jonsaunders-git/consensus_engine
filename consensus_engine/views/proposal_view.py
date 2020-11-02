@@ -8,7 +8,8 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup, ConsensusHistory, ProposalState
+from consensus_engine.models import Proposal, ChoiceTicket, ProposalGroup, ConsensusHistory
+from consensus_engine.utils import ProposalState
 from consensus_engine.choice_templates import ChoiceTemplates
 
 

@@ -6,7 +6,8 @@ from django.utils.decorators import method_decorator
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
-from consensus_engine.models import Proposal, ProposalState
+from consensus_engine.models import Proposal
+from consensus_engine.utils import ProposalState
 
 
 @method_decorator(login_required, name='dispatch')

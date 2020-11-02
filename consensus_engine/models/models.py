@@ -4,8 +4,8 @@ from django.utils import timezone
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 import json
-from .utils import ProposalState
-from .exceptions import ProposalStateInvalid
+from consensus_engine.utils import ProposalState
+from consensus_engine.exceptions import ProposalStateInvalid
 from django.db.models import IntegerField, Value, F, Count
 
 
