@@ -6,10 +6,7 @@ from django.core.exceptions import PermissionDenied
 import json
 from .utils import ProposalState
 from .exceptions import ProposalStateInvalid
-from django.db.models import IntegerField, Value
-from django.db.models import FilteredRelation
-from django.db.models import Q, F
-from django.db.models import Count,Sum
+from django.db.models import IntegerField, Value, F, Count
 
 
 class GroupMembership(models.Model):
