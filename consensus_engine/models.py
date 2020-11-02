@@ -6,6 +6,10 @@ from django.core.exceptions import PermissionDenied
 import json
 from .utils import ProposalState
 from .exceptions import ProposalStateInvalid
+from django.db.models import IntegerField, Value
+from django.db.models import FilteredRelation
+from django.db.models import Q, F
+from django.db.models import Count,Sum
 
 
 class GroupMembership(models.Model):
@@ -70,7 +74,44 @@ class ProposalGroupManager(models.Manager):
         return self.get_queryset().filter(owned_by_id=user.id)
 
     def groups_for_member(self, user):
-        return self.get_queryset().filter(groupmembership__user=user)
+        """
+        gets a list of groups that the user is a member of plus
+        a count of published proposals they have still to vote on
+        """
+        # query for a list of current votes
+        all_user_choices = ChoiceTicket.objects.filter(current=True, user=user).values('proposal_choice_id')
+        # query for a list of all the groups that the user is a member of
+        groups_member_of = ProposalGroup.objects.filter(groupmembership__user=user)
+        # query for a list of published proposals that the user has a current vote on
+        proposals_voted_for = Proposal.objects.filter(proposalchoice__deactivated_date__isnull=True,
+                                                      proposalchoice__id__in=all_user_choices,
+                                                      state=ProposalState.PUBLISHED,
+                                                      proposal_group__in=groups_member_of).values('id')
+        # query for a list of published proposals that the user does not have a current vote on
+        proposals_not_voted_for = (Proposal.objects
+                                   .filter(proposal_group__in=groups_member_of, state=ProposalState.PUBLISHED)
+                                   .exclude(id__in=proposals_voted_for)
+                                   )
+        # query for a list of the groups that votes are needed on for published proposals
+        groups_votes_needed = (proposals_not_voted_for
+                               .values('proposal_group__id', 'proposal_group__group_name')
+                               .annotate(id=F('proposal_group_id'), group_name=F('proposal_group__group_name'))
+                               .values('id', 'group_name')
+                               .annotate(propcount=Count('id'))
+                               .values('id', 'group_name', 'propcount')
+                               )
+        # query for list of the ids of the proposals that need votes, to exclude in the next query
+        groups_votes_needed_ids = groups_votes_needed.values('id')
+        # query for all the groups that do not have proposals that need the user to vote
+        groups_no_votes_needed = (self.get_queryset()
+                                  .filter(groupmembership__user=user)
+                                  .exclude(id__in=groups_votes_needed_ids)
+                                  .annotate(propcount=Value(0, output_field=IntegerField()))
+                                  .values('id', 'group_name', 'propcount'))
+        # query that unions the groups that need votes with the group that does not need a vote
+        all_groups_member_of = groups_votes_needed.union(groups_no_votes_needed).order_by('group_name')
+        # returns a single query (not yet executed that has all the detail above)
+        return all_groups_member_of
 
     def list_of_membership(self, user):
         return self.get_queryset().filter(groupmembership__user=user).values_list('id', flat=True)
