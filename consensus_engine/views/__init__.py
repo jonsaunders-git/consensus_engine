@@ -23,6 +23,7 @@ from .invite_view import InvitesView
 from .invite_view import InviteView
 from .invite_view import InvitePersonView
 from .state_views import StateView
+from .state_views import StateChangeConfirmationView
 
 __all__ = ['uiformat',
            'RememberMeLoginView',
@@ -48,5 +49,6 @@ __all__ = ['uiformat',
            'InvitesView',
            'InviteView',
            'InvitePersonView',
-           'StateView'
+           'StateView',
+           'StateChangeConfirmationView'
            ]

@@ -1,4 +1,4 @@
-from django.db import models, transaction
+from django.db import models, transaction, DataError
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.urls import reverse
@@ -165,7 +165,40 @@ class Proposal(models.Model):
     def trial(self):
         self.updateState(ProposalState.TRIAL)
 
-    def publish(self):
+    def publish(self, default_group_to_these_choices=False):
+        if self.proposal_group:
+            if default_group_to_these_choices:
+                if self.can_default_group_to_these_choices:
+                    # set the group so it knows it has a default
+                    self.proposal_group.set_has_default_choices(True)
+                    # move all ON_HOLD proposals to archived
+                    on_hold_proposals = Proposal.objects.filter(proposal_group=self.proposal_group,
+                                                                state=ProposalState.ON_HOLD)
+                    for on_hold_proposal in on_hold_proposals:
+                        on_hold_proposal.archive()
+
+                else:
+                    raise DataError('Default choices cannot be set as Proposal Group has published proposals.')
+            else:
+                if self.proposal_group.has_default_group_proposal_choices:
+                    # deactivate all the existing choices on the proposal
+                    (ProposalChoice.objects.filter(proposal=self, deactivated_date__isnull=True)
+                                           .update(deactivated_date=timezone.now()))
+                    # copy from first published proposal
+                    copy_from_proposal = (Proposal.objects
+                                          .filter(proposal_group=self.proposal_group, state=ProposalState.PUBLISHED)
+                                          .first())
+                    if not copy_from_proposal:
+                        raise DataError("No default data found")
+                    cloned_choices = ProposalChoice.objects.filter(proposal=copy_from_proposal,
+                                                                   deactivated_date__isnull=True)
+                    for choice in cloned_choices:
+                        # use Django method for cloning objects
+                        choice.pk = None
+                        choice.proposal = self
+                        choice.current_consensus = False
+                        choice.activated_date = timezone.now()
+                        choice.save()
         self.updateState(ProposalState.PUBLISHED)
 
     def hold(self):
@@ -202,6 +235,10 @@ class Proposal(models.Model):
     @property
     def current_state(self):
         return ProposalState(self.state)
+
+    @property
+    def can_default_group_to_these_choices(self):
+        return not Proposal.objects.filter(proposal_group=self.proposal_group, state=ProposalState.PUBLISHED)
 
 
 class ProposalChoiceManager(models.Manager):

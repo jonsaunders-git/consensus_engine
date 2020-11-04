@@ -63,6 +63,7 @@ class ProposalGroup(models.Model):
     group_name = models.CharField(max_length=200)
     owned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     group_description = models.CharField(max_length=200, null=True)
+    group_default_choices = models.BooleanField(default=False, null=True)
     # managers
     objects = ProposalGroupManager()
 
@@ -118,9 +119,20 @@ class ProposalGroup(models.Model):
         except GroupMembership.DoesNotExist:
             raise DataError("User is not a member of the group and cannot be removed")
 
+    def set_has_default_choices(self, default_choices_requested):
+        if Proposal.objects.filter(proposal_group=self, state=ProposalState.PUBLISHED).count() == 0:
+            self.group_default_choices = default_choices_requested
+            self.save()
+        else:
+            raise DataError('Default choices cannot be set as Proposal Group has published proposals.')
+
     # properties
     @property
     def short_name(self):
         return ((self.group_name[:27] + '...')
                 if len(self.group_name) > 30
                 else self.group_name)
+
+    @property
+    def has_default_group_proposal_choices(self):
+        return self.group_default_choices

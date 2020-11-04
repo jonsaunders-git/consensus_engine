@@ -1,0 +1,74 @@
+{% extends "consensus_engine/base_dialog.html" %}
+{% load static %}
+
+{% block dialog_descriptor %}
+
+{% if error_message %}
+{{ error_message }}
+{% endif %}
+
+{% if proposal %}
+
+<h2>Confirm: {{ proposal.proposal_name }}</h2>
+<div><p><b>{{ proposal.proposal_description }}</b></p></div>
+<div>
+  <p>Confirm the state change by agreeing to the following rules</p>
+<p>
+{% if next_state == 1 %}
+You are moving the proposal to TRIAL. You can still change the choices that are on the proposal and you can enlist other people who
+are in the trialling group for this proposal group to try out your proposal to give you feedback. The proposal will not be visible
+as one that needs to be voted on in the group list. The proposal is only visible to the people in the trial group.
+{% endif %}
+
+{% if next_state == 2 %}
+You are moving the proposal to PUBLISHED state, you will no longer be able to edit the propsosal or edit, add or remove the choices for this proposal and all trial votes are
+cleared down. The proposal will be added to the list of proposals that all group members need to vote on, and will be visible to all looking at the group.
+If this is the only proposal that is published in the group - you will be asked below if you want this to be the default set of choices for all proposals in this group.
+If you mark this as &quot;Yes&quot; then this will have the following effect...
+<ul>
+  <li>All new proposals will default to the choices within the default proposal</li>
+  <li>DRAFT and TRIAL proposals will not change, and you can add and remove choices as before, but when they are published the user will be told that the choices will change to the default, on publishing the choices will meet the default</li>
+  <li>ON HOLD proposals will be archived and cannot be re-published</li>
+</ul>
+
+
+{% endif %}
+
+{% if next_state == 3 %}
+You are moving the proposal to ON_HOLD state, group members will not be able vote on this proposal, and it will not appear in any group statistics or listing.
+You may re-publish an ON_HOLD proposal, but note, it may be automatically archived if a new defaulty set of choices is agreed for the proposal group.
+{% endif %}
+
+{% if next_state == 4 %}
+You are moving the proposal to ARCHIVED state, it can no longer accept new votes and the proposal cannot be republished.
+{% endif %}
+</p>
+
+</div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block form_fields %}
+
+{% if proposal %}
+
+  {% csrf_token %}
+  <div class="form-group">
+  <div class="list-group">
+  <input type="hidden" name="next" value="{{ request.GET.next }}">
+  </div>
+  {% if proposal.can_default_group_to_these_choices %}
+  <!-- Default unchecked -->
+  <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" name="default_choices" id="default_choices">
+      <label class="custom-control-label" for="default_choices">Make this this default set of choices for all proposals in this group (see details above)</label>
+  </div>
+  {% endif %}
+  </div>
+{% else %}
+    <p>No proposal choices are available.</p>
+{% endif %}
+
+{% endblock %}

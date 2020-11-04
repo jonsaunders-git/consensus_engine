@@ -1,8 +1,9 @@
 from django.test import TestCase
 from django.db import DataError
-from .mixins import TwoUserMixin, ProposalGroupMixin
-from consensus_engine.models import ProposalGroup, Proposal, ChoiceTicket
+from .mixins import TwoUserMixin, ProposalGroupMixin, ProposalTestHelper
+from consensus_engine.models import ProposalGroup, Proposal, ChoiceTicket, ProposalChoice
 from django.core.exceptions import PermissionDenied
+from consensus_engine.utils import ProposalState
 from django.utils import timezone
 
 
@@ -251,3 +252,64 @@ class ProposalGroupTest(TwoUserMixin, ProposalGroupMixin, TestCase):
         g8 = ProposalGroup.objects.groups_for_member(self.user)
         self.assertTrue(g8.count() == 1)
         self.assertTrue(g8.first()['propcount'] == 0)
+
+    def test_default_group_choices(self):
+        pg, p = self.create_proposal_group_with_test_proposal()
+        p.trial()
+        p.publish(default_group_to_these_choices=True)
+        p2 = ProposalTestHelper.new_proposal(proposal_group=pg, owned_by=self.user,
+                                             date_proposed=timezone.now())
+        p2.publish()
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p2, deactivated_date__isnull=True).count() == 2)
+
+    def test_no_default_group_choices(self):
+        pg, p = self.create_proposal_group_with_test_proposal()
+        p.trial()
+        p.publish(default_group_to_these_choices=False)
+        p2 = ProposalTestHelper.new_proposal(proposal_group=pg, owned_by=self.user,
+                                             date_proposed=timezone.now())
+        p2.publish()
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p2).count() == 0)
+        p3 = ProposalTestHelper.new_proposal_with_two_choices(proposal_group=pg, owned_by=self.user,
+                                                              date_proposed=timezone.now())
+        p3.publish()
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p3, deactivated_date__isnull=True).count() == 2)
+
+    def test_default_group_choices_on_hold(self):
+        pg, p = self.create_proposal_group_with_test_proposal()
+        p.hold()
+        self.assertTrue(Proposal.objects.filter(state=ProposalState.ON_HOLD).count() == 1)
+        p2 = ProposalTestHelper.new_proposal_with_two_choices(proposal_group=pg, owned_by=self.user,
+                                                              date_proposed=timezone.now())
+        p2.publish(default_group_to_these_choices=True)
+        self.assertTrue(Proposal.objects.filter(state=ProposalState.ON_HOLD).count() == 0)
+        self.assertTrue(Proposal.objects.filter(state=ProposalState.ARCHIVED).count() == 1)
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p2).count() == 2)
+        p3 = ProposalTestHelper.new_proposal_with_two_choices(proposal_group=pg, owned_by=self.user,
+                                                              date_proposed=timezone.now())
+        p3.publish()
+        self.assertTrue(ProposalChoice.objects.filter(proposal=p3, deactivated_date__isnull=True).count() == 2)
+
+    def test_default_group_choices_permission_failed(self):
+        pg, p = self.create_proposal_group_with_test_proposal()
+        p.publish(default_group_to_these_choices=False)
+        p2 = ProposalTestHelper.new_proposal(proposal_group=pg, owned_by=self.user,
+                                             date_proposed=timezone.now())
+        with (self
+              .assertRaises(DataError,
+                            msg='Default choices cannot be set as Proposal Group has published proposals.')):
+            p2.publish(default_group_to_these_choices=(True))
+
+    def test_no_data_clone_choices(self):
+        pg, p = self.create_proposal_group_with_test_proposal()
+        pg.group_default_choices = True
+        pg.save
+        with self.assertRaises(DataError, msg="No default data found"):
+            p.publish()
+
+    def test_try_to_default_with_published_proposals(self):
+        pg, p = self.create_proposal_group_with_test_proposal()
+        p.publish(default_group_to_these_choices=(True))
+        with self.assertRaises(DataError,
+                               msg="Default choices cannot be set as Proposal Group has published proposals."):
+            pg.set_has_default_choices(True)

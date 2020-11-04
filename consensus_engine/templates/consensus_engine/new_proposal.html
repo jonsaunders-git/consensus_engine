@@ -14,7 +14,12 @@
 <h2>Create a new proposal.</h2>
 <div>
   <p>Proposals are the key part of the Consensus Engine. You can create proposals and ask people to vote on
-  them to get a consensus of opinion to show support for the proposal. Each proposal can have a set of choices
+  them to get a consensus of opinion to show support for the proposal.
+{% if proposal_group.has_default_group_proposal_choices %}
+  This proposal has a default set of choices set at group level, you may add to this as trial stage for additional feedback, but the choices
+  will revert back the the default set on publishing.
+{% else %}
+  Each proposal can have a set of choices
   that any user can pick, and this is set up below using the &quot;Populate as&quot; selector. You can add choices later if required.</p>
   <p>The currently supported choices are as follows
     <ul>
@@ -23,6 +28,7 @@
       <li>1 to 5 - sets up the choices to be the digits 1 through 5 to allow for ranking</li>
     </ul>
   </p>
+{% endif %}
   <p>Proposals have a name and a description, the name will appear against the votes and the description is used to provide members an idea
   of what the proposal is for.
   Note: Only the user who created the Proposal can edit it. Currently you can change the choices and the
@@ -41,6 +47,7 @@
   <label for="{{ form.proposal_description.id_for_label }}">Proposal Description</label>
   <textarea class="form-control" name="proposal_description" cols="80" rows="5" maxlength={{ form.proposal_description.field.max_length }} required id="{{ form.proposal_description.id_for_label }}"  placeholder="Please enter more details about the proposal."></textarea>
 </div>
+{% if not proposal_group.has_default_group_proposal_choices %}
 <div class="form-group">
 <label">Populate as</label><br>
 <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -50,4 +57,5 @@
   <label class="btn btn-secondary"><input type="radio" name="options" value="3" autocomplete="off"/>1 to 5</label>
 </div>
 </div>
+{% endif %}
 {% endblock %}

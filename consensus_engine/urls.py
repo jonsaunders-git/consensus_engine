@@ -33,6 +33,8 @@ urlpatterns = [
          views.VoteView.as_view(), name='vote_proposal'),
     path('proposals/<int:proposal_id>/change_state/',
          views.StateView.as_view(), name='change_state'),
+    path('proposals/<int:proposal_id>/confirm_change_state/<int:next_state>',
+         views.StateChangeConfirmationView.as_view(), name='confirm_state_change'),
     path('invite/<int:invite_id>/',
          views.InviteView.as_view(), name='accept_invite'),
     path('proposals/<int:proposal_id>/choice/new/',
