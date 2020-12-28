@@ -2,9 +2,9 @@
 Repo for open source version of consensus engine
 
 # Work in progress
-First Python and Django project developed during coronavirus lockdown
-Open sourced (MIT licence) due to employment
-Please review this with the understanding that I used it to learn django and python, thus many concepts may be immature
+First Python and Django project developed during coronavirus lockdown.
+Open sourced (MIT licence) due to employment.
+Please review this with the understanding that I used it to learn django and python, thus many concepts may be immature.
 
 Welcome to the Consensus Engine 0.8
 -----------------------------------
