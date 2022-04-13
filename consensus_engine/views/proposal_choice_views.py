@@ -18,6 +18,9 @@ class CreateProposalChoiceView(CreateView):
 
     def form_valid(self, form):
         proposal = Proposal.objects.get(pk=self.kwargs['proposal_id'])
+        if proposal.proposal_group:
+            if proposal.proposal_group.has_default_group_proposal_choices:
+                raise PermissionDenied('Cannot add a Proposal Choice to a Proposal with default choices.')
         if proposal.user_can_edit(self.request.user):
             self.object = form.save(commit=False)
             self.object.proposal = proposal
@@ -44,6 +47,9 @@ class EditProposalChoiceView(UpdateView):
 
     def form_valid(self, form):
         self.success_url = reverse('view_proposal', args=[self.object.proposal.id])
+        if self.object.proposal.proposal_group:
+            if self.object.proposal.proposal_group.has_default_group_proposal_choices:
+                raise PermissionDenied('Cannot edit Proposal Choice on a Proposal with default choices.')
         if self.object.proposal.user_can_edit(self.request.user):
             return super().form_valid(form)
         else:
@@ -65,6 +71,9 @@ class DeleteProposalChoiceView(DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
+        if self.object.proposal.proposal_group:
+            if self.object.proposal.proposal_group.has_default_group_proposal_choices:
+                raise PermissionDenied('Cannot delete a Proposal Choice on a Proposal with default choices.')
         if not self.object.proposal.user_can_edit(self.request.user):
             raise PermissionDenied("Editing is not allowed")
         self.success_url = reverse('view_proposal', args=[self.object.proposal.id])

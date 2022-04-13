@@ -73,7 +73,7 @@ class Proposal(models.Model):
 
     def get_active_choices(self, states={ProposalState.PUBLISHED}):
         """ Gets the ProposalChoices that are active currently """
-        return self.proposalchoice_set.filter(deactivated_date__isnull=True)
+        return ProposalChoice.objects.filter(proposal=self, deactivated_date__isnull=True)
 
     def determine_consensus(self):
         """ Sets the current consensus across the Proposal Choices on this proposal """
@@ -268,7 +268,7 @@ class ProposalChoice(models.Model):
     def current_vote_count(self):
         # counts all the choice tickets for this choice where it is the current choice ticket
         reporting_state = ProposalState.reporting_as_state(self.proposal.state)
-        return self.choiceticket_set.filter(current=True, state=reporting_state).count()
+        return ChoiceTicket.objects.filter(proposal_choice=self, current=True, state=reporting_state).count()
 
     def vote(self, user):
         # reset the current flag on the last vote for this proposal and add another one.

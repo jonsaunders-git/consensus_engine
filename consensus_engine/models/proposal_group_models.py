@@ -4,8 +4,8 @@ from django.utils import timezone
 from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from consensus_engine.utils import ProposalState
-from django.db.models import IntegerField, Value, F, Count
-from . import ChoiceTicket, Proposal, GroupMembership, GroupInvite
+from django.db.models import IntegerField, Value, F, Count, Case, When, Sum
+from . import ChoiceTicket, Proposal, GroupMembership, GroupInvite, ProposalChoice
 
 
 class ProposalGroupManager(models.Manager):
@@ -125,6 +125,26 @@ class ProposalGroup(models.Model):
             self.save()
         else:
             raise DataError('Default choices cannot be set as Proposal Group has published proposals.')
+
+    def get_group_statistics(self):
+        if self.has_default_group_proposal_choices:
+            choice_statistics = (ProposalChoice.objects
+                                 .filter(proposal__proposal_group=self,
+                                         deactivated_date__isnull=True)
+                                 .annotate(
+                                         consensus=Case(
+                                             When(current_consensus__isnull=True, then=Value(0)),
+                                             default=F('current_consensus'),
+                                             output_field=IntegerField(),
+                                         ))
+                                 .values('text')
+                                 .annotate(choice_votes=Sum('consensus'))
+                                 .values('text', 'choice_votes')
+                                 .order_by('priority')
+                                 )
+            return choice_statistics
+        else:
+            raise DataError("Cannot get group statistics for a group that doesn't have a default set of choices.")
 
     # properties
     @property

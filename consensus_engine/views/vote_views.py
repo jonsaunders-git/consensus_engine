@@ -1,11 +1,11 @@
 from django.views.generic.base import TemplateView
 from django.http import HttpResponseRedirect
-
+from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.shortcuts import render, get_object_or_404
-
 from consensus_engine.models import ChoiceTicket, Proposal, ProposalChoice
+DOMAINS_WHITELIST = ['localhost', 'quiet-bayou-98952.herokuapp.com']
 
 
 @method_decorator(login_required, name='dispatch')
@@ -50,5 +50,8 @@ class VoteView(TemplateView):
                 'proposal': proposal,
                 'error_message': "You didn't select a choice.",
             })
-        next = request.POST.get('next', '/')
-        return HttpResponseRedirect(next)
+        url = request.POST.get('next', '/')
+        parsed_uri = urlparse(url)
+        if parsed_uri.netloc in DOMAINS_WHITELIST:
+            return HttpResponseRedirect(url)  # Compliant
+        return HttpResponseRedirect("/")

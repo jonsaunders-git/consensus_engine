@@ -309,7 +309,76 @@ class ProposalGroupTest(TwoUserMixin, ProposalGroupMixin, TestCase):
 
     def test_try_to_default_with_published_proposals(self):
         pg, p = self.create_proposal_group_with_test_proposal()
-        p.publish(default_group_to_these_choices=(True))
+        p.publish(default_group_to_these_choices=True)
         with self.assertRaises(DataError,
                                msg="Default choices cannot be set as Proposal Group has published proposals."):
             pg.set_has_default_choices(True)
+
+    def helper_get_group_statistics(self, pg):
+        s = pg.get_group_statistics()
+        c1 = s.first()
+        c2 = s.last()
+        return s.count(), c1, c2
+
+    def test_group_statistics(self):
+        pg, p = self.create_proposal_group_with_test_proposal()
+        p.publish(default_group_to_these_choices=True)
+        pg.refresh_from_db()
+        pcs = ProposalChoice.objects.filter(proposal=p, deactivated_date__isnull=True).order_by('priority')
+        pc1 = pcs.first()
+        pc2 = pcs.last()
+        self.assertTrue(pg.has_default_group_proposal_choices)
+        sc, c1, c2 = self.helper_get_group_statistics(pg)
+        self.assertTrue(sc == 2)
+        self.assertTrue(c1['choice_votes'] == 0)
+        self.assertTrue(c2['choice_votes'] == 0)
+        pc1.vote(self.user)
+        sc, c1, c2 = self.helper_get_group_statistics(pg)
+        self.assertTrue(sc == 2)
+        self.assertTrue(c1['choice_votes'] == 1)
+        self.assertTrue(c2['choice_votes'] == 0)
+        pc2.vote(self.user)
+        sc, c1, c2 = self.helper_get_group_statistics(pg)
+        self.assertTrue(sc == 2)
+        self.assertTrue(c1['choice_votes'] == 0)
+        self.assertTrue(c2['choice_votes'] == 1)
+        p2 = ProposalTestHelper.new_proposal_with_two_choices(proposal_group=pg, owned_by=self.user)
+        p2.publish()
+        pcs = ProposalChoice.objects.filter(proposal=p2, deactivated_date__isnull=True).order_by('priority')
+        pc3 = pcs.first()
+        pc4 = pcs.last()
+        pc3.vote(self.user)
+        sc, c1, c2 = self.helper_get_group_statistics(pg)
+        self.assertTrue(sc == 2)
+        self.assertTrue(c1['choice_votes'] == 1)
+        self.assertTrue(c2['choice_votes'] == 1)
+        pc4.vote(self.user)
+        sc, c1, c2 = self.helper_get_group_statistics(pg)
+        self.assertTrue(sc == 2)
+        self.assertTrue(c1['choice_votes'] == 0)
+        self.assertTrue(c2['choice_votes'] == 2)
+        pg.join_group(self.user2)
+        pc1.vote(self.user2)
+        sc, c1, c2 = self.helper_get_group_statistics(pg)
+        self.assertTrue(sc == 2)
+        self.assertTrue(c1['choice_votes'] == 0)
+        self.assertTrue(c2['choice_votes'] == 1)
+        pc1.vote(self.user)
+        sc, c1, c2 = self.helper_get_group_statistics(pg)
+        self.assertTrue(sc == 2)
+        self.assertTrue(c1['choice_votes'] == 1)
+        self.assertTrue(c2['choice_votes'] == 1)
+        pc4.vote(self.user2)
+        sc, c1, c2 = self.helper_get_group_statistics(pg)
+        self.assertTrue(sc == 2)
+        self.assertTrue(c1['choice_votes'] == 1)
+        self.assertTrue(c2['choice_votes'] == 1)
+
+    def test_group_statistics_no_default(self):
+        pg, p = self.create_proposal_group_with_test_proposal()
+        p.publish(default_group_to_these_choices=False)
+        pg.refresh_from_db()
+        with (self.
+              assertRaises(DataError,
+                           msg="Cannot get group statistics for a group that doesn't have a default set of choices.")):
+            self.helper_get_group_statistics(pg)
