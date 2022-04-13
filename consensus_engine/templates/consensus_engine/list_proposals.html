@@ -26,6 +26,12 @@
     </p>
     <p class="my-0 py-0 text-muted"><small>{% if proposal_group %}{{ proposal_group.group_description }}{% else %}These are the proposals you owned and can contribute to{% endif %}</small></p>
   </div>
+  {% if proposal_group %}
+  {% if proposal_group.has_default_group_proposal_choices %}
+  {# We can show group statistics if there is a commont set of choices for the group #}
+<h1>Show Group Statistics</h1>
+  {% endif %}
+  {% endif %}
 </div>
 
 
